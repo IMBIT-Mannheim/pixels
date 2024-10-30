@@ -193,10 +193,24 @@ k.scene("main", async () => {
 		player.play("idle-side");
 	}
 
+	function stopDogAnims() {
+		if (dog.direction === "down") {
+			dog.play("dog-idle-side");
+			return;
+		}
+		if (dog.direction === "up") {
+			dog.play("dog-idle-side");
+			return;
+		}
+
+		dog.play("dog-idle-side");
+	}
+
 	k.onMouseRelease(stopAnims);
 
 	k.onKeyRelease(() => {
 		stopAnims();
+		stopDogAnims();
 	});
 	k.onKeyDown((key) => {
 		const keyMap = [
@@ -204,6 +218,10 @@ k.scene("main", async () => {
 			k.isKeyDown("left"),
 			k.isKeyDown("up"),
 			k.isKeyDown("down"),
+			k.isKeyDown("d"),
+			k.isKeyDown("a"),
+			k.isKeyDown("w"),
+			k.isKeyDown("s"),
 		];
 
 		let nbOfKeyPressed = 0;
@@ -216,6 +234,8 @@ k.scene("main", async () => {
 		if (nbOfKeyPressed > 1) return;
 
 		if (player.isInDialogue) return;
+		
+		//Player keyboard movement
 		if (keyMap[0]) {
 			player.flipX = false;
 			if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
@@ -243,6 +263,36 @@ k.scene("main", async () => {
 			if (player.getCurAnim().name !== "walk-down") player.play("walk-down");
 			player.direction = "down";
 			player.move(0, player.speed);
+		}
+
+		//Dog keyboard movement
+		if (keyMap[4]) {
+			dog.flipX = false;
+			if (dog.getCurAnim().name !== "dog-walk-side") dog.play("dog-walk-side");
+			dog.direction = "right";
+			dog.move(dog.speed, 0);
+			return;
+		}
+
+		if (keyMap[5]) {
+			dog.flipX = true;
+			if (dog.getCurAnim().name !== "dog-walk-side") dog.play("dog-walk-side");
+			dog.direction = "left";
+			dog.move(-dog.speed, 0);
+			return;
+		}
+
+		if (keyMap[6]) {
+			if (dog.getCurAnim().name !== "dog-walk-side") dog.play("dog-walk-side");
+			dog.direction = "up";
+			dog.move(0, -dog.speed);
+			return;
+		}
+
+		if (keyMap[7]) {
+			if (dog.getCurAnim().name !== "dog-walk-side") dog.play("dog-walk-side");
+			dog.direction = "down";
+			dog.move(0, dog.speed);
 		}
 	});
 });
