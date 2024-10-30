@@ -5,7 +5,7 @@ IMBIT-PIXELS Project
 Setup Dev environment
 
 Prerequisites:
-    -NodeJS v18.18.2
+    -NodeJS v22.11.0
     -npm 10.9.0 (should be included in node)
 
 1. Clone repository
