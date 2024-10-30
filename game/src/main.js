@@ -113,7 +113,9 @@ k.scene("main", async () => {
 				]);
 
 				if (boundary.name) {
-					k.go(boundary.name);
+					player.onCollide(boundary.name, () => {
+						k.go(boundary.name);
+					});
 				}
 			}
 
@@ -324,6 +326,159 @@ k.scene("test", async () => {
 
 	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 	const map = k.add([k.sprite("test-map"), k.pos(0), k.scale(scaleFactor)]);
+
+	//Erstellt den Spieler
+	const player = k.make([
+		k.sprite("spritesheet", { anim: "idle-down" }),
+		k.area({
+			shape: new k.Rect(k.vec2(0, 3), 10, 10),
+		}),
+		k.body(),
+		k.anchor("center"),
+		k.pos(),
+		k.scale(scaleFactor),
+		{
+			speed: 250,
+			direction: "down",
+			isInDialogue: false,
+		},
+		"player",
+	]);
+
+	//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
+	for (const layer of layers) {
+		if (layer.name === "bounderies") {
+			for (const boundary of layer.objects) {
+				map.add([
+					k.area({
+						shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+					}),
+					k.body({ isStatic: true }),
+					k.pos(boundary.x, boundary.y),
+					boundary.name,
+				]);
+
+				if (boundary.name) {
+					player.onCollide(boundary.name, () => {
+						player.isInDialogue = true;
+						displayDialogue(
+							dialogueData[boundary.name],
+							() => (player.isInDialogue = false)
+						);
+					});
+				}
+			}
+
+			continue;
+		}
+
+		if (layer.name === "goto") {
+			for (const boundary of layer.objects) {
+				map.add([
+					k.area({
+						shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+					}),
+					k.body({ isStatic: true }),
+					k.pos(boundary.x, boundary.y),
+					boundary.name,
+				]);
+
+				if (boundary.name) {
+					player.onCollide(boundary.name, () => {
+						k.go(boundary.name);
+					});
+				}
+			}
+
+			continue;
+		}
+
+		//Setzt den Spieler auf die Spawnposition
+		if (layer.name === "spawnpoints") {
+			for (const entity of layer.objects) {
+				if (entity.name === "player") {
+					player.pos = k.vec2(
+						(map.pos.x + entity.x) * scaleFactor,
+						(map.pos.y + entity.y) * scaleFactor
+					);
+					k.add(player);
+					continue;
+				}
+			}
+		}
+	}
+	
+	setCamScale(k);
+
+	k.onResize(() => {
+		setCamScale(k);
+	});
+
+	k.onUpdate(() => {
+		k.camPos(player.worldPos().x, player.worldPos().y - 100);
+	});
+
+	//Bewegung des Spielers mit der Maus
+	k.onMouseDown((mouseBtn) => {
+		if (mouseBtn !== "left" || player.isInDialogue) return;
+
+		const worldMousePos = k.toWorld(k.mousePos());
+		player.moveTo(worldMousePos, player.speed);
+
+		const mouseAngle = player.pos.angle(worldMousePos);
+
+		const lowerBound = 50;
+		const upperBound = 125;
+
+		if (
+			mouseAngle > lowerBound &&
+			mouseAngle < upperBound &&
+			player.getCurAnim().name !== "walk-up"
+		) {
+			player.play("walk-up");
+			player.direction = "up";
+			return;
+		}
+
+		if (
+			mouseAngle < -lowerBound &&
+			mouseAngle > -upperBound &&
+			player.getCurAnim().name !== "walk-down"
+		) {
+			player.play("walk-down");
+			player.direction = "down";
+			return;
+		}
+
+		if (Math.abs(mouseAngle) > upperBound) {
+			player.flipX = false;
+			if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+			player.direction = "right";
+			return;
+		}
+
+		if (Math.abs(mouseAngle) < lowerBound) {
+			player.flipX = true;
+			if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+			player.direction = "left";
+			return;
+		}
+	});
+
+	function stopAnims() {
+		if (player.direction === "down") {
+			player.play("idle-down");
+			return;
+		}
+		if (player.direction === "up") {
+			player.play("idle-up");
+			return;
+		}
+
+		player.play("idle-side");
+	}
+
+	k.onMouseRelease(stopAnims);
 });
 
 k.go("main");
