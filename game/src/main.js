@@ -14,6 +14,16 @@ k.loadSprite("spritesheet", "./spritesheet.png", {
 		"walk-up": { from: 1014, to: 1017, loop: true, speed: 8 },
 	},
 });
+
+k.loadSprite("dog-spritesheet", "./dog-spritesheet.png", {
+	sliceX: 3,
+	sliceY: 2,
+	anims: {
+		"dog-idle-side": 0,
+		"dog-walk-side": { from: 0, to: 2, loop: true, speed: 8 },
+	},
+});
+
 //läd das Bild der Karte im Hintergrund
 k.loadSprite("map", "./map.png");
 
@@ -45,6 +55,22 @@ k.scene("main", async () => {
 			isInDialogue: false,
 		},
 		"player",
+	]);
+
+	const dog = k.make([
+		k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
+		k.area({
+			shape: new k.Rect(k.vec2(0, 3), 10, 10),
+		}),
+		k.body(),
+		k.anchor("center"),
+		k.pos(),
+		k.scale(scaleFactor-1.5),
+		{
+			speed: 250,
+			direction: "right",
+		},
+		"dog",
 	]);
 
 	//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
@@ -83,6 +109,14 @@ k.scene("main", async () => {
 						(map.pos.y + entity.y) * scaleFactor
 					);
 					k.add(player);
+					continue;
+				}
+				else if (entity.name === "dog") {
+					dog.pos = k.vec2(
+						(map.pos.x + entity.x) * scaleFactor,
+						(map.pos.y + entity.y) * scaleFactor
+					);
+					k.add(dog);
 					continue;
 				}
 			}
