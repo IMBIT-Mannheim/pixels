@@ -26,6 +26,7 @@ k.loadSprite("dog-spritesheet", "./dog-spritesheet.png", {
 
 //läd das Bild der Karte im Hintergrund
 k.loadSprite("map", "./map.png");
+k.loadSprite("test-map", "./test-map.png");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -65,7 +66,7 @@ k.scene("main", async () => {
 		k.body(),
 		k.anchor("center"),
 		k.pos(),
-		k.scale(scaleFactor-1.5),
+		k.scale(scaleFactor - 1.5),
 		{
 			speed: 250,
 			direction: "right",
@@ -94,6 +95,25 @@ k.scene("main", async () => {
 							() => (player.isInDialogue = false)
 						);
 					});
+				}
+			}
+
+			continue;
+		}
+
+		if (layer.name === "goto") {
+			for (const boundary of layer.objects) {
+				map.add([
+					k.area({
+						shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+					}),
+					k.body({ isStatic: true }),
+					k.pos(boundary.x, boundary.y),
+					boundary.name,
+				]);
+
+				if (boundary.name) {
+					k.go(boundary.name);
 				}
 			}
 
@@ -234,7 +254,7 @@ k.scene("main", async () => {
 		if (nbOfKeyPressed > 1) return;
 
 		if (player.isInDialogue) return;
-		
+
 		//Player keyboard movement
 		if (keyMap[0]) {
 			player.flipX = false;
@@ -295,6 +315,15 @@ k.scene("main", async () => {
 			dog.move(0, dog.speed);
 		}
 	});
+});
+
+k.scene("test", async () => {
+	//Lädt die Mapdaten
+	const mapData = await (await fetch("./test-map.json")).json();
+	const layers = mapData.layers;
+
+	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
+	const map = k.add([k.sprite("test-map"), k.pos(0), k.scale(scaleFactor)]);
 });
 
 k.go("main");
