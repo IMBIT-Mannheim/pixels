@@ -1,4 +1,4 @@
-import kaplay from "https://unpkg.com/kaplay@3001.0.0-alpha.20/dist/kaplay.mjs";
+import kaplay from "kaplay";
 import { scaleFactor } from "./constants";
 
 export const k = kaplay({
