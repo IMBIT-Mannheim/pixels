@@ -14,17 +14,22 @@ k.loadSprite("spritesheet", "./spritesheet.png", {
 		"walk-up": { from: 1014, to: 1017, loop: true, speed: 8 },
 	},
 });
-
+//läd das Bild der Karte im Hintergrund
 k.loadSprite("map", "./map.png");
 
+//setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
 
+//Szene 
 k.scene("main", async () => {
+	//Lädt die Mapdaten
 	const mapData = await (await fetch("./map.json")).json();
 	const layers = mapData.layers;
 
+	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 	const map = k.add([k.sprite("map"), k.pos(0), k.scale(scaleFactor)]);
 
+	//Erstellt den Spieler
 	const player = k.make([
 		k.sprite("spritesheet", { anim: "idle-down" }),
 		k.area({
@@ -42,6 +47,7 @@ k.scene("main", async () => {
 		"player",
 	]);
 
+	//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
 	for (const layer of layers) {
 		if (layer.name === "boundaries") {
 			for (const boundary of layer.objects) {
@@ -68,6 +74,7 @@ k.scene("main", async () => {
 			continue;
 		}
 
+		//Setzt den Spieler auf die Spawnposition
 		if (layer.name === "spawnpoints") {
 			for (const entity of layer.objects) {
 				if (entity.name === "player") {
@@ -92,6 +99,7 @@ k.scene("main", async () => {
 		k.camPos(player.worldPos().x, player.worldPos().y - 100);
 	});
 
+	//Bewegung des Spielers mit der Maus
 	k.onMouseDown((mouseBtn) => {
 		if (mouseBtn !== "left" || player.isInDialogue) return;
 
