@@ -31,7 +31,7 @@ k.loadSprite("test-map", "./test-map.png");
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
 
-//Szene 
+//LVL 1: SCENE MAIN 
 k.scene("main", async () => {
 	//Lädt die Mapdaten
 	const mapData = await (await fetch("./map.json")).json();
@@ -319,6 +319,7 @@ k.scene("main", async () => {
 	});
 });
 
+//LVL 2: SCENE TEST
 k.scene("test", async () => {
 	//Lädt die Mapdaten
 	const mapData = await (await fetch("./test-map.json")).json();
