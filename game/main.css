@@ -61,3 +61,20 @@ body {
     flex-direction: column;
     color: rgb(238, 238, 238);
 }
+
+.button {
+    background-color: grey;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 2rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#show-world-map {
+    font-family: monogram, monospace;
+    position: absolute;
+    right: 2vh;
+    bottom: 2vh;
+}

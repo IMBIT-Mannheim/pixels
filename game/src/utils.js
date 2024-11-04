@@ -1,3 +1,6 @@
+import {k} from "./kaboomCtx.js";
+import {scaleFactor} from "./constants.js";
+
 export function displayDialogue(text, onDisplayEnd) {
     const dialogueUI = document.getElementById("textbox-container");
     const dialogue = document.getElementById("dialogue");
@@ -42,4 +45,25 @@ export function setCamScale(k) {
     } else {
         k.camScale(k.vec2(1.5));
     }
+}
+
+export function enableFullMapView(k, map) {
+    const screenWidth = k.width();
+    const screenHeight = k.height();
+    const mapWidth = map.width * scaleFactor;
+    const mapHeight = map.height * scaleFactor;
+
+    const marginFactor = 0.1;  // 10% margin on each side
+    const scaleX = screenWidth / (mapWidth * (1 + marginFactor));
+    const scaleY = screenHeight / (mapHeight * (1 + marginFactor));
+    const fitScale = Math.min(scaleX, scaleY);
+
+    k.camPos(mapWidth / 2, mapHeight / 2);
+    k.camScale(fitScale);
+    document.getElementsByClassName("note")[0].style.display = "none";
+}
+
+export function disableFullMapView(k) {
+    document.getElementsByClassName("note")[0].style.display = "block";
+    setCamScale(k);
 }
