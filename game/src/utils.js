@@ -1,4 +1,3 @@
-import {k} from "./kaboomCtx.js";
 import {scaleFactor} from "./constants.js";
 
 export function displayDialogue(text, onDisplayEnd) {
