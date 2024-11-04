@@ -1,12 +1,31 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" href="main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IMBIT-PIXELS</title>
 </head>
 
-<body style="overflow:hidden">
-    <script src="src/main.js" type="module"></script>
+<body>
+    <div id="app">
+        <div>
+            <p class="note">Tap/Click around to move</p>
+
+            <div id="textbox-container" style="display: none">
+                <div id="textbox">
+                    <p id="dialogue" class="ui-text"></p>
+                    <div class="btn-container">
+                        <button id="close" class="ui-close-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <canvas id="game"></canvas>
+    </div>
+    <script type="module" src="src/main.js"></script>
 </body>
 
 </html>
