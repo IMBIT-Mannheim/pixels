@@ -1,5 +1,5 @@
-import { dialogueData, scaleFactor } from "./constants";
-import { k } from "./kaboomCtx";
+import {dialogueData, scaleFactor} from "./constants";
+import {k} from "./kaboomCtx";
 import {displayDialogue, setCamScale} from "./utils";
 
 k.loadSprite("spritesheet", "./spritesheet.png", {
@@ -237,7 +237,7 @@ k.scene("main", async () => {
 						(map.pos.y + entity.y) * scaleFactor
 					);
 					k.add(player);
-					continue;
+
 				}
 				else if (entity.name === "dog") {
 					dog.pos = k.vec2(
@@ -245,7 +245,7 @@ k.scene("main", async () => {
 						(map.pos.y + entity.y) * scaleFactor
 					);
 					k.add(dog);
-					continue;
+
 				}
 			}
 		}
@@ -304,7 +304,7 @@ k.scene("main", async () => {
 			player.flipX = false;
 			if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
 			player.direction = "left";
-			return;
+
 		}
 	});
 
@@ -479,12 +479,12 @@ k.scene("test", async () => {
 						(map.pos.y + entity.y) * scaleFactor
 					);
 					k.add(player);
-					continue;
+
 				}
 			}
 		}
 	}
-	
+
 	setCamScale(k);
 
 	k.onResize(() => {
@@ -538,7 +538,7 @@ k.scene("test", async () => {
 			player.flipX = true;
 			if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
 			player.direction = "left";
-			return;
+
 		}
 	});
 
