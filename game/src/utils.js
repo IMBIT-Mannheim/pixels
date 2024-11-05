@@ -4,6 +4,7 @@ export function displayDialogue(text, onDisplayEnd, dialogue_name) {
     const dialogueUI = document.getElementById("textbox-container");
     const dialogue = document.getElementById("dialogue");
     dialogueUI.style.display = "block";
+    let answered = false;
     let index = 0;
     let currentText = "";
     const intervalRef = setInterval(() => {
@@ -42,12 +43,19 @@ export function displayDialogue(text, onDisplayEnd, dialogue_name) {
         }
     });
 
-
-    //TODO: Add error handling for not existing dialogue_name_answer
     function onQuestionAwnser(number) {
-        if (dialogueData[dialogue_name+"_answer"] === number) {
-            console.log("correct");
-            dialogue.innerHTML = dialogueData[dialogue_name+"_right"];
+        if (dialogueData[dialogue_name+"_answer"] !== undefined && !answered) {
+            if (dialogueData[dialogue_name+"_answer"] === number) {
+                console.log("correct");
+                dialogue.innerHTML = dialogueData[dialogue_name+"_right"];
+                answered = true;
+            } else {
+                console.log("wrong");
+                dialogue.innerHTML = dialogueData[dialogue_name+"_wrong"];
+                answered = true;
+            }
+        } else {
+            return;
         }
     }
 }
