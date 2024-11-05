@@ -1,7 +1,8 @@
-export function displayDialogue(text, onDisplayEnd) {
+import { dialogueData } from "./constants";
+
+export function displayDialogue(text, onDisplayEnd, dialogue_name) {
     const dialogueUI = document.getElementById("textbox-container");
     const dialogue = document.getElementById("dialogue");
-
     dialogueUI.style.display = "block";
     let index = 0;
     let currentText = "";
@@ -12,7 +13,6 @@ export function displayDialogue(text, onDisplayEnd) {
             index++;
             return;
         }
-
         clearInterval(intervalRef);
     }, 1);
 
@@ -31,8 +31,25 @@ export function displayDialogue(text, onDisplayEnd) {
     addEventListener("keypress", (key) => {
         if (key.code === "Enter") {
             closeBtn.click();
+        } else if (key.code === "Digit1") {
+            onQuestionAwnser('1');
+        } else if (key.code === "Digit2") {
+            onQuestionAwnser('2');
+        } else if (key.code === "Digit3") {
+            onQuestionAwnser('3');
+        } else if (key.code === "Digit4") {
+            onQuestionAwnser('4');
         }
     });
+
+
+    //TODO: Add error handling for not existing dialogue_name_answer
+    function onQuestionAwnser(number) {
+        if (dialogueData[dialogue_name+"_answer"] === number) {
+            console.log("correct");
+            dialogue.innerHTML = dialogueData[dialogue_name+"_right"];
+        }
+    }
 }
 
 export function setCamScale(k) {
