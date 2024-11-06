@@ -7,14 +7,12 @@ let currentDialogue;
 let typer;
 
 class Typing {
-
     textElement;
     texts;
     textIdx;
     index;
     intervalRef;
     res;
-
     remaining = true;
     promise;
 
@@ -25,7 +23,7 @@ class Typing {
             this.res = res;
         });
         this.startSegment(0);
-    } 
+    }
 
     startSegment(index) {
         this.textIdx = index;
@@ -45,7 +43,7 @@ class Typing {
     }
 
     skip() {
-        if(this.intervalRef){
+        if (this.intervalRef) {
             this.stop();
             this.textElement.innerHTML = this.texts[this.textIdx];
         } else {
@@ -57,7 +55,7 @@ class Typing {
         closeBtn.innerHTML = "Next";
         clearInterval(this.intervalRef);
         this.intervalRef = null;
-        if(force || this.textIdx >= this.texts.length - 1){
+        if (force || this.textIdx >= this.texts.length - 1) {
             this.remaining = false;
             this.res();
         }
@@ -66,11 +64,11 @@ class Typing {
 
 async function typingEffect(text) {
     if (typer) typer.stop(true);
-    
+
     const textSegments = text.split("\n");
 
     dialogue.innerHTML = "";
-    if(currentDialogue.title){
+    if (currentDialogue.title) {
         const headerElement = document.createElement("h2");
         headerElement.innerHTML = currentDialogue.title;
         dialogue.appendChild(headerElement);
@@ -107,7 +105,7 @@ document.addEventListener("keydown", (key) => {
 
 async function onQuestionAwnser(number) {
     if (!currentDialogue) return;
-    if(currentDialogue.correctAnswer === 0) return;
+    if (currentDialogue.correctAnswer === 0) return;
     if (number === 0) return;
     if (currentDialogue.answers.length < number) return;
 
@@ -120,7 +118,7 @@ async function onQuestionAwnser(number) {
 }
 
 export async function displayDialogue(dialogue_options, onDisplayEnd) {
-    currentDialogue = Object.assign({}, dialogue_options, {onDisplayEnd});
+    currentDialogue = Object.assign({}, dialogue_options, { onDisplayEnd });
 
     dialogueUI.style.display = "block";
     let answered = false;
