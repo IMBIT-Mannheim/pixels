@@ -88,6 +88,7 @@ function onCloseBtnClick() {
     if (typer?.remaining)
         return typer.skip();
     if (typer) typer.stop(true);
+    currentDialogue.onDisplayEnd();
     currentDialogue = null;
     dialogueUI.style.display = "none";
 }
@@ -110,7 +111,7 @@ async function onQuestionAwnser(number) {
     if (currentDialogue.answers.length < number) return;
 
     if (currentDialogue.correctAnswer === number) {
-        await typingEffect(currentDialogue.correctText); //TODO: punkte
+        await typingEffect(currentDialogue.correctText); //TODO: punktesystem
     } else {
         await typingEffect(currentDialogue.wrongText);
     }
@@ -118,12 +119,11 @@ async function onQuestionAwnser(number) {
 }
 
 export async function displayDialogue(dialogue_options, onDisplayEnd) {
+    dialogue_options.onDisplayEnd = onDisplayEnd;
     currentDialogue = dialogue_options;
 
     dialogueUI.style.display = "block";
     let answered = false;
-
-    closeBtn.addEventListener("click", onDisplayEnd, { once: true });
 
     await typingEffect(dialogue_options.text);
 
