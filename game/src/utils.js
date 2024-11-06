@@ -1,62 +1,140 @@
-import { dialogueData } from "./constants";
+const closeBtn = document.getElementById("close");
+const dialogueUI = document.getElementById("textbox-container");
+const dialogue = document.getElementById("dialogue");
 
-export function displayDialogue(text, onDisplayEnd, dialogue_name) {
-    const dialogueUI = document.getElementById("textbox-container");
-    const dialogue = document.getElementById("dialogue");
-    dialogueUI.style.display = "block";
-    let answered = false;
-    let index = 0;
-    let currentText = "";
-    const intervalRef = setInterval(() => {
-        if (index < text.length) {
-            currentText += text[index];
-            dialogue.innerHTML = currentText;
-            index++;
-            return;
-        }
-        clearInterval(intervalRef);
-    }, 1);
 
-    const closeBtn = document.getElementById("close");
+let currentDialogue;
+let typer;
 
-    function onCloseBtnClick() {
-        onDisplayEnd();
-        dialogueUI.style.display = "none";
-        dialogue.innerHTML = "";
-        clearInterval(intervalRef);
-        closeBtn.removeEventListener("click", onCloseBtnClick);
+class Typing {
+
+    textElement;
+    texts;
+    textIdx;
+    index;
+    intervalRef;
+    res;
+
+    remaining = true;
+    promise;
+
+    constructor(textElement, texts) {
+        this.textElement = textElement;
+        this.texts = texts;
+        this.promise = new Promise(res => {
+            this.res = res;
+        });
+        this.startSegment(0);
+    } 
+
+    startSegment(index) {
+        this.textIdx = index;
+        this.index = 0;
+        this.textElement.innerHTML = "";
+        closeBtn.innerHTML = "Skip";
+        this.intervalRef = setInterval(this.type.bind(this), 1);
     }
 
-    closeBtn.addEventListener("click", onCloseBtnClick);
-
-    addEventListener("keypress", (key) => {
-        if (key.code === "Enter") {
-            closeBtn.click();
-        } else if (key.code === "Digit1") {
-            onQuestionAwnser('1');
-        } else if (key.code === "Digit2") {
-            onQuestionAwnser('2');
-        } else if (key.code === "Digit3") {
-            onQuestionAwnser('3');
-        } else if (key.code === "Digit4") {
-            onQuestionAwnser('4');
-        }
-    });
-
-    function onQuestionAwnser(number) {
-        if (dialogueData[dialogue_name+"_answer"] !== undefined && !answered) {
-            if (dialogueData[dialogue_name+"_answer"] === number) {
-                console.log("correct");
-                dialogue.innerHTML = dialogueData[dialogue_name+"_right"];
-                answered = true;
-            } else {
-                console.log("wrong");
-                dialogue.innerHTML = dialogueData[dialogue_name+"_wrong"];
-                answered = true;
-            }
+    type() {
+        if (this.index < this.texts[this.textIdx].length) {
+            this.textElement.innerHTML += this.texts[this.textIdx][this.index];
+            this.index++;
         } else {
-            return;
+            this.stop();
         }
+    }
+
+    skip() {
+        if(this.intervalRef){
+            this.stop();
+            this.textElement.innerHTML = this.texts[this.textIdx];
+        } else {
+            this.startSegment(this.textIdx + 1);
+        }
+    }
+
+    stop(force = false) {
+        closeBtn.innerHTML = "Next";
+        clearInterval(this.intervalRef);
+        this.intervalRef = null;
+        if(force || this.textIdx >= this.texts.length - 1){
+            this.remaining = false;
+            this.res();
+        }
+    }
+}
+
+async function typingEffect(text) {
+    if (typer) typer.stop(true);
+    
+    const textSegments = text.split("\n");
+
+    dialogue.innerHTML = "";
+    if(currentDialogue.title){
+        const headerElement = document.createElement("h2");
+        headerElement.innerHTML = currentDialogue.title;
+        dialogue.appendChild(headerElement);
+    }
+    const textElement = document.createElement("p");
+    dialogue.appendChild(textElement);
+
+    typer = new Typing(textElement, textSegments);
+    await typer.promise;
+
+    closeBtn.innerHTML = "Close";
+}
+
+function onCloseBtnClick() {
+    if (typer?.remaining)
+        return typer.skip();
+    if (typer) typer.stop(true);
+    currentDialogue = null;
+    dialogueUI.style.display = "none";
+}
+
+closeBtn.addEventListener("click", onCloseBtnClick);
+
+document.addEventListener("keydown", (key) => {
+    if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
+        const number = key.code.slice(-1) - 0;
+        onQuestionAwnser(number);
+    } else {
+        if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
+    }
+});
+
+
+async function onQuestionAwnser(number) {
+    if (!currentDialogue) return;
+    if (number === 0) return;
+    if (currentDialogue.answers.length < number) return;
+
+    if (currentDialogue.correctAnswer === number) {
+        await typingEffect(currentDialogue.correctText); //TODO: punkte
+    } else {
+        await typingEffect(currentDialogue.wrongText);
+    }
+    currentDialogue = null;
+}
+
+export async function displayDialogue(dialogue_options, onDisplayEnd) {
+    currentDialogue = dialogue_options;
+
+    dialogueUI.style.display = "block";
+    let answered = false;
+
+    closeBtn.addEventListener("click", onDisplayEnd, { once: true });
+
+    await typingEffect(dialogue_options.text);
+
+    for (let index = 0; index < dialogue_options.answers.length; index++) {
+        const button = document.createElement("button");
+        button.classList.add("question-btn");
+        button.innerHTML = dialogue_options.answers[index];
+        button.addEventListener("click", () => {
+            onQuestionAwnser(index + 1);
+        });
+        dialogue.appendChild(button);
     }
 }
 

@@ -35,6 +35,11 @@ body {
     /* overflow: auto; */
 }
 
+#dialogue h2, #dialogue p {
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
 .ui-text {
     margin: 0;
     user-select: none;
