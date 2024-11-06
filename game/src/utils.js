@@ -107,6 +107,7 @@ document.addEventListener("keydown", (key) => {
 
 async function onQuestionAwnser(number) {
     if (!currentDialogue) return;
+    if(currentDialogue.correctAnswer === 0) return;
     if (number === 0) return;
     if (currentDialogue.answers.length < number) return;
 
@@ -115,22 +116,21 @@ async function onQuestionAwnser(number) {
     } else {
         await typingEffect(currentDialogue.wrongText);
     }
-    currentDialogue = null;
+    currentDialogue.correctAnswer = 0;
 }
 
 export async function displayDialogue(dialogue_options, onDisplayEnd) {
-    dialogue_options.onDisplayEnd = onDisplayEnd;
-    currentDialogue = dialogue_options;
+    currentDialogue = Object.assign({}, dialogue_options, {onDisplayEnd});
 
     dialogueUI.style.display = "block";
     let answered = false;
 
-    await typingEffect(dialogue_options.text);
+    await typingEffect(currentDialogue.text);
 
-    for (let index = 0; index < dialogue_options.answers.length; index++) {
+    for (let index = 0; index < currentDialogue.answers.length; index++) {
         const button = document.createElement("button");
         button.classList.add("question-btn");
-        button.innerHTML = dialogue_options.answers[index];
+        button.innerHTML = currentDialogue.answers[index];
         button.addEventListener("click", () => {
             onQuestionAwnser(index + 1);
         });
