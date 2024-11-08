@@ -61,7 +61,7 @@ k.scene("main", async () => {
 	const player = k.make([
 		k.sprite("character-spritesheet", { anim: "idle-down" }),
 		k.area({
-			shape: new k.Rect(k.vec2(0, 3), 10, 10),
+			shape: new k.Rect(k.vec2(0, 3), 10, 25),
 		}),
 		k.body(),
 		k.anchor("center"),
@@ -78,7 +78,7 @@ k.scene("main", async () => {
 	const dog = k.make([
 		k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
 		k.area({
-			shape: new k.Rect(k.vec2(0, 3), 10, 10),
+			shape: new k.Rect(k.vec2(0, 3), 20, 20),
 		}),
 		k.body(),
 		k.anchor("center"),
