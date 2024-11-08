@@ -12,7 +12,10 @@
 <body>
     <div id="app">
         <div>
-            <p class="note">Tap/Click around to move</p>
+            <div class="note">
+                <p>Tippe/Klicke irgendwohin, um dich zu bewegen</p>
+                <p>Druecke die Taste "M", um die gesamte Karte anzuzeigen</p>
+            </div>
 
             <div id="textbox-container" style="display: none">
                 <div id="textbox">
@@ -24,6 +27,7 @@
             </div>
         </div>
         <canvas id="game"></canvas>
+        <button id="show-world-map" class="button">Show World Map (M)</button>
     </div>
     <script type="module" src="src/main.js"></script>
 </body>
