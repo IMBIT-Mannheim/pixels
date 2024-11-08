@@ -1,6 +1,6 @@
 import {dialogueData, scaleFactor} from "./constants";
 import {k} from "./kaboomCtx";
-import {displayDialogue, setCamScale} from "./utils";
+import {displayDialogue, enableFullMapView, disableFullMapView, setCamScale} from "./utils";
 
 k.loadSprite("spritesheet", "./spritesheet.png", {
 	sliceX: 39,
@@ -49,6 +49,9 @@ k.setBackground(k.Color.fromHex("#311047"));
 
 //LVL 1: SCENE MAIN 
 k.scene("main", async () => {
+	let isFullMapView = false;  // Variable to track if in full map view
+	const showWorldMapBtn = document.getElementById("show-world-map");
+
 	//Lädt die Mapdaten
 	const mapData = await (await fetch("./map.json")).json();
 	const layers = mapData.layers;
@@ -86,7 +89,7 @@ k.scene("main", async () => {
 		"dog",
 	]);
 
-	const dogNameTag = k.add([
+  const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
 		k.pos(dog.pos.x, dog.pos.y - 50),
 		{ followOffset: k.vec2(0, -50) },
@@ -173,6 +176,35 @@ k.scene("main", async () => {
 
 	k.onUpdate(() => {
 		k.camPos(player.worldPos().x, player.worldPos().y - 100);
+	// Show full world map while holding down m key
+	k.onKeyDown("m", () => {
+		isFullMapView = true;
+		enableFullMapView(k, map);
+	});
+	// Return to player view when releasing m key
+	k.onKeyRelease("m", () => {
+		isFullMapView = false;
+		disableFullMapView(k);
+	});
+
+	showWorldMapBtn.addEventListener("click", () => {
+		if (!isFullMapView) {
+			isFullMapView = true;
+			showWorldMapBtn.innerHTML = "Hide World Map (M)";
+			enableFullMapView(k, map);
+		} else {
+			isFullMapView = false;
+			showWorldMapBtn.innerHTML = "Show World Map (M)";
+			document.getElementById("game").focus();
+			disableFullMapView(k);
+		}
+	});
+
+	k.onUpdate(() => {
+		if (!isFullMapView) {
+			// Follow the player only if not in full map view
+			k.camPos(player.worldPos().x, player.worldPos().y - 100);
+		}
 	});
 
 	//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
@@ -249,12 +281,9 @@ k.scene("main", async () => {
 		setCamScale(k);
 	});
 
-	k.onUpdate(() => {
-		k.camPos(player.worldPos().x, player.worldPos().y - 100);
-	});
-
 	//Bewegung des Spielers mit der Maus
 	k.onMouseDown((mouseBtn) => {
+		if (isFullMapView) return; // Disable player movement when in full map view
 		if (mouseBtn !== "left" || player.isInDialogue) return;
 
 		const worldMousePos = k.toWorld(k.mousePos());
@@ -332,7 +361,9 @@ k.scene("main", async () => {
 		stopAnims();
 		stopDogAnims();
 	});
-	k.onKeyDown(() => {
+
+  k.onKeyDown(() => {
+		if (isFullMapView) return; // Disable player movement when in full map view
 		const keyMap = [
 			k.isKeyDown("right"),
 			k.isKeyDown("left"),
