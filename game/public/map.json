@@ -352,28 +352,6 @@
          "visible":false,
          "x":0,
          "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "id":8,
-         "name":"goto",
-         "objects":[
-                {
-                 "height":16,
-                 "id":28,
-                 "name":"test",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":0,
-                 "y":304
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
         }],
  "nextlayerid":9,
  "nextobjectid":29,
