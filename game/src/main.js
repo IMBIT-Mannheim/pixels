@@ -176,6 +176,7 @@ k.scene("main", async () => {
 
 	k.onUpdate(() => {
 		k.camPos(player.worldPos().x, player.worldPos().y - 100);
+	});
 	// Show full world map while holding down m key
 	k.onKeyDown("m", () => {
 		isFullMapView = true;
