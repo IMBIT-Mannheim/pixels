@@ -179,6 +179,7 @@ k.scene("main", async () => {
 	// Show full world map while holding down m key
 	k.onKeyDown("m", () => {
 		isFullMapView = true;
+		stopAnims();
 		enableFullMapView(k, map);
 	});
 	// Return to player view when releasing m key
@@ -190,6 +191,7 @@ k.scene("main", async () => {
 	showWorldMapBtn.addEventListener("click", () => {
 		if (!isFullMapView) {
 			isFullMapView = true;
+			stopAnims();
 			showWorldMapBtn.innerHTML = "Hide World Map (M)";
 			enableFullMapView(k, map);
 		} else {
