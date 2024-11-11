@@ -35,6 +35,11 @@ body {
     /* overflow: auto; */
 }
 
+#dialogue h2, #dialogue p {
+    padding: 0;
+    margin: 0 0 1rem 0;
+}
+
 .ui-text {
     margin: 0;
     user-select: none;
@@ -60,4 +65,21 @@ body {
     display: flex;
     flex-direction: column;
     color: rgb(238, 238, 238);
+}
+
+.button {
+    background-color: grey;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 2rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#show-world-map {
+    font-family: monogram, monospace;
+    position: absolute;
+    right: 2vh;
+    bottom: 2vh;
 }
