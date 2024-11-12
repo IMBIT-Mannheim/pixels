@@ -36,17 +36,13 @@ k.setBackground(k.Color.fromHex("#311047"));
 
 //sounds
 k.loadMusic("bg-music", "./bg-music.mp3");
+k.loadSound("boundary", "./boundary.mp3");
 
 k.scene("loading", () => {
-	k.add([
-		k.text("Press enter to beginn...", 32),
-		k.pos(k.width() / 2, k.height() / 2),
-	]);
-	k.onKeyDown("enter", () => {
-		const musik = k.play("bg-music", {});
-		musik.volume = 1;
-		musik.loop = true;
-
+	k.onKeyPress(["enter", "space"], () => {
+		const music = k.play("bg-music");
+		music.volume = "0.1";
+		music.loop = true;
 		k.go("main");
 	});
 });
@@ -225,7 +221,7 @@ k.scene("main", async () => {
 					boundary.name,
 				]);
 
-				if (boundary.name) {
+				if (boundary.name !== "boundary") {
 					player.onCollide(boundary.name, () => {
 						player.isInDialogue = true;
 						displayDialogue(
@@ -238,6 +234,10 @@ k.scene("main", async () => {
 
 			continue;
 		}
+
+		k.onCollide("player", "boundary", () => {
+			k.play("boundary");
+		});
 
 		if (layer.name === "goto") {
 			for (const boundary of layer.objects) {
