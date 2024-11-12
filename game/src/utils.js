@@ -100,6 +100,7 @@ document.addEventListener("keydown", (key) => {
         const number = key.code.slice(-1) - 0;
         onQuestionAwnser(number);
     } else {
+        if (!currentDialogue) return;
         if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
     }
 });
