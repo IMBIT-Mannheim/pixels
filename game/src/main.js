@@ -40,6 +40,7 @@ k.loadSound("boundary", "./boundary.mp3");
 k.loadSound("talk", "./talk.mp3");
 
 k.scene("loading", () => {
+	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
 	k.onKeyPress(["enter", "space"], () => {
 		const music = k.play("bg-music");
 		music.volume = 0.5;
