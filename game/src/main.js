@@ -2,6 +2,7 @@ import { dialogueData, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
+
 k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
 	sliceX: 3,
 	sliceY: 3,
@@ -106,7 +107,8 @@ k.scene("main", async () => {
 	]);
 
 
-	const dogNameTag = k.add([
+
+  const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
 		k.pos(dog.pos.x, dog.pos.y - 50),
 		{ followOffset: k.vec2(0, -50) },
