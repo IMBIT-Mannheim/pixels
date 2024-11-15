@@ -48,7 +48,7 @@ k.loadSprite("map", "./map.png");
 k.setBackground(k.Color.fromHex("#311047"));
 
 //sounds
-k.loadMusic("bgm", "./bg-music.mp3");
+k.loadSound("bgm", "./bg-music.mp3");
 k.loadSound("boundary", "./boundary.mp3");
 k.loadSound("talk", "./talk.mp3");
 
