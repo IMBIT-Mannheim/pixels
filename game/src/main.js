@@ -37,11 +37,12 @@ k.setBackground(k.Color.fromHex("#311047"));
 //sounds
 k.loadMusic("bg-music", "./bg-music.mp3");
 k.loadSound("boundary", "./boundary.mp3");
+k.loadSound("talk", "./talk.mp3");
 
 k.scene("loading", () => {
 	k.onKeyPress(["enter", "space"], () => {
 		const music = k.play("bg-music");
-		music.volume = "0.1";
+		music.volume = 0.5;
 		music.loop = true;
 		k.go("main");
 	});
@@ -224,6 +225,7 @@ k.scene("main", async () => {
 				if (boundary.name !== "boundary") {
 					player.onCollide(boundary.name, () => {
 						player.isInDialogue = true;
+						k.play("talk");
 						displayDialogue(
 							dialogueData[boundary.name],
 							() => (player.isInDialogue = false)
