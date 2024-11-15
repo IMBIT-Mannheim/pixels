@@ -1,6 +1,20 @@
-import { dialogueData, scaleFactor } from "./constants";
-import { k } from "./kaboomCtx";
-import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
+
+import {dialogueData, scaleFactor} from "./constants";
+import {k} from "./kaboomCtx";
+import {displayDialogue, enableFullMapView, disableFullMapView, setCamScale} from "./utils";
+
+k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+	sliceX: 3,
+	sliceY: 3,
+	anims: {
+		"idle-down": 0,
+		"idle-up": 3,
+		"idle-side": 6,
+		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+	},
+});
 
 k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
 	sliceX: 3,
@@ -91,7 +105,8 @@ k.scene("main", async () => {
 		"dog",
 	]);
 
-	const dogNameTag = k.add([
+
+  const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
 		k.pos(dog.pos.x, dog.pos.y - 50),
 		{ followOffset: k.vec2(0, -50) },
@@ -182,6 +197,7 @@ k.scene("main", async () => {
 	// Show full world map while holding down m key
 	k.onKeyDown("m", () => {
 		isFullMapView = true;
+		stopAnims();
 		enableFullMapView(k, map);
 	});
 	// Return to player view when releasing m key
@@ -193,6 +209,7 @@ k.scene("main", async () => {
 	showWorldMapBtn.addEventListener("click", () => {
 		if (!isFullMapView) {
 			isFullMapView = true;
+			stopAnims();
 			showWorldMapBtn.innerHTML = "Hide World Map (M)";
 			enableFullMapView(k, map);
 		} else {
@@ -370,7 +387,7 @@ k.scene("main", async () => {
 		stopDogAnims();
 	});
 
-	k.onKeyDown(() => {
+  k.onKeyDown(() => {
 		if (isFullMapView) return; // Disable player movement when in full map view
 		const keyMap = [
 			k.isKeyDown("right"),
