@@ -1,7 +1,6 @@
-
-import {dialogueData, scaleFactor} from "./constants";
-import {k} from "./kaboomCtx";
-import {displayDialogue, enableFullMapView, disableFullMapView, setCamScale} from "./utils";
+import { dialogueData, scaleFactor } from "./constants";
+import { k } from "./kaboomCtx";
+import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
 k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
 	sliceX: 3,
@@ -49,16 +48,17 @@ k.loadSprite("map", "./map.png");
 k.setBackground(k.Color.fromHex("#311047"));
 
 //sounds
-k.loadMusic("bg-music", "./bg-music.mp3");
+k.loadMusic("bgm", "./bg-music.mp3");
 k.loadSound("boundary", "./boundary.mp3");
 k.loadSound("talk", "./talk.mp3");
 
 k.scene("loading", () => {
 	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
 	k.onKeyPress(["enter", "space"], () => {
-		const music = k.play("bg-music");
-		music.volume = 0.5;
-		music.loop = true;
+		const music = k.play("bgm", {
+			volume: 0.2,
+			loop: true
+		})
 		k.go("main");
 	});
 });
@@ -106,7 +106,7 @@ k.scene("main", async () => {
 	]);
 
 
-  const dogNameTag = k.add([
+	const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
 		k.pos(dog.pos.x, dog.pos.y - 50),
 		{ followOffset: k.vec2(0, -50) },
@@ -387,7 +387,7 @@ k.scene("main", async () => {
 		stopDogAnims();
 	});
 
-  k.onKeyDown(() => {
+	k.onKeyDown(() => {
 		if (isFullMapView) return; // Disable player movement when in full map view
 		const keyMap = [
 			k.isKeyDown("right"),
