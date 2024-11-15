@@ -1,17 +1,18 @@
+
 import {dialogueData, scaleFactor} from "./constants";
 import {k} from "./kaboomCtx";
 import {displayDialogue, enableFullMapView, disableFullMapView, setCamScale} from "./utils";
 
-k.loadSprite("spritesheet", "./spritesheet.png", {
-	sliceX: 39,
-	sliceY: 31,
+k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+	sliceX: 3,
+	sliceY: 3,
 	anims: {
-		"idle-down": 936,
-		"walk-down": { from: 936, to: 939, loop: true, speed: 8 },
-		"idle-side": 975,
-		"walk-side": { from: 975, to: 978, loop: true, speed: 8 },
-		"idle-up": 1014,
-		"walk-up": { from: 1014, to: 1017, loop: true, speed: 8 },
+		"idle-down": 0,
+		"idle-up": 3,
+		"idle-side": 6,
+		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
 	},
 });
 
@@ -46,6 +47,21 @@ k.loadSprite("map", "./map.png");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
+
+//sounds
+k.loadMusic("bg-music", "./bg-music.mp3");
+k.loadSound("boundary", "./boundary.mp3");
+k.loadSound("talk", "./talk.mp3");
+
+k.scene("loading", () => {
+	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
+	k.onKeyPress(["enter", "space"], () => {
+		const music = k.play("bg-music");
+		music.volume = 0.5;
+		music.loop = true;
+		k.go("main");
+	});
+});
 
 //LVL 1: SCENE MAIN 
 k.scene("main", async () => {
@@ -88,6 +104,7 @@ k.scene("main", async () => {
 		},
 		"dog",
 	]);
+
 
   const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
@@ -223,9 +240,10 @@ k.scene("main", async () => {
 					boundary.name,
 				]);
 
-				if (boundary.name) {
+				if (boundary.name !== "boundary") {
 					player.onCollide(boundary.name, () => {
 						player.isInDialogue = true;
+						k.play("talk");
 						displayDialogue(
 							dialogueData[boundary.name],
 							() => (player.isInDialogue = false)
@@ -236,6 +254,10 @@ k.scene("main", async () => {
 
 			continue;
 		}
+
+		k.onCollide("player", "boundary", () => {
+			k.play("boundary");
+		});
 
 		if (layer.name === "goto") {
 			for (const boundary of layer.objects) {
@@ -421,4 +443,4 @@ k.scene("main", async () => {
 	});
 });
 
-k.go("main");
+k.go("loading");
