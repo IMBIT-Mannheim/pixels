@@ -13,6 +13,7 @@
     <div id="app">
         <div>
             <div id="starting-screen">
+                <h2>Waehle einen Charakter</h2>
                 <div id="character-container">
                     <div class="character selected" id="male-button">
                         <img src="/images/male.png" alt="Male Character">
@@ -20,13 +21,15 @@
                     <div class="character" id="female-button">
                         <img src="/images/female.png" alt="Female Character">
                     </div>
-                    <h2>Druecke Enter zum Bestaetigen</h2>
                 </div>
+                <h2>Druecke Enter zum Bestaetigen</h2>
             </div>
             <div class="note">
                 <img id="logo" src="/images/logo.png" />
-                <p>Tippe/Klicke irgendwohin, um dich zu bewegen</p>
-                <p>Druecke die Taste "M", um die gesamte Karte anzuzeigen</p>
+                <div id="help-container" class="during-game">
+                    <p>Tippe/Klicke irgendwohin, um dich zu bewegen</p>
+                    <p>Druecke die Taste "M", um die gesamte Karte anzuzeigen</p>
+                </div>
             </div>
 
             <div id="textbox-container" style="display: none">
@@ -39,7 +42,7 @@
             </div>
         </div>
         <canvas id="game"></canvas>
-        <button id="show-world-map" class="button">Show World Map (M)</button>
+        <button id="show-world-map" class="button during-game">Show World Map (M)</button>
     </div>
     <script type="module" src="src/main.js"></script>
 </body>
