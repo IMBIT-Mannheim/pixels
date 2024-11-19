@@ -43,7 +43,7 @@ k.loadSprite("dog-spritesheet", "./dog-spritesheet.png", {
 });
 
 //läd das Bild der Karte im Hintergrund
-k.loadSprite("map", "./map-2.png");
+k.loadSprite("klassenzimmer", "./klassenzimmer.png");
 k.loadSprite("unternehmensausstellung", "./unternehmensausstellung.png");
 
 //setzt die Hintergrundfarbe
@@ -61,21 +61,21 @@ k.scene("loading", () => {
 			volume: 0.2,
 			loop: true
 		})
-		k.go("unternehmensausstellung");
+		k.go("klassenzimmer");
 	});
 });
 
-//LVL 1: SCENE MAIN 
-k.scene("main", async () => {
+//LVL 1: SCENE Klassenzimmer 
+k.scene("klassenzimmer", async () => {
 	let isFullMapView = false;  // Variable to track if in full map view
 	const showWorldMapBtn = document.getElementById("show-world-map");
 
 	//Lädt die Mapdaten
-	const mapData = await (await fetch("./map-2.json")).json();
+	const mapData = await (await fetch("./klassenzimmer.json")).json();
 	const layers = mapData.layers;
 
 	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
-	const map = k.add([k.sprite("map"), k.pos(0), k.scale(scaleFactor)]);
+	const map = k.add([k.sprite("klassenzimmer"), k.pos(0), k.scale(scaleFactor)]);
 
 	//Erstellt den Spieler
 	const player = k.make([
