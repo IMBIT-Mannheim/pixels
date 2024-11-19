@@ -30,167 +30,6 @@
          "y":0
         }, 
         {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":5,
-         "name":"ey",
-         "objects":[
-                {
-                 "height":16,
-                 "id":22,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":208,
-                 "y":64
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":6,
-         "name":"eviden",
-         "objects":[
-                {
-                 "height":32,
-                 "id":23,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":208,
-                 "y":160
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":7,
-         "name":"linde",
-         "objects":[
-                {
-                 "height":32,
-                 "id":26,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":128,
-                 "y":160
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":8,
-         "name":"pwc",
-         "objects":[
-                {
-                 "height":32,
-                 "id":27,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":48,
-                 "y":160
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":9,
-         "name":"siranq",
-         "objects":[
-                {
-                 "height":16,
-                 "id":28,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":112,
-                 "y":64
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#ffff00",
-         "draworder":"topdown",
-         "id":10,
-         "name":"boehringer",
-         "objects":[
-                {
-                 "height":16,
-                 "id":29,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":48,
-                 "y":64
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "color":"#00ff00",
-         "draworder":"topdown",
-         "id":4,
-         "name":"suitguy",
-         "objects":[
-                {
-                 "height":32,
-                 "id":30,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":16,
-                 "x":32,
-                 "y":96
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
-        {
          "color":"#ff0000",
          "draworder":"topdown",
          "id":2,
@@ -199,7 +38,7 @@
                 {
                  "height":16,
                  "id":4,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -210,7 +49,7 @@
                 {
                  "height":16,
                  "id":5,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -221,7 +60,7 @@
                 {
                  "height":16,
                  "id":7,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -232,7 +71,7 @@
                 {
                  "height":144,
                  "id":8,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -243,7 +82,7 @@
                 {
                  "height":16,
                  "id":9,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -254,7 +93,7 @@
                 {
                  "height":16,
                  "id":14,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -265,7 +104,7 @@
                 {
                  "height":16,
                  "id":16,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -276,7 +115,7 @@
                 {
                  "height":160,
                  "id":17,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -287,7 +126,7 @@
                 {
                  "height":16,
                  "id":18,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -298,7 +137,7 @@
                 {
                  "height":16,
                  "id":19,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -309,7 +148,7 @@
                 {
                  "height":16,
                  "id":20,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -320,13 +159,91 @@
                 {
                  "height":16,
                  "id":21,
-                 "name":"",
+                 "name":"boundary",
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":16,
                  "x":144,
                  "y":48
+                }, 
+                {
+                 "height":16,
+                 "id":32,
+                 "name":"boehringer",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":48,
+                 "y":64
+                }, 
+                {
+                 "height":16,
+                 "id":33,
+                 "name":"siranq",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":112,
+                 "y":64
+                }, 
+                {
+                 "height":16,
+                 "id":34,
+                 "name":"ey",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":208,
+                 "y":64
+                }, 
+                {
+                 "height":32,
+                 "id":35,
+                 "name":"eviden",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":208,
+                 "y":160
+                }, 
+                {
+                 "height":32,
+                 "id":36,
+                 "name":"linde",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":128,
+                 "y":160
+                }, 
+                {
+                 "height":32,
+                 "id":37,
+                 "name":"pwc",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":48,
+                 "y":160
+                },
+            
+                {
+                 "height":32,
+                 "id":38,
+                 "name":"suitguy",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":32,
+                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -358,7 +275,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":32,
+ "nextobjectid":39,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.0",
