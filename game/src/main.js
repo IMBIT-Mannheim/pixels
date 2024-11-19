@@ -58,11 +58,14 @@ k.setBackground(k.Color.fromHex("#311047"));
 
 //LVL 0: SCENE LOADING
 let character = "character-male";
+let spawnpoint = "mensa";
 
 k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
+	const during_game = document.getElementsByClassName("during-game");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
+	const select_spawnpoint = document.getElementById("spawnpoint");
 	const game = document.getElementById("game");
 	male_button.addEventListener("click", () => {
 		character = "character-male";
@@ -76,14 +79,20 @@ k.scene("loading", () => {
 		female_button.classList.add("selected");
 		game.focus();
 	});
-	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
+	select_spawnpoint.addEventListener("change", () => {
+		spawnpoint = select_spawnpoint.value;
+		game.focus();
+	});
 	k.onKeyPress(["enter", "space"], () => {
 		const music = k.play("bgm", {
 			volume: 0.2,
 			loop: true
 		})
 		starting_screen.style.display = "none";
-		k.go("mensa");
+		for (let i = 0; i < during_game.length; i++) {
+			during_game[i].style.display = "block";
+		}
+		k.go(spawnpoint);
 	});
 });
 
@@ -134,7 +143,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			"dog",
 		]);
 
-		const dogNameTag = k.add([
+		const dogNameTag = k.make([
 			k.text("JJ", { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(0, -50) },
@@ -323,6 +332,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							(map.pos.y + entity.y) * scaleFactor
 						);
 						k.add(dog);
+						k.add(dogNameTag);
 					}
 				}
 			}

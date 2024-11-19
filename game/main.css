@@ -106,7 +106,7 @@ body {
     padding: 1px;
 }
 
-#starting-screen h2 {
+#starting-screen {
     text-align: center;
     color: #ffd700;
 }
@@ -134,6 +134,38 @@ body {
     border-color: #ffd700;
     box-shadow: 0 0 10px 3px #ffd700;
     transform: scale(1.1);
+}
+
+#spawnpoint-container {
+    margin: 0.5em 0;
+    gap: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+select {
+    font-family: 'Monogram', monospace;
+    font-size: 30px; /* Adjust based on your design */
+    padding: 5px;
+    border: 3px solid #000;
+    background-color: #fff;
+    color: #000;
+    appearance: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 100%;
+    text-align-last: center;
+}
+
+select:hover {
+    background-color: #e0e0e0;
+}
+
+select:focus {
+    border-color: #ffcc00;
 }
 
 .during-game {
