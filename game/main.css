@@ -15,6 +15,13 @@ body {
     position: relative;
 }
 
+#logo {
+    width: 20%;
+    margin: 0.5em 0;
+    color: #ffd700;
+    z-index: 10;
+}
+
 #textbox {
     position: absolute;
     left: 10%;
@@ -62,8 +69,6 @@ body {
     position: absolute;
     left: 5%;
     top: 1vh;
-    display: flex;
-    flex-direction: column;
     color: rgb(238, 238, 238);
 }
 
