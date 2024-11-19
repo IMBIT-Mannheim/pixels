@@ -42,19 +42,20 @@ k.loadSprite("dog-spritesheet", "./dog-spritesheet.png", {
 	},
 });
 
-//läd das Bild der Karte im Hintergrund
+//läd das Bild der Karten im Hintergrund
 k.loadSprite("klassenzimmer", "./klassenzimmer.png");
 k.loadSprite("unternehmensausstellung", "./unternehmensausstellung.png");
 k.loadSprite("almeria", "./almeria.png");
 
-//setzt die Hintergrundfarbe
-k.setBackground(k.Color.fromHex("#311047"));
-
-//sounds
+//läd die Sounds im Hintergrund
 k.loadSound("bgm", "./bg-music.mp3");
 k.loadSound("boundary", "./boundary.mp3");
 k.loadSound("talk", "./talk.mp3");
 
+//setzt die Hintergrundfarbe
+k.setBackground(k.Color.fromHex("#311047"));
+
+//LVL 0: SCENE LOADING
 k.scene("loading", () => {
 	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
 	k.onKeyPress(["enter", "space"], () => {
