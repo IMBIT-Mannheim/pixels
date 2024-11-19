@@ -3,7 +3,7 @@ import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
 
-k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+k.loadSprite("character-male", "./character-male.png", {
 	sliceX: 3,
 	sliceY: 3,
 	anims: {
@@ -16,7 +16,7 @@ k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
 	},
 });
 
-k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+k.loadSprite("character-female", "./character-female.png", {
 	sliceX: 3,
 	sliceY: 3,
 	anims: {
@@ -53,13 +53,32 @@ k.loadSound("bgm", "./bg-music.mp3");
 k.loadSound("boundary", "./boundary.mp3");
 k.loadSound("talk", "./talk.mp3");
 
+let character = "character-male";
+
 k.scene("loading", () => {
+	const starting_screen = document.getElementById("starting-screen");
+	const male_button = document.getElementById("male-button");
+	const female_button = document.getElementById("female-button");
+	const game = document.getElementById("game");
+	male_button.addEventListener("click", () => {
+		character = "character-male";
+		female_button.classList.remove("selected");
+		male_button.classList.add("selected");
+		game.focus();
+	});
+	female_button.addEventListener("click", () => {
+		character = "character-female";
+		male_button.classList.remove("selected");
+		female_button.classList.add("selected");
+		game.focus();
+	});
 	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
 	k.onKeyPress(["enter", "space"], () => {
 		const music = k.play("bgm", {
 			volume: 0.2,
 			loop: true
 		})
+		starting_screen.style.display = "none";
 		k.go("main");
 	});
 });
@@ -78,7 +97,7 @@ k.scene("main", async () => {
 
 	//Erstellt den Spieler
 	const player = k.make([
-		k.sprite("character-spritesheet", { anim: "idle-down" }),
+		k.sprite(character, { anim: "idle-down" }),
 		k.area(),
 		k.body(),
 		k.anchor("center"),
@@ -105,8 +124,6 @@ k.scene("main", async () => {
 		},
 		"dog",
 	]);
-
-
 
   const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
