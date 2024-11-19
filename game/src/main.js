@@ -43,7 +43,7 @@ k.loadSprite("dog-spritesheet", "./dog-spritesheet.png", {
 });
 
 //läd das Bild der Karte im Hintergrund
-k.loadSprite("map", "./map.png");
+k.loadSprite("map", "./map-2.png");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -70,7 +70,7 @@ k.scene("main", async () => {
 	const showWorldMapBtn = document.getElementById("show-world-map");
 
 	//Lädt die Mapdaten
-	const mapData = await (await fetch("./map.json")).json();
+	const mapData = await (await fetch("./map-2.json")).json();
 	const layers = mapData.layers;
 
 	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
