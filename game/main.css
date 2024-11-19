@@ -1,6 +1,6 @@
 @font-face {
     font-family: monogram;
-    src: url(monogram.ttf);
+    src: url(/monogram.ttf);
 }
 
 body {
@@ -82,4 +82,42 @@ body {
     position: absolute;
     right: 2vh;
     bottom: 2vh;
+}
+
+#character-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#character-container h2 {
+    position: absolute;
+    text-align: center;
+    color: #ffd700;
+}
+
+.character {
+    position: relative;
+    display: inline-block;
+    border: 3px solid transparent;
+    padding: 10px;
+    margin: 1em;
+    cursor: pointer;
+    image-rendering: pixelated;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.character img {
+    height: 200px;
+}
+
+.character:hover {
+    transform: scale(1.1);
+}
+
+.character.selected {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px 3px #ffd700;
+    transform: scale(1.1);
 }

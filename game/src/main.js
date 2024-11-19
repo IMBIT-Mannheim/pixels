@@ -3,7 +3,7 @@ import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
 
-k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+k.loadSprite("character-male", "./character-male.png", {
 	sliceX: 3,
 	sliceY: 3,
 	anims: {
@@ -16,7 +16,7 @@ k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
 	},
 });
 
-k.loadSprite("character-spritesheet", "./character-spritesheet.png", {
+k.loadSprite("character-female", "./character-female.png", {
 	sliceX: 3,
 	sliceY: 3,
 	anims: {
@@ -56,18 +56,37 @@ k.loadSound("talk", "./talk.mp3");
 k.setBackground(k.Color.fromHex("#311047"));
 
 //LVL 0: SCENE LOADING
+let character = "character-male";
+
 k.scene("loading", () => {
+	const starting_screen = document.getElementById("starting-screen");
+	const male_button = document.getElementById("male-button");
+	const female_button = document.getElementById("female-button");
+	const game = document.getElementById("game");
+	male_button.addEventListener("click", () => {
+		character = "character-male";
+		female_button.classList.remove("selected");
+		male_button.classList.add("selected");
+		game.focus();
+	});
+	female_button.addEventListener("click", () => {
+		character = "character-female";
+		male_button.classList.remove("selected");
+		female_button.classList.add("selected");
+		game.focus();
+	});
 	//TODO: Bild mit Steuerungserklärung und aufforderung zum Drücken von Enter oder Space
 	k.onKeyPress(["enter", "space"], () => {
 		const music = k.play("bgm", {
 			volume: 0.2,
 			loop: true
 		})
+		starting_screen.style.display = "none";
 		k.go("almeria");
 	});
 });
 
-//LVL 1: SCENE Klassenzimmer 
+//LVL 1: SCENE Klassenzimmer
 k.scene("klassenzimmer", async () => {
 	let isFullMapView = false;  // Variable to track if in full map view
 	const showWorldMapBtn = document.getElementById("show-world-map");
@@ -81,7 +100,7 @@ k.scene("klassenzimmer", async () => {
 
 	//Erstellt den Spieler
 	const player = k.make([
-		k.sprite("character-spritesheet", { anim: "idle-down" }),
+		k.sprite(character, { anim: "idle-down" }),
 		k.area(),
 		k.body(),
 		k.anchor("center"),
@@ -108,8 +127,6 @@ k.scene("klassenzimmer", async () => {
 		},
 		"dog",
 	]);
-
-
 
   const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
@@ -454,7 +471,7 @@ k.scene("unternehmensausstellung", async () => {
 	const showWorldMapBtn = document.getElementById("show-world-map");
 
 	//Lädt die Mapdaten
-	const mapData = await (await fetch("./unternehmensausstellung.json")).json();
+	const mapData = await (await fetch("./map.json")).json();
 	const layers = mapData.layers;
 
 	//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
@@ -462,7 +479,7 @@ k.scene("unternehmensausstellung", async () => {
 
 	//Erstellt den Spieler
 	const player = k.make([
-		k.sprite("character-spritesheet", { anim: "idle-down" }),
+		k.sprite(character, { anim: "idle-down" }),
 		k.area(),
 		k.body(),
 		k.anchor("center"),
@@ -489,8 +506,6 @@ k.scene("unternehmensausstellung", async () => {
 		},
 		"dog",
 	]);
-
-
 
   const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
@@ -843,7 +858,7 @@ k.scene("almeria", async () => {
 
 	//Erstellt den Spieler
 	const player = k.make([
-		k.sprite("character-spritesheet", { anim: "idle-down" }),
+		k.sprite(character, { anim: "idle-down" }),
 		k.area(),
 		k.body(),
 		k.anchor("center"),
@@ -870,8 +885,6 @@ k.scene("almeria", async () => {
 		},
 		"dog",
 	]);
-
-
 
   const dogNameTag = k.add([
 		k.text("JJ", { size: 18 }),
