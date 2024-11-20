@@ -2,6 +2,10 @@ import { dialogueData, maps, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
+const select_spawnpoint = document.getElementById("spawnpoint");
+let character = "character-male";
+let spawnpoint = "mensa";
+let sound_effects_volume = "0.5";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
 	sliceX: 3,
@@ -44,6 +48,10 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
+	let opt = document.createElement('option');
+	opt.value = map;
+	opt.innerHTML = map;
+	select_spawnpoint.appendChild(opt);
 	k.loadSprite(map, `./maps/${map}.png`)
 	setupScene(map, `./maps/${map}.json`, map);
 }
@@ -57,15 +65,14 @@ k.loadSound("talk", "./sounds/talk.mp3");
 k.setBackground(k.Color.fromHex("#311047"));
 
 //LVL 0: SCENE LOADING
-let character = "character-male";
-let spawnpoint = "mensa";
-
 k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
 	const during_game = document.getElementsByClassName("during-game");
+	const start_game = document.getElementById("start");
+	const music_toggle = document.getElementById("music-toggle");
+	const sound_effects_toggle = document.getElementById("sound-effects-toggle");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
-	const select_spawnpoint = document.getElementById("spawnpoint");
 	const game = document.getElementById("game");
 	male_button.addEventListener("click", () => {
 		character = "character-male";
@@ -83,17 +90,26 @@ k.scene("loading", () => {
 		spawnpoint = select_spawnpoint.value;
 		game.focus();
 	});
+	start_game.addEventListener("click", () => {
+		startGame();
+	});
 	k.onKeyPress(["enter", "space"], () => {
+		startGame()
+	});
+	function startGame() {
+		const volume = music_toggle.checked ? 0 : 0.2;
+		sound_effects_volume = sound_effects_toggle.checked ? 0 : 0.5;
 		const music = k.play("bgm", {
-			volume: 0.2,
+			volume: volume,
 			loop: true
 		})
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
+		game.focus();
 		k.go(spawnpoint);
-	});
+	}
 });
 
 function setupScene(sceneName, mapFile, mapSprite) {
@@ -163,7 +179,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name !== "boundary") {
 						player.onCollide(boundary.name, () => {
 							player.isInDialogue = true;
-							k.play("talk");
+							k.play("talk", {
+								volume: sound_effects_volume,
+							});
 							displayDialogue(
 								dialogueData[boundary.name],
 								() => (player.isInDialogue = false)
@@ -175,6 +193,33 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				continue;
 			}
 
+			k.onCollide("player", "boundary", () => {
+				k.play("boundary", {
+					volume: sound_effects_volume,
+				});
+			});
+
+			if (layer.name === "goto") {
+				for (const boundary of layer.objects) {
+					map.add([
+						k.area({
+							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+						}),
+						k.body({ isStatic: true }),
+						k.pos(boundary.x, boundary.y),
+						k.rotate(boundary.rotation),
+						boundary.name,
+					]);
+
+					if (boundary.name) {
+						player.onCollide(boundary.name, () => {
+							k.go(boundary.name);
+						});
+					}
+				}
+				continue;
+			}
+      
 			//Setzt den Spieler auf die Spawnposition
 			if (layer.name === "spawnpoints") {
 				for (const entity of layer.objects) {

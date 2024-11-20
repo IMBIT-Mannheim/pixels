@@ -74,6 +74,7 @@ body {
 }
 
 .button {
+    font-family: monogram, monospace;
     background-color: grey;
     color: white;
     padding: 8px 16px;
@@ -146,7 +147,7 @@ body {
 
 select {
     font-family: 'Monogram', monospace;
-    font-size: 30px; /* Adjust based on your design */
+    font-size: 30px;
     padding: 5px;
     border: 3px solid #000;
     background-color: #fff;
@@ -170,4 +171,16 @@ select:focus {
 
 .during-game {
     display: none;
+}
+
+.settings-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.sound-container {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
 }
