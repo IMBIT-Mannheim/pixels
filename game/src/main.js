@@ -2,6 +2,9 @@ import { dialogueData, maps, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
+const select_spawnpoint = document.getElementById("spawnpoint");
+let character = "character-male";
+let spawnpoint = "mensa";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
 	sliceX: 3,
@@ -44,6 +47,10 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
+	let opt = document.createElement('option');
+	opt.value = map;
+	opt.innerHTML = map;
+	select_spawnpoint.appendChild(opt);
 	k.loadSprite(map, `./maps/${map}.png`)
 	setupScene(map, `./maps/${map}.json`, map);
 }
@@ -57,15 +64,11 @@ k.loadSound("talk", "./sounds/talk.mp3");
 k.setBackground(k.Color.fromHex("#311047"));
 
 //LVL 0: SCENE LOADING
-let character = "character-male";
-let spawnpoint = "mensa";
-
 k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
 	const during_game = document.getElementsByClassName("during-game");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
-	const select_spawnpoint = document.getElementById("spawnpoint");
 	const game = document.getElementById("game");
 	male_button.addEventListener("click", () => {
 		character = "character-male";
