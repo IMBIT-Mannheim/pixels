@@ -124,6 +124,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			"player",
 		]);
 
+		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
 			k.area(),
@@ -138,12 +139,256 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			"dog",
 		]);
 
+		//Erstellt den Hundename-Tag
 		const dogNameTag = k.make([
 			k.text("JJ", { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(0, -50) },
 		]);
 
+		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
+		for (const layer of layers) {
+			if (layer.name === "boundaries") {
+				for (const boundary of layer.objects) {
+					map.add([
+						k.area({
+							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+						}),
+						k.body({ isStatic: true }),
+						k.pos(boundary.x, boundary.y),
+						k.rotate(boundary.rotation),
+						boundary.name,
+					]);
+
+					if (boundary.name !== "boundary") {
+						player.onCollide(boundary.name, () => {
+							player.isInDialogue = true;
+							k.play("talk");
+							displayDialogue(
+								dialogueData[boundary.name],
+								() => (player.isInDialogue = false)
+							);
+						});
+					}
+				}
+
+				continue;
+			}
+
+			//Setzt den Spieler auf die Spawnposition
+			if (layer.name === "spawnpoints") {
+				for (const entity of layer.objects) {
+					if (entity.name === "player") {
+						player.pos = k.vec2(
+							(map.pos.x + entity.x) * scaleFactor,
+							(map.pos.y + entity.y) * scaleFactor
+						);
+						k.add(player);
+					}
+					else if (entity.name === "dog") {
+						dog.pos = k.vec2(
+							(map.pos.x + entity.x) * scaleFactor,
+							(map.pos.y + entity.y) * scaleFactor
+						);
+						k.add(dog);
+						k.add(dogNameTag);
+					}
+				}
+			}
+
+			//Teleports to other scenes
+			if (layer.name === "goto") {
+				for (const boundary of layer.objects) {
+					map.add([
+						k.area({
+							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+						}),
+						k.body({ isStatic: true }),
+						k.pos(boundary.x, boundary.y),
+						k.rotate(boundary.rotation),
+						boundary.name,
+					]);
+
+					if (boundary.name) {
+						player.onCollide(boundary.name, () => {
+							k.go(boundary.name);
+						});
+					}
+				}
+				continue;
+			}
+		}
+
+		//Bewegung des Spielers mit der Maus
+		k.onMouseDown((mouseBtn) => {
+			if (isFullMapView) return; // Disable player movement when in full map view
+			if (mouseBtn !== "left" || player.isInDialogue) return;
+
+			const worldMousePos = k.toWorld(k.mousePos());
+			player.moveTo(worldMousePos, player.speed);
+
+			const mouseAngle = player.pos.angle(worldMousePos);
+
+			const lowerBound = 50;
+			const upperBound = 125;
+
+			if (
+				mouseAngle > lowerBound &&
+				mouseAngle < upperBound &&
+				player.getCurAnim().name !== "walk-up"
+			) {
+				player.play("walk-up");
+				player.direction = "up";
+				return;
+			}
+
+			if (
+				mouseAngle < -lowerBound &&
+				mouseAngle > -upperBound &&
+				player.getCurAnim().name !== "walk-down"
+			) {
+				player.play("walk-down");
+				player.direction = "down";
+				return;
+			}
+
+			if (Math.abs(mouseAngle) > upperBound) {
+				player.flipX = true;
+				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				player.direction = "left";
+				return;
+			}
+
+			if (Math.abs(mouseAngle) < lowerBound) {
+				player.flipX = false;
+				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				player.direction = "left";
+
+			}
+		});
+
+		//Player movement with keyboard
+		const diagonalFactor = 1 / Math.sqrt(2);
+
+		k.onUpdate(() => {
+			if (player.isInDialogue) return;
+			if (isFullMapView) return;
+
+			const directionVector = k.vec2(0, 0);
+			if (k.isKeyDown("left") || k.isKeyDown("a")) {
+				player.flipX = false;
+				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				player.direction = "left";
+				directionVector.x = -1;
+			}
+			if (k.isKeyDown("right") || k.isKeyDown("d")) {
+				player.flipX = true;
+				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				player.direction = "right";
+				directionVector.x = 1;
+			}
+			if (k.isKeyDown("up") || k.isKeyDown("w")) {
+				if (player.getCurAnim().name !== "walk-up") player.play("walk-up");
+				player.direction = "up";
+				directionVector.y = -1;
+			}
+			if (k.isKeyDown("down") || k.isKeyDown("s")) {
+				if (player.getCurAnim().name !== "walk-down") player.play("walk-down");
+				player.direction = "down";
+				directionVector.y = 1;
+			}
+
+			// this is true when the player is moving diagonally
+			if (directionVector.x && directionVector.y) {
+				player.move(directionVector.scale(diagonalFactor * player.speed));
+				return;
+			}
+
+			player.move(directionVector.scale(player.speed));
+		});
+
+		// Stop animations
+		k.onMouseRelease(stopAnims);
+
+		k.onKeyRelease(() => {
+			stopAnims();
+			stopDogAnims();
+		});
+
+		function stopAnims() {
+			if (player.direction === "down") {
+				player.play("idle-down");
+				return;
+			}
+			if (player.direction === "up") {
+				player.play("idle-up");
+				return;
+			}
+			player.play("idle-side");
+		}
+
+		function stopDogAnims() {
+			if (dog.direction === "down") {
+				dog.play("dog-idle-down");
+				return;
+			}
+			if (dog.direction === "up") {
+				dog.play("dog-idle-up");
+				return;
+			}
+			dog.play("dog-idle-side");
+		}
+
+		//Sound Effects
+		k.onCollide("player", "boundary", () => {
+			k.play("boundary");
+		});
+
+		//Visuals
+		k.onUpdate(() => {
+			k.camPos(player.worldPos().x, player.worldPos().y - 100);
+		});
+
+		// Show full world map while holding down m key
+		k.onKeyDown("m", () => {
+			isFullMapView = true;
+			stopAnims();
+			enableFullMapView(k, map);
+		});
+		// Return to player view when releasing m key
+		k.onKeyRelease("m", () => {
+			isFullMapView = false;
+			disableFullMapView(k);
+		});
+
+		showWorldMapBtn.addEventListener("click", () => {
+			if (!isFullMapView) {
+				isFullMapView = true;
+				stopAnims();
+				showWorldMapBtn.innerHTML = "Hide World Map (M)";
+				enableFullMapView(k, map);
+			} else {
+				isFullMapView = false;
+				showWorldMapBtn.innerHTML = "Show World Map (M)";
+				document.getElementById("game").focus();
+				disableFullMapView(k);
+			}
+		});
+
+		k.onUpdate(() => {
+			if (!isFullMapView) {
+				// Follow the player only if not in full map view
+				k.camPos(player.worldPos().x, player.worldPos().y - 100);
+			}
+		});
+
+		setCamScale(k);
+
+		k.onResize(() => {
+			setCamScale(k);
+		});
+
+		//Dog movement
 		dogNameTag.onUpdate(() => {
 			dogNameTag.pos = dog.pos.add(dogNameTag.followOffset);
 		});
@@ -221,260 +466,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
-		});
-
-		k.onUpdate(() => {
-			k.camPos(player.worldPos().x, player.worldPos().y - 100);
-		});
-		// Show full world map while holding down m key
-		k.onKeyDown("m", () => {
-			isFullMapView = true;
-			stopAnims();
-			enableFullMapView(k, map);
-		});
-		// Return to player view when releasing m key
-		k.onKeyRelease("m", () => {
-			isFullMapView = false;
-			disableFullMapView(k);
-		});
-
-		showWorldMapBtn.addEventListener("click", () => {
-			if (!isFullMapView) {
-				isFullMapView = true;
-				stopAnims();
-				showWorldMapBtn.innerHTML = "Hide World Map (M)";
-				enableFullMapView(k, map);
-			} else {
-				isFullMapView = false;
-				showWorldMapBtn.innerHTML = "Show World Map (M)";
-				document.getElementById("game").focus();
-				disableFullMapView(k);
-			}
-		});
-
-		k.onUpdate(() => {
-			if (!isFullMapView) {
-				// Follow the player only if not in full map view
-				k.camPos(player.worldPos().x, player.worldPos().y - 100);
-			}
-		});
-
-		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
-		for (const layer of layers) {
-			if (layer.name === "boundaries") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
-
-					if (boundary.name !== "boundary") {
-						player.onCollide(boundary.name, () => {
-							player.isInDialogue = true;
-							k.play("talk");
-							displayDialogue(
-								dialogueData[boundary.name],
-								() => (player.isInDialogue = false)
-							);
-						});
-					}
-				}
-
-				continue;
-			}
-
-			k.onCollide("player", "boundary", () => {
-				k.play("boundary");
-			});
-
-			if (layer.name === "goto") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
-
-					if (boundary.name) {
-						player.onCollide(boundary.name, () => {
-							k.go(boundary.name);
-						});
-					}
-				}
-				continue;
-			}
-
-			//Setzt den Spieler auf die Spawnposition
-			if (layer.name === "spawnpoints") {
-				for (const entity of layer.objects) {
-					if (entity.name === "player") {
-						player.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(player);
-					}
-					else if (entity.name === "dog") {
-						dog.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(dog);
-						k.add(dogNameTag);
-					}
-				}
-			}
-		}
-
-		setCamScale(k);
-
-		k.onResize(() => {
-			setCamScale(k);
-		});
-
-		//Bewegung des Spielers mit der Maus
-		k.onMouseDown((mouseBtn) => {
-			if (isFullMapView) return; // Disable player movement when in full map view
-			if (mouseBtn !== "left" || player.isInDialogue) return;
-
-			const worldMousePos = k.toWorld(k.mousePos());
-			player.moveTo(worldMousePos, player.speed);
-
-			const mouseAngle = player.pos.angle(worldMousePos);
-
-			const lowerBound = 50;
-			const upperBound = 125;
-
-			if (
-				mouseAngle > lowerBound &&
-				mouseAngle < upperBound &&
-				player.getCurAnim().name !== "walk-up"
-			) {
-				player.play("walk-up");
-				player.direction = "up";
-				return;
-			}
-
-			if (
-				mouseAngle < -lowerBound &&
-				mouseAngle > -upperBound &&
-				player.getCurAnim().name !== "walk-down"
-			) {
-				player.play("walk-down");
-				player.direction = "down";
-				return;
-			}
-
-			if (Math.abs(mouseAngle) > upperBound) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-				return;
-			}
-
-			if (Math.abs(mouseAngle) < lowerBound) {
-				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-
-			}
-		});
-
-		function stopAnims() {
-			if (player.direction === "down") {
-				player.play("idle-down");
-				return;
-			}
-			if (player.direction === "up") {
-				player.play("idle-up");
-				return;
-			}
-
-			player.play("idle-side");
-		}
-
-		function stopDogAnims() {
-			if (dog.direction === "down") {
-				dog.play("dog-idle-down");
-				return;
-			}
-			if (dog.direction === "up") {
-				dog.play("dog-idle-up");
-				return;
-			}
-
-			dog.play("dog-idle-side");
-		}
-
-		k.onMouseRelease(stopAnims);
-
-		k.onKeyRelease(() => {
-			stopAnims();
-			stopDogAnims();
-		});
-
-		k.onKeyDown(() => {
-			if (isFullMapView) return; // Disable player movement when in full map view
-			const keyMap = [
-				k.isKeyDown("right"),
-				k.isKeyDown("left"),
-				k.isKeyDown("up"),
-				k.isKeyDown("down"),
-				k.isKeyDown("w"),
-				k.isKeyDown("a"),
-				k.isKeyDown("s"),
-				k.isKeyDown("d"),
-			];
-
-			let nbOfKeyPressed = 0;
-			for (const key of keyMap) {
-				if (key) {
-					nbOfKeyPressed++;
-				}
-			}
-
-			if (nbOfKeyPressed > 1) return;
-
-			if (player.isInDialogue) return;
-
-			//Player keyboard movement
-			if (keyMap[0] || keyMap[7]) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "right";
-				player.move(player.speed, 0);
-				return;
-			}
-
-			if (keyMap[1] || keyMap[5]) {
-				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-				player.move(-player.speed, 0);
-				return;
-			}
-
-			if (keyMap[2] || keyMap[4]) {
-				if (player.getCurAnim().name !== "walk-up") player.play("walk-up");
-				player.direction = "up";
-				player.move(0, -player.speed);
-				return;
-			}
-
-			if (keyMap[3] || keyMap[6]) {
-				if (player.getCurAnim().name !== "walk-down") player.play("walk-down");
-				player.direction = "down";
-				player.move(0, player.speed);
-			}
 		});
 	});
 }
