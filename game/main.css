@@ -1,18 +1,26 @@
 @font-face {
     font-family: monogram;
-    src: url(/monogram.ttf);
+    src: url(/fonts/monogram.ttf);
 }
 
 body {
     font-family: monogram, monospace;
     font-size: 2rem;
     overflow: hidden;
+    background-color: #311047;
 }
 
 #app {
     width: 100%;
     height: 100%;
     position: relative;
+}
+
+#logo {
+    width: 20%;
+    margin: 0.5em 0;
+    color: #ffd700;
+    z-index: 10;
 }
 
 #textbox {
@@ -62,8 +70,6 @@ body {
     position: absolute;
     left: 5%;
     top: 1vh;
-    display: flex;
-    flex-direction: column;
     color: rgb(238, 238, 238);
 }
 
@@ -84,15 +90,23 @@ body {
     bottom: 2vh;
 }
 
-#character-container {
+#starting-screen {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#character-container h2 {
-    position: absolute;
+#character-container {
+    background-color: rosybrown;
+    border-radius: 5px;
+    padding: 1px;
+}
+
+#starting-screen {
     text-align: center;
     color: #ffd700;
 }
@@ -120,4 +134,40 @@ body {
     border-color: #ffd700;
     box-shadow: 0 0 10px 3px #ffd700;
     transform: scale(1.1);
+}
+
+#spawnpoint-container {
+    margin: 0.5em 0;
+    gap: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+select {
+    font-family: 'Monogram', monospace;
+    font-size: 30px; /* Adjust based on your design */
+    padding: 5px;
+    border: 3px solid #000;
+    background-color: #fff;
+    color: #000;
+    appearance: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 100%;
+    text-align-last: center;
+}
+
+select:hover {
+    background-color: #e0e0e0;
+}
+
+select:focus {
+    border-color: #ffcc00;
+}
+
+.during-game {
+    display: none;
 }
