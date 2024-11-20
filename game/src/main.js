@@ -4,7 +4,7 @@ import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } f
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
-let spawnpoint = "mensa";
+let spawnpoint;
 let sound_effects_volume = "0.5";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
@@ -87,7 +87,6 @@ k.scene("loading", () => {
 		game.focus();
 	});
 	select_spawnpoint.addEventListener("change", () => {
-		spawnpoint = select_spawnpoint.value;
 		game.focus();
 	});
 	start_game.addEventListener("click", () => {
@@ -99,6 +98,7 @@ k.scene("loading", () => {
 	function startGame() {
 		const volume = music_toggle.checked ? 0 : 0.2;
 		sound_effects_volume = sound_effects_toggle.checked ? 0 : 0.5;
+		spawnpoint = select_spawnpoint.value;
 		const music = k.play("bgm", {
 			volume: volume,
 			loop: true
