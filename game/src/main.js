@@ -5,6 +5,7 @@ import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale, se
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
 let spawnpoint;
+let dogName;
 let sound_effects_volume = "0.5";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
@@ -74,14 +75,17 @@ k.scene("loading", () => {
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+	const dog_name_input = document.getElementById("dog-name");
 
 	const lastSpawnpoint = getCookie("spawnpoint");
 	const lastMusicVolume = getCookie("music_volume");
 	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
+	const lastDogName = getCookie("dog_name");
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 5;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 5;
 	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
+	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
 		character = "character-male";
@@ -108,10 +112,12 @@ k.scene("loading", () => {
 		const music_volume = music_volume_slider.value / 10;
 		sound_effects_volume = sounds_volume.value / 10;
 		spawnpoint = select_spawnpoint.value;
+		dogName = dog_name_input.value;
 
 		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
+		setCookie("dog_name", dogName, 365);
 
 		const music = k.play("bgm", {
 			volume: music_volume,
@@ -171,7 +177,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Erstellt den Hundename-Tag
 		const dogNameTag = k.make([
-			k.text("JJ", { size: 18 }),
+			k.text(dogName, { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(0, -50) },
 		]);
@@ -254,28 +260,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					}
 				}
 			}
-
-			//Teleports to other scenes
-			if (layer.name === "goto") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
-
-					if (boundary.name) {
-						player.onCollide(boundary.name, () => {
-							k.go(boundary.name);
-						});
-					}
-				}
-				continue;
-			}
 		}
 
 		//Bewegung des Spielers mit der Maus
@@ -322,7 +306,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				player.flipX = false;
 				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
 				player.direction = "left";
-
 			}
 		});
 
