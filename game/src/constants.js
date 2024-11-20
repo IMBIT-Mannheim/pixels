@@ -1,3 +1,9 @@
+export let maps = [
+    'almeria',
+    'mensa',
+    'klassenzimmer',
+    'unternehmensausstellung',
+]
 export const scaleFactor = 4;
 
 /**

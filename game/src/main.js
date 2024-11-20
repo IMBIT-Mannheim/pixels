@@ -1,4 +1,4 @@
-import { dialogueData, scaleFactor } from "./constants";
+import { dialogueData, maps, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
@@ -42,11 +42,11 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	},
 });
 
-//läd das Bild der Karten im Hintergrund
-k.loadSprite("klassenzimmer", "./maps/klassenzimmer.png");
-k.loadSprite("unternehmensausstellung", "./maps/unternehmensausstellung.png");
-k.loadSprite("almeria", "./maps/almeria.png");
-k.loadSprite("mensa", "./maps/mensa.png");
+for (let i = 0; i < maps.length; i++) {
+	const map = maps[i];
+	k.loadSprite(map, `./maps/${map}.png`)
+	setupScene(map, `./maps/${map}.json`, map);
+}
 
 //läd die Sounds im Hintergrund
 k.loadSound("bgm", "./sounds/bg-music.mp3");
@@ -95,11 +95,6 @@ k.scene("loading", () => {
 		k.go(spawnpoint);
 	});
 });
-
-setupScene("klassenzimmer", "./maps/klassenzimmer.json", "klassenzimmer");
-setupScene("unternehmensausstellung", "./maps/unternehmensausstellung.json", "unternehmensausstellung");
-setupScene("almeria", "./maps/almeria.json", "almeria");
-setupScene("mensa", "./maps/mensa.json", "mensa");
 
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
