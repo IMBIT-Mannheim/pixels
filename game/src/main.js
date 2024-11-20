@@ -5,6 +5,7 @@ import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } f
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
 let spawnpoint = "mensa";
+let sound_effects_volume = "0.5";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
 	sliceX: 3,
@@ -67,6 +68,9 @@ k.setBackground(k.Color.fromHex("#311047"));
 k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
 	const during_game = document.getElementsByClassName("during-game");
+	const start_game = document.getElementById("start");
+	const music_toggle = document.getElementById("music-toggle");
+	const sound_effects_toggle = document.getElementById("sound-effects-toggle");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
@@ -86,17 +90,26 @@ k.scene("loading", () => {
 		spawnpoint = select_spawnpoint.value;
 		game.focus();
 	});
+	start_game.addEventListener("click", () => {
+		startGame();
+	});
 	k.onKeyPress(["enter", "space"], () => {
+		startGame()
+	});
+	function startGame() {
+		const volume = music_toggle.checked ? 0 : 0.2;
+		sound_effects_volume = sound_effects_toggle.checked ? 0 : 0.5;
 		const music = k.play("bgm", {
-			volume: 0.2,
+			volume: volume,
 			loop: true
 		})
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
+		game.focus();
 		k.go(spawnpoint);
-	});
+	}
 });
 
 function setupScene(sceneName, mapFile, mapSprite) {
@@ -279,7 +292,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name !== "boundary") {
 						player.onCollide(boundary.name, () => {
 							player.isInDialogue = true;
-							k.play("talk");
+							k.play("talk", {
+								volume: sound_effects_volume,
+							});
 							displayDialogue(
 								dialogueData[boundary.name],
 								() => (player.isInDialogue = false)
@@ -292,7 +307,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			}
 
 			k.onCollide("player", "boundary", () => {
-				k.play("boundary");
+				k.play("boundary", {
+					volume: sound_effects_volume,
+				});
 			});
 
 			if (layer.name === "goto") {
