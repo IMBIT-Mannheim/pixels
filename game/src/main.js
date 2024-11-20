@@ -197,7 +197,26 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					]);
 
 					if (boundary.name !== "boundary") {
+						let bounceOffset = 0;
+						let bounceSpeed = 0.001;
+
+						const exclamation = k.add([
+							k.text("!", { size: 40 }),
+							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
+							k.z(10),
+							"exclamation",
+						]);
+
+						k.onUpdate("exclamation", (e) => {
+							bounceOffset += bounceSpeed;
+							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
+								bounceSpeed *= -1;
+							}
+							e.pos.y = e.pos.y + bounceOffset;
+						});
+
 						player.onCollide(boundary.name, () => {
+							k.destroy(exclamation);
 							player.isInDialogue = true;
 							k.play("talk", {
 								volume: sound_effects_volume,
@@ -380,11 +399,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			}
 			dog.play("dog-idle-side");
 		}
-
-		//Sound Effects
-		k.onCollide("player", "boundary", () => {
-			k.play("boundary");
-		});
 
 		//Visuals
 		k.onUpdate(() => {
