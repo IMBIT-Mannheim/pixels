@@ -175,6 +175,7 @@ select:focus {
 
 .settings-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 40px;
 }
@@ -183,4 +184,46 @@ select:focus {
     display: flex;
     flex-direction: column;
     align-items: start;
+}
+
+.volume-slider-container {
+    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 150px;
+    height: 20px;
+    background: #000;
+    border: 1px solid #ffcc00;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ffcc00;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb,
+input[type="range"]::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    background: #000;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="range"]:focus {
+    border-color: #000;
 }

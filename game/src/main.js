@@ -1,6 +1,6 @@
 import { dialogueData, maps, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
+import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
@@ -69,11 +69,20 @@ k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
 	const during_game = document.getElementsByClassName("during-game");
 	const start_game = document.getElementById("start");
-	const music_toggle = document.getElementById("music-toggle");
-	const sound_effects_toggle = document.getElementById("sound-effects-toggle");
+	const music_volume_slider = document.getElementById("music-volume");
+	const sounds_volume = document.getElementById("sounds-volume");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+
+	const lastSpawnpoint = getCookie("spawnpoint");
+	const lastMusicVolume = getCookie("music_volume");
+	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
+
+	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 5;
+	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 5;
+	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
+
 	male_button.addEventListener("click", () => {
 		character = "character-male";
 		female_button.classList.remove("selected");
@@ -96,11 +105,16 @@ k.scene("loading", () => {
 		startGame()
 	});
 	function startGame() {
-		const volume = music_toggle.checked ? 0 : 0.2;
-		sound_effects_volume = sound_effects_toggle.checked ? 0 : 0.5;
+		const music_volume = music_volume_slider.value / 10;
+		sound_effects_volume = sounds_volume.value / 10;
 		spawnpoint = select_spawnpoint.value;
+
+		setCookie("spawnpoint", spawnpoint, 365);
+		setCookie("music_volume", music_volume, 365);
+		setCookie("sound_effects_volume", sound_effects_volume, 365);
+
 		const music = k.play("bgm", {
-			volume: volume,
+			volume: music_volume,
 			loop: true
 		})
 		starting_screen.style.display = "none";

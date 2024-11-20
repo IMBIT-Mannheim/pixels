@@ -27,14 +27,14 @@
                     </select>
                 </div>
                 <div class="settings-container">
-                    <div class="sound-container">
-                        <div>
-                            <label for="music-toggle">Mute Music: </label>
-                            <input type="checkbox" id="music-toggle" />
+                    <div class="volume-container">
+                        <div class="volume-slider-container">
+                            <label for="music-volume">Volume:</label>
+                            <input type="range" id="music-volume" min="0" max="100" value="50">
                         </div>
-                        <div>
-                            <label for="sound-effects-toggle">Mute Sound Effects: </label>
-                            <input type="checkbox" id="sound-effects-toggle" />
+                        <div class="volume-slider-container">
+                            <label for="sounds-volume">Sounds Volume:</label>
+                            <input type="range" id="sounds-volume" min="0" max="100" value="50">
                         </div>
                     </div>
                     <button id="start" class="button">Start</button>
