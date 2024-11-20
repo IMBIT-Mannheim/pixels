@@ -274,6 +274,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						}),
 						k.body({ isStatic: true }),
 						k.pos(boundary.x, boundary.y),
+						k.rotate(boundary.rotation),
 						boundary.name,
 					]);
 
@@ -304,6 +305,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						}),
 						k.body({ isStatic: true }),
 						k.pos(boundary.x, boundary.y),
+						k.rotate(boundary.rotation),
 						boundary.name,
 					]);
 
