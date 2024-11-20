@@ -276,10 +276,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name !== "boundary") {
 						player.onCollide(boundary.name, () => {
 							player.isInDialogue = true;
+							showWorldMapBtn.style.display = "none";
 							k.play("talk");
 							displayDialogue(
 								dialogueData[boundary.name],
-								() => (player.isInDialogue = false)
+								() => (player.isInDialogue = false, showWorldMapBtn.style.display = "block")
 							);
 						});
 					}
