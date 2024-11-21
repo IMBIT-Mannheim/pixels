@@ -1,8 +1,8 @@
 export let maps = [
-    'almeria',
-    'mensa',
-    'klassenzimmer',
-    'unternehmensausstellung',
+  'almeria',
+  'mensa',
+  'klassenzimmer',
+  'unternehmensausstellung',
 ]
 export const scaleFactor = 4;
 
@@ -17,13 +17,20 @@ export const scaleFactor = 4;
  * }}
  */
 export const dialogueData = {
-  ey: { 
+  //Almeria
+
+  //Klassenzimmer
+
+  //Mensa
+
+  // Unternehmensausstellung
+  ey: {
     title: 'EY',
     text: `Text ueber \n EY `,
     answers: [
     ],
   },
-  siranq: { 
+  siranq: {
     title: 'siranq',
     text: `siranq`,
     answers: [
@@ -36,34 +43,34 @@ export const dialogueData = {
     correctText: 'Richtig!',
     wrongText: 'Falsch!',
   },
-  boehringer: { 
+  boehringer: {
     title: 'boehringer',
     text: `boehringer`,
-    answers:[]
+    answers: []
   },
-  suitguy: { 
+  suitguy: {
     title: 'suitguy',
     text: `suitguy`,
-    answers:[]
+    answers: []
   },
-  suitguy: { 
+  suitguy: {
     title: 'suitguy',
     text: `suitguy`,
-    answers:[]
+    answers: []
   },
-  pwc: { 
+  pwc: {
     title: 'pwc',
     text: `pwc`,
-    answers:[]
+    answers: []
   },
-  linde: { 
+  linde: {
     title: 'linde',
     text: `linde`,
-    answers:[]
+    answers: []
   },
-  eviden: { 
+  eviden: {
     title: 'eviden',
     text: `eviden`,
-    answers:[]
+    answers: []
   },
 };
