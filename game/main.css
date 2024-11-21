@@ -137,15 +137,7 @@ body {
     transform: scale(1.1);
 }
 
-#spawnpoint-container {
-    margin: 0.5em 0;
-    gap: 10px;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-}
-
-select {
+select, input {
     font-family: 'Monogram', monospace;
     font-size: 30px;
     padding: 5px;
@@ -159,13 +151,14 @@ select {
     text-transform: uppercase;
     width: 100%;
     text-align-last: center;
+    box-sizing: border-box;
 }
 
-select:hover {
+select:hover, input:hover {
     background-color: #e0e0e0;
 }
 
-select:focus {
+select:focus, input:focus {
     border-color: #ffcc00;
 }
 
@@ -174,32 +167,21 @@ select:focus {
 }
 
 .settings-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-}
-
-.sound-container {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-}
-
-.volume-slider-container {
-    align-items: center;
+    margin: 0.5em 0;
+    gap: 10px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    align-items: center;
 }
 
 input[type="range"] {
+    padding-left: 0;
+    padding-right: 0;
     -webkit-appearance: none;
     appearance: none;
-    width: 150px;
-    height: 20px;
+    height: 60%;
     background: #000;
-    border: 1px solid #ffcc00;
+    border: 2px solid #ffcc00;
     outline: none;
     box-shadow: none;
     cursor: pointer;

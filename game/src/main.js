@@ -180,7 +180,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Erstellt den Hundename-Tag
 		const dogNameTag = k.make([
-			k.text(dogName, { size: 18 }),
+			k.text(dogName.toUpperCase(), { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(0, -50) },
 		]);
