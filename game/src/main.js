@@ -1,4 +1,4 @@
-import { dialogueData, maps, scaleFactor } from "./constants";
+import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
 
@@ -57,10 +57,13 @@ for (let i = 0; i < maps.length; i++) {
 	setupScene(map, `./maps/${map}.json`, map);
 }
 
+const random_song = music[Math.floor(Math.random() * music.length)];
+k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+
 //läd die Sounds im Hintergrund
-k.loadSound("bgm", "./sounds/bg-music.mp3");
-k.loadSound("boundary", "./sounds/boundary.mp3");
-k.loadSound("talk", "./sounds/talk.mp3");
+k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
+k.loadSound("talk", "./sounds/effects/talk.mp3");
+k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -258,7 +261,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				}
 				continue;
 			}
-      
+
 			//Setzt den Spieler auf die Spawnposition
 			if (layer.name === "spawnpoints") {
 				for (const entity of layer.objects) {
@@ -330,10 +333,22 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Player movement with keyboard
 		const diagonalFactor = 1 / Math.sqrt(2);
+		let walkingSound = false;
 
 		k.onUpdate(() => {
 			if (player.isInDialogue) return;
 			if (isFullMapView) return;
+
+			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
+				if (!walkingSound) {
+					walkingSound = k.play("footstep", { loop: true });
+				}
+			} else {
+				if (walkingSound) {
+					walkingSound.stop();
+					walkingSound = null;
+				}
+			}
 
 			const directionVector = k.vec2(0, 0);
 			if (k.isKeyDown("left") || k.isKeyDown("a")) {

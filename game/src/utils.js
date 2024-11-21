@@ -1,6 +1,5 @@
 import {scaleFactor} from "./constants.js";
 
-
 const closeBtn = document.getElementById("close");
 const dialogueUI = document.getElementById("textbox-container");
 const dialogue = document.getElementById("dialogue");
