@@ -168,10 +168,12 @@ select:focus, input:focus {
 
 .settings-container {
     margin: 0.5em 0;
-    gap: 10px;
+    column-gap: 20px;
+    row-gap: 10px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: auto 1fr;
     align-items: center;
+    text-align: left;
 }
 
 input[type="range"] {
