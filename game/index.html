@@ -22,23 +22,15 @@
                         <img src="/images/female.png" alt="Female Character">
                     </div>
                 </div>
-                <div id="spawnpoint-container">
-                    <label for="spawnpoint">Spawnpoint: </label><select id="spawnpoint">
-                    </select>
-                </div>
                 <div class="settings-container">
-                    <div class="sound-container">
-                        <div>
-                            <label for="music-toggle">Mute Music: </label>
-                            <input type="checkbox" id="music-toggle" />
-                        </div>
-                        <div>
-                            <label for="sound-effects-toggle">Mute Sound Effects: </label>
-                            <input type="checkbox" id="sound-effects-toggle" />
-                        </div>
-                    </div>
-                    <button id="start" class="button">Start</button>
+                    <label for="spawnpoint">Spawnpunkt: </label><select id="spawnpoint"></select>
+                    <label for="dog-name">Dein Hund heisst: </label><input type="text" id="dog-name">
+                    <label for="music-volume">Musiklautstaerke: </label>
+                    <input type="range" id="music-volume" min="0" max="100" value="50">
+                    <label for="sounds-volume">Effektlautstaerke: </label>
+                    <input type="range" id="sounds-volume" min="0" max="100" value="50">
                 </div>
+                <button id="start" class="button">Start</button>
             </div>
             <div class="note">
                 <img id="logo" src="/images/logo.png" />

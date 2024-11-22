@@ -1,10 +1,11 @@
-import { dialogueData, maps, scaleFactor } from "./constants";
+import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
+import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
 let spawnpoint;
+let dogName;
 let sound_effects_volume = "0.5";
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
@@ -56,10 +57,13 @@ for (let i = 0; i < maps.length; i++) {
 	setupScene(map, `./maps/${map}.json`, map);
 }
 
+const random_song = music[Math.floor(Math.random() * music.length)];
+k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+
 //läd die Sounds im Hintergrund
-k.loadSound("bgm", "./sounds/bg-music.mp3");
-k.loadSound("boundary", "./sounds/boundary.mp3");
-k.loadSound("talk", "./sounds/talk.mp3");
+k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
+k.loadSound("talk", "./sounds/effects/talk.mp3");
+k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -69,11 +73,23 @@ k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
 	const during_game = document.getElementsByClassName("during-game");
 	const start_game = document.getElementById("start");
-	const music_toggle = document.getElementById("music-toggle");
-	const sound_effects_toggle = document.getElementById("sound-effects-toggle");
+	const music_volume_slider = document.getElementById("music-volume");
+	const sounds_volume = document.getElementById("sounds-volume");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+	const dog_name_input = document.getElementById("dog-name");
+
+	const lastSpawnpoint = getCookie("spawnpoint");
+	const lastMusicVolume = getCookie("music_volume");
+	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
+	const lastDogName = getCookie("dog_name");
+
+	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 5;
+	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 5;
+	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
+	dog_name_input.value = lastDogName ? lastDogName : "Bello";
+
 	male_button.addEventListener("click", () => {
 		character = "character-male";
 		female_button.classList.remove("selected");
@@ -96,11 +112,18 @@ k.scene("loading", () => {
 		startGame()
 	});
 	function startGame() {
-		const volume = music_toggle.checked ? 0 : 0.2;
-		sound_effects_volume = sound_effects_toggle.checked ? 0 : 0.5;
+		const music_volume = music_volume_slider.value / 10;
+		sound_effects_volume = sounds_volume.value / 10;
 		spawnpoint = select_spawnpoint.value;
+		dogName = dog_name_input.value;
+
+		setCookie("spawnpoint", spawnpoint, 365);
+		setCookie("music_volume", music_volume, 365);
+		setCookie("sound_effects_volume", sound_effects_volume, 365);
+		setCookie("dog_name", dogName, 365);
+
 		const music = k.play("bgm", {
-			volume: volume,
+			volume: music_volume,
 			loop: true
 		})
 		starting_screen.style.display = "none";
@@ -157,7 +180,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Erstellt den Hundename-Tag
 		const dogNameTag = k.make([
-			k.text("JJ", { size: 18 }),
+			k.text(dogName.toUpperCase(), { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(0, -50) },
 		]);
@@ -177,7 +200,26 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					]);
 
 					if (boundary.name !== "boundary") {
+						let bounceOffset = 0;
+						let bounceSpeed = 0.001;
+
+						const exclamation = k.add([
+							k.text("!", { size: 40 }),
+							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
+							k.z(10),
+							"exclamation",
+						]);
+
+						k.onUpdate("exclamation", (e) => {
+							bounceOffset += bounceSpeed;
+							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
+								bounceSpeed *= -1;
+							}
+							e.pos.y = e.pos.y + bounceOffset;
+						});
+
 						player.onCollide(boundary.name, () => {
+							k.destroy(exclamation);
 							player.isInDialogue = true;
 							k.play("talk", {
 								volume: sound_effects_volume,
@@ -219,7 +261,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				}
 				continue;
 			}
-      
+
 			//Setzt den Spieler auf die Spawnposition
 			if (layer.name === "spawnpoints") {
 				for (const entity of layer.objects) {
@@ -239,28 +281,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						k.add(dogNameTag);
 					}
 				}
-			}
-
-			//Teleports to other scenes
-			if (layer.name === "goto") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
-
-					if (boundary.name) {
-						player.onCollide(boundary.name, () => {
-							k.go(boundary.name);
-						});
-					}
-				}
-				continue;
 			}
 		}
 
@@ -308,16 +328,27 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				player.flipX = false;
 				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
 				player.direction = "left";
-
 			}
 		});
 
 		//Player movement with keyboard
 		const diagonalFactor = 1 / Math.sqrt(2);
+		let walkingSound = false;
 
 		k.onUpdate(() => {
 			if (player.isInDialogue) return;
 			if (isFullMapView) return;
+
+			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
+				if (!walkingSound) {
+					walkingSound = k.play("footstep", { loop: true });
+				}
+			} else {
+				if (walkingSound) {
+					walkingSound.stop();
+					walkingSound = null;
+				}
+			}
 
 			const directionVector = k.vec2(0, 0);
 			if (k.isKeyDown("left") || k.isKeyDown("a")) {
@@ -383,11 +414,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			}
 			dog.play("dog-idle-side");
 		}
-
-		//Sound Effects
-		k.onCollide("player", "boundary", () => {
-			k.play("boundary");
-		});
 
 		//Visuals
 		k.onUpdate(() => {

@@ -137,15 +137,7 @@ body {
     transform: scale(1.1);
 }
 
-#spawnpoint-container {
-    margin: 0.5em 0;
-    gap: 10px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-select {
+select, input {
     font-family: 'Monogram', monospace;
     font-size: 30px;
     padding: 5px;
@@ -159,13 +151,14 @@ select {
     text-transform: uppercase;
     width: 100%;
     text-align-last: center;
+    box-sizing: border-box;
 }
 
-select:hover {
+select:hover, input:hover {
     background-color: #e0e0e0;
 }
 
-select:focus {
+select:focus, input:focus {
     border-color: #ffcc00;
 }
 
@@ -174,13 +167,47 @@ select:focus {
 }
 
 .settings-container {
-    display: flex;
+    margin: 0.5em 0;
+    column-gap: 20px;
+    row-gap: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 40px;
+    text-align: left;
 }
 
-.sound-container {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
+input[type="range"] {
+    padding-left: 0;
+    padding-right: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 60%;
+    background: #000;
+    border: 2px solid #ffcc00;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ffcc00;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb,
+input[type="range"]::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    background: #000;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="range"]:focus {
+    border-color: #000;
 }
