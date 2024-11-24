@@ -4,6 +4,11 @@ export let maps = [
   'klassenzimmer',
   'unternehmensausstellung',
 ]
+export const music = [
+    'cave_tuto',
+    'eglise_orgue',
+    'haunted'
+]
 export const scaleFactor = 4;
 
 /**
@@ -34,6 +39,7 @@ export const dialogueData = {
     id: 0,
     title: 'siranq',
     text: `siranq`,
+
     answers: [
       'Answer 1',
       'Answer 2',
