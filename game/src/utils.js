@@ -3,9 +3,10 @@ import {scaleFactor} from "./constants.js";
 
 const closeBtn = document.getElementById("close");
 const dialogueUI = document.getElementById("textbox-container");
-const dialogue = document.getElementById("dialogue");
+const dialogueContainer = document.getElementById("dialogue");
 
 let currentDialogue;
+let remainingDialogues = [];
 let typer;
 
 class Typing {
@@ -64,80 +65,119 @@ class Typing {
     }
 }
 
-async function typingEffect(text) {
-    if (typer) typer.stop(true);
+class Dialogue {
 
-    const textSegments = text.split("\n");
+    _currentDialogue;
+    _remainingDialogues = [];
+    _typer;
 
-    dialogue.innerHTML = "";
-    if (currentDialogue.title) {
-        const headerElement = document.createElement("h2");
-        headerElement.innerHTML = currentDialogue.title;
-        dialogue.appendChild(headerElement);
-    }
-    const textElement = document.createElement("p");
-    dialogue.appendChild(textElement);
+    _score = 0;
+    _answeredQuizzes = [];
 
-    typer = new Typing(textElement, textSegments);
-    await typer.promise;
-
-    closeBtn.innerHTML = "Close";
-}
-
-function onCloseBtnClick() {
-    if (typer?.remaining)
-        return typer.skip();
-    if (typer) typer.stop(true);
-    currentDialogue.onDisplayEnd();
-    currentDialogue = null;
-    dialogueUI.style.display = "none";
-}
-
-closeBtn.addEventListener("click", onCloseBtnClick);
-
-document.addEventListener("keydown", (key) => {
-    if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
-        const number = key.code.slice(-1) - 0;
-        onQuestionAwnser(number);
-    } else {
-        if (!currentDialogue) return;
-        if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
-    }
-});
-
-
-async function onQuestionAwnser(number) {
-    if (!currentDialogue) return;
-    if (currentDialogue.correctAnswer === 0) return;
-    if (number === 0) return;
-    if (currentDialogue.answers.length < number) return;
-
-    if (currentDialogue.correctAnswer === number) {
-        await typingEffect(currentDialogue.correctText); //TODO: punktesystem
-    } else {
-        await typingEffect(currentDialogue.wrongText);
-    }
-    currentDialogue.correctAnswer = 0;
-}
-
-export async function displayDialogue(dialogue_options, onDisplayEnd) {
-    currentDialogue = Object.assign({}, dialogue_options, { onDisplayEnd });
-
-    dialogueUI.style.display = "block";
-    let answered = false;
-
-    await typingEffect(currentDialogue.text);
-
-    for (let index = 0; index < currentDialogue.answers.length; index++) {
-        const button = document.createElement("button");
-        button.classList.add("question-btn");
-        button.innerHTML = currentDialogue.answers[index];
-        button.addEventListener("click", () => {
-            onQuestionAwnser(index + 1);
+    constructor() {
+        closeBtn.addEventListener("click", this._close_or_next.bind(this));
+        document.addEventListener("keydown", (key) => {
+            if (!this._currentDialogue) return;
+            if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
+                const number = key.code.slice(-1) - 0;
+                this._questionAnswer(number);
+            } else {
+                if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
+            }
         });
-        dialogue.appendChild(button);
+    }
+
+    display(dialogue_options, onDisplayEnd){
+        this._remainingDialogues = [];
+        if(Array.isArray(dialogue_options)){
+            this._remainingDialogues = dialogue_options.map(d => Object.assign({}, d, { onDisplayEnd }));
+        }else{
+            this._remainingDialogues = [Object.assign({}, dialogue_options, { onDisplayEnd })];
+        }
+        this._display();
+    }
+
+    inDialogue(){
+        return !!(this._currentDialogue && typeof this._currentDialogue == "object");
+    }
+
+    getScore(){
+        return this._score;
+    }
+
+    resetScore(){
+        this._answeredQuizzes = [];
+        this._score = 0;
+    }
+
+    async _typingEffect(text) {
+        if (this._typer) this._typer.stop(true);
+
+        const textSegments = text.split("\n");
+
+        dialogueContainer.innerHTML = "";
+        if (this._currentDialogue.title) {
+            const headerElement = document.createElement("h2");
+            headerElement.innerHTML = this._currentDialogue.title;
+            dialogueContainer.appendChild(headerElement);
+        }
+        const textElement = document.createElement("p");
+        dialogueContainer.appendChild(textElement);
+
+        this._typer = new Typing(textElement, textSegments);
+        await this._typer.promise;
+
+        closeBtn.innerHTML = "Close";
+    }
+
+    _close_or_next() {
+        if (this._typer?.remaining)
+            return this._typer.skip();
+        if (this._typer) this._typer.stop(true);
+        if (this._remainingDialogues.length > 0)
+            return this._display();
+        this._currentDialogue.onDisplayEnd();
+        this._currentDialogue = null;
+        dialogueUI.style.display = "none";
+    }
+
+    _display(){
+        if(this._remainingDialogues.length === 0) return this._close_or_next();
+        this._currentDialogue = this._remainingDialogues.shift();
+        dialogueUI.style.display = "block";
+        this._typingEffect(this._currentDialogue.text);
+
+        for (let index = 0; index < this._currentDialogue.answers.length; index++) {
+            const button = document.createElement("button");
+            button.classList.add("question-btn");
+            button.innerHTML = this._currentDialogue.answers[index];
+            button.addEventListener("click", () => {
+                this.onQuestionAwnser(index + 1);
+            });
+            dialogueContainer.appendChild(button);
+        }
+    }
+
+    _questionAnswer(number) {
+        if (!this._currentDialogue) return;
+        if (this._currentDialogue.correctAnswer === 0) return;
+        if (number === 0) return;
+        if (this._currentDialogue.answers.length < number) return;
+
+        if (this._currentDialogue.correctAnswer === number) {
+            if(!this._answeredQuizzes.includes(this._currentDialogue.id)){
+            this._score++;
+            this._answeredQuizzes.push(this._currentDialogue.id);}
+            this._typingEffect(this._currentDialogue.correctText);
+        } else {
+            this._remainingDialogues = []; // Wenn falsch, keine weiteren Dialoge anzeigen
+            this._typingEffect(this._currentDialogue.wrongText);
+        }
+        this._currentDialogue.correctAnswer = 0;
     }
 }
+
+export const dialogue = new Dialogue();
 
 export function setCamScale(k) {
     const resizeFactor = k.width() / k.height();

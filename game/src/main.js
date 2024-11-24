@@ -1,6 +1,6 @@
 import { dialogueData, maps, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
+import { dialogue, enableFullMapView, disableFullMapView, setCamScale } from "./utils";
 
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
@@ -119,7 +119,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			{
 				speed: 250,
 				direction: "down",
-				isInDialogue: false,
+				get isInDialogue () {return dialogue.inDialogue()},
+				get score () {return dialogue.getScore()},
 			},
 			"player",
 		]);
@@ -275,12 +276,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 					if (boundary.name !== "boundary") {
 						player.onCollide(boundary.name, () => {
-							player.isInDialogue = true;
 							showWorldMapBtn.style.display = "none";
 							k.play("talk");
-							displayDialogue(
+							dialogue.display(
 								dialogueData[boundary.name],
-								() => (player.isInDialogue = false, showWorldMapBtn.style.display = "block")
+								() => (showWorldMapBtn.style.display = "block")
 							);
 						});
 					}

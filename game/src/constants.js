@@ -30,7 +30,8 @@ export const dialogueData = {
     answers: [
     ],
   },
-  siranq: {
+  siranq: [{
+    id: 0,
     title: 'siranq',
     text: `siranq`,
     answers: [
@@ -42,7 +43,20 @@ export const dialogueData = {
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Richtig!',
     wrongText: 'Falsch!',
-  },
+  },{
+    id: 1,
+    title: 'siranq',
+    text: `ssssssssssssss`,
+    answers: [
+      'Answer 1',
+      'Answer 2',
+      'Answer 3',
+      'Answer 4',
+    ],
+    correctAnswer: 4, // = index of correct answer + 1
+    correctText: 'Richtig!',
+    wrongText: 'Falsch!',
+  },],
   boehringer: {
     title: 'boehringer',
     text: `boehringer`,
