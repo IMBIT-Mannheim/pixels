@@ -1,6 +1,5 @@
 import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-
 import { dialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
