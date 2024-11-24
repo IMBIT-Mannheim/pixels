@@ -1,6 +1,6 @@
 import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-import { displayDialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
+import { dialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 let character = "character-male";
@@ -158,7 +158,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			{
 				speed: 250,
 				direction: "down",
-				isInDialogue: false,
+				get isInDialogue () {return dialogue.inDialogue()},
+				get score () {return dialogue.getScore()},
 			},
 			"player",
 		]);
@@ -219,14 +220,14 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						});
 
 						player.onCollide(boundary.name, () => {
-							k.destroy(exclamation);
-							player.isInDialogue = true;
+							showWorldMapBtn.style.display = "none";
+              k.destroy(exclamation);
 							k.play("talk", {
 								volume: sound_effects_volume,
 							});
-							displayDialogue(
+							dialogue.display(
 								dialogueData[boundary.name],
-								() => (player.isInDialogue = false)
+								() => (showWorldMapBtn.style.display = "block")
 							);
 						});
 					}
