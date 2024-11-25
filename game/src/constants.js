@@ -1,7 +1,7 @@
 export let maps = [
   'almeria',
   'mensa',
-  'klassenzimmer',
+  'classrooms',
   'unternehmensausstellung',
 ]
 export const music = [
