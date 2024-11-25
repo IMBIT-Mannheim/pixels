@@ -44,6 +44,12 @@ export const dialogueData = {
     ],
   },
   //Mensa
+  fernseher: {
+    title: 'Aktueller Speiseplan',
+    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen/speiseplaene/speiseplaene-mannheim.html">Hier</a> fist der Link.`,
+    answers: [
+    ],
+  },
 
   // Unternehmensausstellung
   ey: {
