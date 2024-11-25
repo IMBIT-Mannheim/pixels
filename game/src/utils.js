@@ -142,6 +142,7 @@ class Dialogue {
         this._currentDialogue = this._remainingDialogues.shift();
         dialogueUI.style.display = "block";
         this._typingEffect(this._currentDialogue.text);
+
         for (let index = 0; index < this._currentDialogue.answers.length; index++) {
             const button = document.createElement("button");
             button.classList.add("question-btn");
