@@ -165,6 +165,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
+			k.z(9),
 			k.scale(scaleFactor),
 			{
 				speed: 250,
