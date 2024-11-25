@@ -236,6 +236,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							k.play("talk", {
 								volume: sound_effects_volume,
 							});
+							walkingSound.stop();
+							walkingSound = null;
 							dialogue.display(
 								dialogueData[boundary.name],
 								() => (showWorldMapBtn.style.display = "block")
@@ -352,7 +354,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
 				if (!walkingSound) {
-					walkingSound = k.play("footstep", { loop: true });
+					walkingSound = k.play("footstep", { loop: true, volume: sound_effects_volume });
 				}
 			} else {
 				if (walkingSound) {
