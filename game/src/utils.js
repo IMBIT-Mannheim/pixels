@@ -34,7 +34,8 @@ class Typing {
 
     type() {
         if (this.index < this.texts[this.textIdx].length) {
-            this.textElement.innerHTML += this.texts[this.textIdx][this.index];
+            const newText = this.texts[this.textIdx].slice(0, this.index);
+            this.textElement.innerHTML = newText;
             this.index++;
         } else {
             this.stop();
@@ -137,14 +138,15 @@ class Dialogue {
         dialogueUI.style.display = "none";
     }
 
-    _display(){
+    async _display(){
         if(this._remainingDialogues.length === 0) return this._close_or_next();
         this._currentDialogue = this._remainingDialogues.shift();
         dialogueUI.style.display = "block";
-        this._typingEffect(this._currentDialogue.text);
+        await this._typingEffect(this._currentDialogue.text);
 
         for (let index = 0; index < this._currentDialogue.answers.length; index++) {
             const button = document.createElement("button");
+            button.classList.add("button");
             button.classList.add("question-btn");
             button.innerHTML = this._currentDialogue.answers[index];
             button.addEventListener("click", () => {
