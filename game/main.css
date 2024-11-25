@@ -237,10 +237,9 @@ input[type="range"]::-ms-thumb {
     transform: translate(-50%, -50%);
     height: 100%;
     width: 100%;
-    grid-template-columns: auto auto;
+    display: none;
     background-color: rgba(0, 0, 0, 0.8);
     color: #e0e0e0;
-    display: none;
 }
 
 #world-map img {

@@ -437,7 +437,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
 			stopAnims();
-			world_map.style.display = "grid";
+			world_map.style.display = "flex";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
@@ -450,7 +450,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Hide World Map (M)";
-				world_map.style.display = "grid";
+				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Show World Map (M)";
