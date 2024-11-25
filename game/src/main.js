@@ -161,7 +161,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Erstellt den Spieler
 		const player = k.make([
 			k.sprite(character, { anim: "idle-down" }),
-			k.area(),
+			k.area({ shape: new k.Rect(k.vec2(0), 15, 30) }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
@@ -169,8 +169,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			{
 				speed: 250,
 				direction: "down",
-				get isInDialogue () {return dialogue.inDialogue()},
-				get score () {return dialogue.getScore()},
+				get isInDialogue() { return dialogue.inDialogue() },
+				get score() { return dialogue.getScore() },
 			},
 			"player",
 		]);
@@ -178,7 +178,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
-			k.area(),
+			k.area({ shape: new k.Rect(k.vec2(0), 20, 20) }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
@@ -194,7 +194,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		const dogNameTag = k.make([
 			k.text(dogName.toUpperCase(), { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
-			{ followOffset: k.vec2(0, -50) },
+			{ followOffset: k.vec2(-20, -50) },
 		]);
 
 		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
@@ -232,7 +232,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 						player.onCollide(boundary.name, () => {
 							showWorldMapBtn.style.display = "none";
-              k.destroy(exclamation);
+							k.destroy(exclamation);
 							k.play("talk", {
 								volume: sound_effects_volume,
 							});
@@ -243,7 +243,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						});
 					}
 				}
-
 				continue;
 			}
 

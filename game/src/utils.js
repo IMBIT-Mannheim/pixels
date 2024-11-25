@@ -148,7 +148,7 @@ class Dialogue {
             button.classList.add("question-btn");
             button.innerHTML = this._currentDialogue.answers[index];
             button.addEventListener("click", () => {
-                this.onQuestionAwnser(index + 1);
+                this._questionAnswer(index + 1);
             });
             dialogueContainer.appendChild(button);
         }
