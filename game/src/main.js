@@ -85,8 +85,8 @@ k.scene("loading", () => {
 	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
 	const lastDogName = getCookie("dog_name");
 
-	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 5;
-	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 5;
+	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
+	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
 	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 

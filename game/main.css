@@ -17,9 +17,11 @@ body {
 }
 
 #logo {
-    width: 20%;
+    position: absolute;
+    top: 1vh;
+    left: 1vh;
+    width: 15%;
     margin: 0.5em 0;
-    color: #ffd700;
     z-index: 10;
 }
 
@@ -43,6 +45,10 @@ body {
     /* overflow: auto; */
 }
 
+#textbox-container {
+    display: none;
+}
+
 #dialogue h2, #dialogue p {
     padding: 0;
     margin: 0 0 1rem 0;
@@ -64,13 +70,6 @@ body {
 .btn-container {
     align-self: flex-end;
     margin-top: 1rem;
-}
-
-.note {
-    position: absolute;
-    left: 5%;
-    top: 1vh;
-    color: rgb(238, 238, 238);
 }
 
 .button {
@@ -208,6 +207,18 @@ input[type="range"]::-ms-thumb {
     cursor: pointer;
 }
 
-input[type="range"]:focus {
-    border-color: #000;
+.stats-container {
+    position: absolute;
+    top: 1vh;
+    right: 1vh;
+    color: #ffcc00;
+    font-size: 3rem;
+}
+
+.stats-container div {
+    background-color: #2d2929;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+    text-align: center;
 }
