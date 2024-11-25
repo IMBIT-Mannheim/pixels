@@ -1,8 +1,10 @@
 import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
-import { dialogue, enableFullMapView, disableFullMapView, setCamScale, setCookie, getCookie } from "./utils";
+import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
+const spawnpoints_world_map = document.getElementById("spawnpoints");
+const world_map = document.getElementById("world-map");
 let character = "character-male";
 let spawnpoint;
 let dogName;
@@ -53,6 +55,15 @@ for (let i = 0; i < maps.length; i++) {
 	opt.value = map;
 	opt.innerHTML = map;
 	select_spawnpoint.appendChild(opt);
+	let button = document.createElement('button');
+	button.className = "button";
+	button.innerHTML = map.toUpperCase();
+	button.addEventListener("click", () => {
+		world_map.style.display = "none";
+		k.go(map);
+		game.focus();
+	});
+	spawnpoints_world_map.appendChild(button);
 	k.loadSprite(map, `./maps/${map}.png`)
 	setupScene(map, `./maps/${map}.json`, map);
 }
@@ -424,12 +435,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
 			stopAnims();
-			enableFullMapView(k, map);
+			world_map.style.display = "grid";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
 			isFullMapView = false;
-			disableFullMapView(k);
+			world_map.style.display = "none";
 		});
 
 		showWorldMapBtn.addEventListener("click", () => {
@@ -437,12 +448,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Hide World Map (M)";
-				enableFullMapView(k, map);
+				world_map.style.display = "grid";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Show World Map (M)";
 				document.getElementById("game").focus();
-				disableFullMapView(k);
+				world_map.style.display = "none";
 			}
 		});
 
