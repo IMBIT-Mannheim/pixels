@@ -3,10 +3,7 @@ import {scaleFactor} from "./constants.js";
 const closeBtn = document.getElementById("close");
 const dialogueUI = document.getElementById("textbox-container");
 const dialogueContainer = document.getElementById("dialogue");
-
-let currentDialogue;
-let remainingDialogues = [];
-let typer;
+const scoreUI = document.getElementById("score-value");
 
 class Typing {
     textElement;
@@ -145,7 +142,6 @@ class Dialogue {
         this._currentDialogue = this._remainingDialogues.shift();
         dialogueUI.style.display = "block";
         this._typingEffect(this._currentDialogue.text);
-
         for (let index = 0; index < this._currentDialogue.answers.length; index++) {
             const button = document.createElement("button");
             button.classList.add("question-btn");
@@ -166,6 +162,7 @@ class Dialogue {
         if (this._currentDialogue.correctAnswer === number) {
             if(!this._answeredQuizzes.includes(this._currentDialogue.id)){
             this._score++;
+            scoreUI.innerHTML = this._score;
             this._answeredQuizzes.push(this._currentDialogue.id);}
             this._typingEffect(this._currentDialogue.correctText);
         } else {
@@ -200,11 +197,9 @@ export function enableFullMapView(k, map) {
 
     k.camPos(mapWidth / 2, mapHeight / 2);
     k.camScale(fitScale);
-    document.getElementsByClassName("note")[0].style.display = "none";
 }
 
 export function disableFullMapView(k) {
-    document.getElementsByClassName("note")[0].style.display = "block";
     setCamScale(k);
 }
 
