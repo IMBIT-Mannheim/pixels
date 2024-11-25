@@ -158,8 +158,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			{
 				speed: 250,
 				direction: "down",
-				get isInDialogue () {return dialogue.inDialogue()},
-				get score () {return dialogue.getScore()},
+				get isInDialogue() { return dialogue.inDialogue() },
+				get score() { return dialogue.getScore() },
 			},
 			"player",
 		]);
@@ -221,7 +221,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 						player.onCollide(boundary.name, () => {
 							showWorldMapBtn.style.display = "none";
-              k.destroy(exclamation);
+							k.destroy(exclamation);
 							k.play("talk", {
 								volume: sound_effects_volume,
 							});
