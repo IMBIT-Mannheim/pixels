@@ -185,25 +185,6 @@ export function setCamScale(k) {
     }
 }
 
-export function enableFullMapView(k, map) {
-    const screenWidth = k.width();
-    const screenHeight = k.height();
-    const mapWidth = map.width * scaleFactor;
-    const mapHeight = map.height * scaleFactor;
-
-    const marginFactor = 0.1;  // 10% margin on each side
-    const scaleX = screenWidth / (mapWidth * (1 + marginFactor));
-    const scaleY = screenHeight / (mapHeight * (1 + marginFactor));
-    const fitScale = Math.min(scaleX, scaleY);
-
-    k.camPos(mapWidth / 2, mapHeight / 2);
-    k.camScale(fitScale);
-}
-
-export function disableFullMapView(k) {
-    setCamScale(k);
-}
-
 export function setCookie(name, value, days) {
     const d = new Date();
     d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
