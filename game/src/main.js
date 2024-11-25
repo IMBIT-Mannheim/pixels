@@ -232,7 +232,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						});
 					}
 				}
-
 				continue;
 			}
 
