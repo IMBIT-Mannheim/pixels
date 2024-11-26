@@ -52,6 +52,12 @@ export const dialogueData = {
     answers: [
     ],
   },
+  bendl: {
+    title: 'Prof. Dr. Harald Bendl',
+    text: `Einführungstext, Hinweis auf Anleitung in der Kartenansicht `,
+    answers: [
+    ],
+  },
 
   // Unternehmensausstellung
   ey: {
