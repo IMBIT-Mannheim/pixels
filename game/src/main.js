@@ -237,8 +237,10 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							k.play("talk", {
 								volume: sound_effects_volume,
 							});
-							walkingSound.stop();
-							walkingSound = null;
+							if (walkingSound) {
+								walkingSound.stop();
+								walkingSound = null;
+							}
 							dialogue.display(
 								dialogueData[boundary.name],
 								() => (showWorldMapBtn.style.display = "block")
