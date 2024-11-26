@@ -1,8 +1,8 @@
 export let maps = [
-  'almeria',
   'mensa',
   'klassenzimmer',
   'unternehmensausstellung',
+  'almeria',
 ]
 export const music = [
   'cave_tuto',
@@ -10,17 +10,6 @@ export const music = [
   'haunted'
 ]
 export const scaleFactor = 4;
-
-/**
- * @type {Record<string, {
-  * title?: string,
-  * text: string,
-  * answers: string[],
-  * correctAnswer?: number,
-  * correctText?: string,
-  * wrongText?: string,
- * }}
- */
 export const dialogueData = {
   //Almeria
 
@@ -58,6 +47,7 @@ export const dialogueData = {
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
+
     text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link. `,
     answers: [
     ],
@@ -67,7 +57,7 @@ export const dialogueData = {
   ey: {
     id: 0,
     title: 'EY',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
     answers: [
       'Ja',
       'Nein',
