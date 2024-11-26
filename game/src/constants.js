@@ -1,8 +1,8 @@
 export let maps = [
-  'almeria',
   'mensa',
   'klassenzimmer',
   'unternehmensausstellung',
+  'almeria',
 ]
 export const music = [
   'cave_tuto',
@@ -10,17 +10,6 @@ export const music = [
   'haunted'
 ]
 export const scaleFactor = 4;
-
-/**
- * @type {Record<string, {
-  * title?: string,
-  * text: string,
-  * answers: string[],
-  * correctAnswer?: number,
-  * correctText?: string,
-  * wrongText?: string,
- * }}
- */
 export const dialogueData = {
   //Almeria
 
@@ -89,11 +78,6 @@ export const dialogueData = {
   boehringer: {
     title: 'boehringer',
     text: `boehringer`,
-    answers: []
-  },
-  suitguy: {
-    title: 'suitguy',
-    text: `suitguy`,
     answers: []
   },
   suitguy: {
