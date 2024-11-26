@@ -179,7 +179,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
-			k.area({ shape: new k.Rect(k.vec2(0), 20, 20) }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),

@@ -20,7 +20,7 @@ body {
     position: absolute;
     top: 1vh;
     left: 1vh;
-    width: 15%;
+    width: 20%;
     margin: 0.5em 0;
     z-index: 10;
 }
@@ -95,6 +95,7 @@ body {
 
 #starting-screen {
     position: absolute;
+    width: 100%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -102,6 +103,8 @@ body {
     flex-direction: column;
     align-items: center;
     height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #character-container {
