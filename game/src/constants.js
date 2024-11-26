@@ -58,7 +58,7 @@ export const dialogueData = {
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
-    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link.`,
+    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link. `,
     answers: [
     ],
   },
@@ -67,7 +67,7 @@ export const dialogueData = {
   ey: {
     id: 0,
     title: 'EY',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -79,7 +79,7 @@ export const dialogueData = {
   siranq: {
     id: 1,
     title: 'Sirona',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -91,7 +91,7 @@ export const dialogueData = {
   boehringer: {
     id: 2,
     title: 'Boehringer',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -103,7 +103,7 @@ export const dialogueData = {
   pwc: {
     id: 3,
     title: 'PWC',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -115,7 +115,7 @@ export const dialogueData = {
   linde: {
     id: 4,
     title: 'Linde',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -127,7 +127,7 @@ export const dialogueData = {
   eviden: {
     id: 5,
     title: 'Eviden',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
