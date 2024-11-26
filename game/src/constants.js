@@ -140,6 +140,7 @@ export const dialogueData = {
     id: 999,
     title: 'suitguy',
     text: `Das ist random demo text \n Das ist die Frage zu den Antworten unten! `,
+
     answers: [
       'Answer 1',
       'Answer 2',
@@ -152,6 +153,7 @@ export const dialogueData = {
   }, {
     id: 99,
     title: 'suitguy',
+
     text: `sssssssssssssst `,
     answers: [
       'Answer 1',
