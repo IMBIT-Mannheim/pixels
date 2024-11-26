@@ -148,6 +148,7 @@ class Dialogue {
             const button = document.createElement("button");
             button.classList.add("button");
             button.classList.add("question-btn");
+
             button.innerHTML = this._currentDialogue.answers[index];
             button.addEventListener("click", () => {
                 this._questionAnswer(index + 1);

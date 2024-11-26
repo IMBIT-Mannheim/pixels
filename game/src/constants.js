@@ -74,7 +74,6 @@ export const dialogueData = {
     id: 0,
     title: 'siranq',
     text: `Das ist random text ueber Siranq \n Das ist die Frage zu den Antworten unten! `,
-
     answers: [
       'Answer 1',
       'Answer 2',
