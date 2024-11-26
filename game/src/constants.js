@@ -47,8 +47,13 @@ export const dialogueData = {
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
-
     text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link. `,
+    answers: [
+    ],
+  },
+  bendl: {
+    title: 'Prof. Dr. Harald Bendl',
+    text: `Einführungstext, Hinweis auf Anleitung in der Kartenansicht `,
     answers: [
     ],
   },
