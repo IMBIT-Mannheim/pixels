@@ -58,22 +58,89 @@ export const dialogueData = {
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
-    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen/speiseplaene/speiseplaene-mannheim.html">Hier</a> ist der Link.`,
+    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link.`,
     answers: [
     ],
   },
 
   // Unternehmensausstellung
   ey: {
-    title: 'EY',
-    text: `Text ueber \n EY `,
-    answers: [
-    ],
-  },
-  siranq: [{
     id: 0,
-    title: 'siranq',
-    text: `Das ist random text ueber Siranq \n Das ist die Frage zu den Antworten unten! `,
+    title: 'EY',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  siranq: {
+    id: 1,
+    title: 'Sirona',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  boehringer: {
+    id: 2,
+    title: 'Boehringer',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  pwc: {
+    id: 3,
+    title: 'PWC',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  linde: {
+    id: 4,
+    title: 'Linde',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  eviden: {
+    id: 5,
+    title: 'Eviden',
+    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    answers: [
+      'Ja',
+      'Nein',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
+  },
+  suitguy: [{
+    id: 999,
+    title: 'suitguy',
+    text: `Das ist random demo text \n Das ist die Frage zu den Antworten unten! `,
+
     answers: [
       'Answer 1',
       'Answer 2',
@@ -84,8 +151,9 @@ export const dialogueData = {
     correctText: 'Richtig!',
     wrongText: 'Falsch!',
   }, {
-    id: 1,
-    title: 'siranq',
+    id: 99,
+    title: 'suitguy',
+
     text: `sssssssssssssst `,
     answers: [
       'Answer 1',
@@ -97,29 +165,4 @@ export const dialogueData = {
     correctText: 'Richtig!',
     wrongText: 'Falsch!',
   },],
-  boehringer: {
-    title: 'boehringer',
-    text: `boehringer `,
-    answers: []
-  },
-  suitguy: {
-    title: 'suitguy',
-    text: `suitguy `,
-    answers: []
-  },
-  pwc: {
-    title: 'pwc',
-    text: `pwc `,
-    answers: []
-  },
-  linde: {
-    title: 'linde',
-    text: `linde `,
-    answers: []
-  },
-  eviden: {
-    title: 'eviden',
-    text: `eviden `,
-    answers: []
-  },
 };
