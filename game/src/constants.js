@@ -13,6 +13,19 @@ export const music = [
 export const scaleFactor = 4;
 export const dialogueData = {
   //Almeria
+  almeriaOpa: {
+    title: 'Almeria Opa',
+    text: `Hallo Spieler! Du bist nun in Almería, einer sonnigen Küstenstadt Spaniens, wo dich während deiner zwei Wochen an der Universidad de Almería nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Strände und köstliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almería zu bieten hat. Viel Spaß beim Entdecken!
+    \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria1.jpg" alt="Almeria1" width="200" height="150">`,
+    answers: [
+    ],
+  },
+  almeriaGuy: {
+    title: 'Almeria Guy',
+    text: `Während des Studiums geht es für unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen."`,
+    answers: [
+    ],
+  },
 
   //Klassenzimmer
   factone: {
@@ -35,15 +48,157 @@ export const dialogueData = {
   },
   factfour: {
     title: 'factfour',
-    text: `<a href="https://pixels.imbit-n3xt.com/downloads/Auslands_erfahrungen_ppt.pptx">Download</a>. `,
+    text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
   },
   factfive: {
     title: 'factfive',
-    text: `factfive. `,
+    text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
+  },
+  bwlopa: [{
+    id: 16,
+    title: 'Prof. Magnolica',
+    text: `Willkommen! Ich bin Professor Magnolica. Die Räder der Wirtschaft drehen sich ständig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP?`,
+    answers: [
+      '1) Die Inflation eines Landes',
+      '2) Den Gesamtwert aller Güter und Dienstleistungen eines Landes',
+      '3) Die Arbeitslosenquote',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id: 15,
+    title: 'Prof. Magnolica',
+    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
+    answers: [
+      '1) VWL',
+      '2) BWL',
+      '3) DWL',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! Du hast ein gutes Verständnis der Wirtschaft. ',
+    wrongText: 'Falsch! ',
+  },],
+  bwlGuy: [{
+    id: 14,
+    title: 'Prof. Burnett',
+    text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen können manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchführung? `,
+    answers: [
+      '1) Aktiva = Passiva',
+      '2) Einnahmen = Ausgaben',
+      '3) Soll = Gewinn',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  }, {
+    id: 13,
+    title: 'Prof. Burnett',
+    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
+    answers: [
+      '1) Grundlagen der Rechnungslegung',
+      '2) Statistik',
+      '3) Marketing',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Du hast ein gutes Verständnis für die Grundlagen. ',
+    wrongText: 'Falsch! ',
+  },],
+  bwlgirl: [{
+    id: 12,
+    title: 'Prof. Eibe',
+    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit für eine Denksportaufgabe? \n Was beschreibt eine SWOT-Analyse? `,
+    answers: [
+      '1) Geschäftsrisiken',
+      '2) Finanzbuchhaltung',
+      '3) Softwareentwicklung',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id: 11,
+    title: 'Prof. Eibe',
+    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
+    answers: [
+      '1) BWL',
+      '2) VWL',
+      '3) Unternehmensführung',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Sehr gut! Du denkst strategisch. ',
+    wrongText: 'Falsch! ',
+  },],
+  itgirl1: [{
+    id: 10,
+    title: 'Prof. Birk',
+    text: `Grüß dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
+    answers: [
+      '1) Daten speichern',
+      '2) Text ausgeben',
+      '3) Schleifen ausführen',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id: 9,
+    title: 'Prof. Birk',
+    text: `Bonusfrage: „Welches Fach könnte ich wohl unterrichten?" `,
+    answers: [
+      '1) Programmierung',
+      '2) Cryptographie',
+      '3) Datasecurity',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Du hast den Dreh raus.“',
+    wrongText: 'Falsch! ',
+  },],
+  itgirl2: [{
+    id: 8,
+    title: 'Prof. Lind',
+    text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Prüfung: \n Welches der folgenden ist keine Speicherart?“`,
+    answers: [
+      '1) RAM',
+      '2) CPU',
+      '3) HDD',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id: 7,
+    title: 'Prof. Lind',
+    text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
+    answers: [
+      '1) Grundlegende Konzepte der IT',
+      '2) Computerwissenschaft',
+      '3) Netzwerke',
+    ],
+    correctAnswer: 1, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
+  },],
+  itguy: {
+    id: 6,
+    title: 'Prof. Eich',
+    text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit für meine Aufgabe? Wofür steht der Begriff BIS?“`,
+    answers: [
+      '1) Basis Instandhaltungssysteme',
+      '2) Betriebliche Informationssysteme (x)',
+      '3) Bedingte Informationssperre',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Weiter so. ',
+    wrongText: 'Falsch! ',
   },
   //Mensa
   fernseher: {
@@ -54,7 +209,13 @@ export const dialogueData = {
   },
   bendl: {
     title: 'Prof. Dr. Harald Bendl',
-    text: `Einführungstext, Hinweis auf Anleitung in der Kartenansicht `,
+    text: `Willkommen im IMBIT-Pixels-Spiel und in der Mensa der DHBW Mannheim! Ich bin Prof. Harald Bendl und leite einer der IMBIT-Studiengänge hier in Mannheim. Entdecke, was dir die DHBW und das Studium zu bieten hat."`,
+    answers: [
+    ],
+  },
+  mensafrau: {
+    title: 'Mensa Frau',
+    text: `Gute Wahl, Nudeln mit weißer Soße und saisonalem Gemüse – kostet 3 Euro!"`,
     answers: [
     ],
   },
@@ -132,33 +293,11 @@ export const dialogueData = {
     correctText: 'Sehr gut! ',
     wrongText: 'Das ist aber nicht gut... Bitte lies dir die Inhalte nochmal durch! ',
   },
-  suitguy: [{
-    id: 999,
-    title: 'suitguy',
-    text: `Das ist random demo text \n Das ist die Frage zu den Antworten unten! `,
+  suitguy: {
+    title: 'Suit Guy',
+    text: `Willkommen bei der Unternehmensausstellung! Hier erfährst du mehr über einige unserer Partnerunternehmen. Für jedes Unternehmen, dessen Infos du dir durchliest, bekommst du einen Punkt. \n Die Punkte werden automatisch zu deinem Score hinzugefügt.“`,
 
     answers: [
-      'Answer 1',
-      'Answer 2',
-      'Answer 3',
-      'Answer 4',
     ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Richtig!',
-    wrongText: 'Falsch!',
-  }, {
-    id: 99,
-    title: 'suitguy',
-
-    text: `sssssssssssssst `,
-    answers: [
-      'Answer 1',
-      'Answer 2',
-      'Answer 3',
-      'Answer 4',
-    ],
-    correctAnswer: 4, // = index of correct answer + 1
-    correctText: 'Richtig!',
-    wrongText: 'Falsch!',
-  },],
+  },
 };
