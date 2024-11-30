@@ -3,6 +3,7 @@ export let maps = [
   'klassenzimmer',
   'unternehmensausstellung',
   'almeria',
+  'campus',
 ]
 export const music = [
   'cave_tuto',
