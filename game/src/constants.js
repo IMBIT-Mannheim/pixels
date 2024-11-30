@@ -15,14 +15,13 @@ export const dialogueData = {
   //Almeria
   almeriaOpa: {
     title: 'Almeria Opa',
-    text: `Hallo Spieler! Du bist nun in Almería, einer sonnigen Küstenstadt Spaniens, wo dich während deiner zwei Wochen an der Universidad de Almería nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Strände und köstliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almería zu bieten hat. Viel Spaß beim Entdecken!
-    \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria1.jpg" alt="Almeria1" width="200" height="150">`,
+    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria1.jpg" alt="Almeria1" width="200" height="150"> \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria2.jpg" alt="Almeria2" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria3.jpg" alt="Almeria3" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria4.jpg" alt="Almeria4" width="200" height="150"> \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria5.jpg" alt="Almeria5" width="200" height="150"> \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria6.jpg" alt="Almeria5" width="200" height="150"> \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria7.jpg" alt="Almeria5" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria8.jpg" alt="Almeria5" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria9.jpg" alt="Almeria5" width="200" height="150"> \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria10.jpg" alt="Almeria5" width="200" height="150"> \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
     answers: [
     ],
   },
   almeriaGuy: {
     title: 'Almeria Guy',
-    text: `Während des Studiums geht es für unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen."`,
+    text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a href="https://pixels.imbit-n3xt.com/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
     answers: [
     ],
   },
@@ -61,10 +60,10 @@ export const dialogueData = {
   bwlopa: [{
     id: 16,
     title: 'Prof. Magnolica',
-    text: `Willkommen! Ich bin Professor Magnolica. Die Räder der Wirtschaft drehen sich ständig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP?`,
+    text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP?`,
     answers: [
       '1) Die Inflation eines Landes',
-      '2) Den Gesamtwert aller Güter und Dienstleistungen eines Landes',
+      '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes',
       '3) Die Arbeitslosenquote',
     ],
     correctAnswer: 2, // = index of correct answer + 1
@@ -81,13 +80,13 @@ export const dialogueData = {
       '3) DWL',
     ],
     correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Sehr gut! Du hast ein gutes Verständnis der Wirtschaft. ',
+    correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft. ',
     wrongText: 'Falsch! ',
   },],
   bwlGuy: [{
     id: 14,
     title: 'Prof. Burnett',
-    text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen können manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchführung? `,
+    text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchfuehrung? `,
     answers: [
       '1) Aktiva = Passiva',
       '2) Einnahmen = Ausgaben',
@@ -106,15 +105,15 @@ export const dialogueData = {
       '3) Marketing',
     ],
     correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Du hast ein gutes Verständnis für die Grundlagen. ',
+    correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
     wrongText: 'Falsch! ',
   },],
   bwlgirl: [{
     id: 12,
     title: 'Prof. Eibe',
-    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit für eine Denksportaufgabe? \n Was beschreibt eine SWOT-Analyse? `,
+    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was beschreibt eine SWOT-Analyse? `,
     answers: [
-      '1) Geschäftsrisiken',
+      '1) Geschaeftsrisiken',
       '2) Finanzbuchhaltung',
       '3) Softwareentwicklung',
     ],
@@ -129,7 +128,7 @@ export const dialogueData = {
     answers: [
       '1) BWL',
       '2) VWL',
-      '3) Unternehmensführung',
+      '3) Unternehmensfuehrung',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Sehr gut! Du denkst strategisch. ',
@@ -138,11 +137,11 @@ export const dialogueData = {
   itgirl1: [{
     id: 10,
     title: 'Prof. Birk',
-    text: `Grüß dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
+    text: `Gruess dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
     answers: [
       '1) Daten speichern',
       '2) Text ausgeben',
-      '3) Schleifen ausführen',
+      '3) Schleifen ausfuehren',
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -151,7 +150,7 @@ export const dialogueData = {
   {
     id: 9,
     title: 'Prof. Birk',
-    text: `Bonusfrage: „Welches Fach könnte ich wohl unterrichten?" `,
+    text: `Bonusfrage: „Welches Fach koennte ich wohl unterrichten?" `,
     answers: [
       '1) Programmierung',
       '2) Cryptographie',
@@ -164,7 +163,7 @@ export const dialogueData = {
   itgirl2: [{
     id: 8,
     title: 'Prof. Lind',
-    text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Prüfung: \n Welches der folgenden ist keine Speicherart?“`,
+    text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: \n Welches der folgenden ist keine Speicherart?“`,
     answers: [
       '1) RAM',
       '2) CPU',
@@ -190,7 +189,7 @@ export const dialogueData = {
   itguy: {
     id: 6,
     title: 'Prof. Eich',
-    text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit für meine Aufgabe? Wofür steht der Begriff BIS?“`,
+    text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS?“`,
     answers: [
       '1) Basis Instandhaltungssysteme',
       '2) Betriebliche Informationssysteme (x)',
@@ -209,13 +208,13 @@ export const dialogueData = {
   },
   bendl: {
     title: 'Prof. Dr. Harald Bendl',
-    text: `Willkommen im IMBIT-Pixels-Spiel und in der Mensa der DHBW Mannheim! Ich bin Prof. Harald Bendl und leite einer der IMBIT-Studiengänge hier in Mannheim. Entdecke, was dir die DHBW und das Studium zu bieten hat."`,
+    text: `Willkommen im IMBIT-Pixels-Spiel und in der Mensa der DHBW Mannheim! Ich bin Prof. Harald Bendl und leite einer der IMBIT-Studiengaenge hier in Mannheim. Entdecke, was dir die DHBW und das Studium zu bieten hat."`,
     answers: [
     ],
   },
   mensafrau: {
     title: 'Mensa Frau',
-    text: `Gute Wahl, Nudeln mit weißer Soße und saisonalem Gemüse – kostet 3 Euro!"`,
+    text: `Gute Wahl, Nudeln mit weisser Sosse und saisonalem Gemuese – kostet 3 Euro!"`,
     answers: [
     ],
   },
@@ -295,7 +294,7 @@ export const dialogueData = {
   },
   suitguy: {
     title: 'Suit Guy',
-    text: `Willkommen bei der Unternehmensausstellung! Hier erfährst du mehr über einige unserer Partnerunternehmen. Für jedes Unternehmen, dessen Infos du dir durchliest, bekommst du einen Punkt. \n Die Punkte werden automatisch zu deinem Score hinzugefügt.“`,
+    text: `Willkommen bei der Unternehmensausstellung! Hier erfaehrst du mehr ueber einige unserer Partnerunternehmen. Fuer jedes Unternehmen, dessen Infos du dir durchliest, bekommst du einen Punkt. \n Die Punkte werden automatisch zu deinem Score hinzugefuegt.“`,
 
     answers: [
     ],
