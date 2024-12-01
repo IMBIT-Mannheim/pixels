@@ -22,12 +22,13 @@ Builds the app for production to the `dist` folder.
 ## Folder Structure
 
 - src: Contains all JavaScript files
-- public: Contains all recources
-- fonts: Contains the font used
-- images: Contains all static images used e.g. as favicon
-- maps: Contains the image and data fiels of all maps
-- sounds: Contains all sound files
-- sprites: Contains all images, split for animations
+- public: Contains all resources
+  - fonts: Contains the font used
+  - images: Contains all static images used e.g. as favicon
+  - maps: Contains the image and data files of all maps
+  - sounds: Contains all sound files
+  - sprites: Contains all images, split for animations
+  - downloads: Contains all downloadable content like PowerPoint files
 
 ## Running the App Locally
 
