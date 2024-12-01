@@ -15,13 +15,13 @@ export const dialogueData = {
   //Almeria
   almeriaOpa: {
     title: 'Almeria Opa',
-    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria1.jpg" alt="Almeria1" width="200" height="150"> \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria2.jpg" alt="Almeria2" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria3.jpg" alt="Almeria3" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria4.jpg" alt="Almeria4" width="200" height="150"> \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria5.jpg" alt="Almeria5" width="200" height="150"> \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria6.jpg" alt="Almeria5" width="200" height="150"> \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria7.jpg" alt="Almeria5" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria8.jpg" alt="Almeria5" width="200" height="150"> \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria9.jpg" alt="Almeria5" width="200" height="150"> \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="https://pixels.imbit-n3xt.com/downloads/almeria10.jpg" alt="Almeria5" width="200" height="150"> \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
+    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" width="200" height="150"> \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" width="200" height="150"> \n <img src="/images/almeria3.jpg" alt="Almeria3" width="200" height="150"> \n <img src="/images/almeria4.jpg" alt="Almeria4" width="200" height="150"> \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" width="200" height="150"> \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" width="200" height="150"> \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria8.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria9.jpg" alt="Almeria5" width="200" height="150"> \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.jpg" alt="Almeria5" width="200" height="150"> \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
     answers: [
     ],
   },
   almeriaGuy: {
     title: 'Almeria Guy',
-    text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a href="https://pixels.imbit-n3xt.com/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
+    text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a href="/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
     answers: [
     ],
   },
@@ -223,7 +223,7 @@ export const dialogueData = {
   ey: {
     id: 0,
     title: 'EY',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
     answers: [
       'Ja',
       'Nein',
@@ -235,7 +235,7 @@ export const dialogueData = {
   siranq: {
     id: 1,
     title: 'Sirona',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -247,7 +247,7 @@ export const dialogueData = {
   boehringer: {
     id: 2,
     title: 'Boehringer',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -259,7 +259,7 @@ export const dialogueData = {
   pwc: {
     id: 3,
     title: 'PWC',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -271,7 +271,7 @@ export const dialogueData = {
   linde: {
     id: 4,
     title: 'Linde',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -283,7 +283,7 @@ export const dialogueData = {
   eviden: {
     id: 5,
     title: 'Eviden',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="https://pixels.imbit-n3xt.com/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',

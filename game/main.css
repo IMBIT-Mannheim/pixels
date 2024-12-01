@@ -285,6 +285,10 @@ input[type="range"]::-ms-thumb {
     margin: 10px;
 }
 
+#dialogue img {
+    border-radius: 10px;
+}
+
 /* Large screens (1920px and above) */
 @media screen and (min-width: 1920px) {
     #logo {
