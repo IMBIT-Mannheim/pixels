@@ -20,7 +20,7 @@ body {
     position: absolute;
     top: 1vh;
     left: 1vh;
-    width: 20%;
+    width: 150px;
     margin: 0.5em 0;
     z-index: 10;
 }
@@ -283,4 +283,46 @@ input[type="range"]::-ms-thumb {
 
 #dialogue button {
     margin: 10px;
+}
+
+/* Large screens (1920px and above) */
+@media screen and (min-width: 1920px) {
+    #logo {
+        width: 300px;
+    }
+}
+
+/* Medium to large screens (1440px to 1919px) */
+@media screen and (min-width: 1440px) and (max-width: 1919px) {
+    #logo {
+        width: 220px;
+    }
+}
+
+/* Laptops and smaller desktops (1024px to 1439px) */
+@media screen and (min-width: 1024px) and (max-width: 1439px) {
+    #logo {
+        width: 200px;
+    }
+}
+
+/* Tablets (768px to 1023px) */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+    #logo {
+        width: 180px;
+    }
+}
+
+/* Large smartphones (480px to 767px) */
+@media screen and (min-width: 480px) and (max-width: 767px) {
+    #logo {
+        width: 150px;
+    }
+}
+
+/* Small smartphones (up to 479px) */
+@media screen and (max-width: 479px) {
+    #logo {
+        width: 80px;
+    }
 }

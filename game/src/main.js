@@ -5,6 +5,7 @@ import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 const select_spawnpoint = document.getElementById("spawnpoint");
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
+const showWorldMapBtn = document.getElementById("show-world-map");
 let character = "character-male";
 let spawnpoint;
 let dogName;
@@ -60,6 +61,7 @@ for (let i = 0; i < maps.length; i++) {
 	button.innerHTML = map.toUpperCase();
 	button.addEventListener("click", () => {
 		world_map.style.display = "none";
+		showWorldMapBtn.innerHTML = "Show World Map (M)";
 		k.go(map);
 		game.focus();
 	});
@@ -149,7 +151,6 @@ k.scene("loading", () => {
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
 		let isFullMapView = false;  // Variable to track if in full map view
-		const showWorldMapBtn = document.getElementById("show-world-map");
 
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
@@ -242,7 +243,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							}
 							dialogue.display(
 								dialogueData[boundary.name],
-								() => (showWorldMapBtn.style.display = "block")
+								() => (showWorldMapBtn.style.display = "flex")
 							);
 						});
 					}
@@ -271,6 +272,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name) {
 						player.onCollide(boundary.name, () => {
 							k.go(boundary.name);
+							if (walkingSound) {
+								walkingSound.stop();
+								walkingSound = null;
+							}
+							stopAnims();
+							showWorldMapBtn.innerHTML = "Show World Map (M)";
 						});
 					}
 				}
