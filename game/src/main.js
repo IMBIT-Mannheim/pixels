@@ -243,7 +243,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							}
 							dialogue.display(
 								dialogueData[boundary.name],
-								() => (showWorldMapBtn.style.display = "flex")
+								() => (showWorldMapBtn.style.display = "flex", game.focus())
 							);
 						});
 					}
