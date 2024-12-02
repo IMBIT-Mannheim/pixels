@@ -15,7 +15,7 @@ export const dialogueData = {
   //Almeria
   almeriaOpa: {
     title: 'Almeria Opa',
-    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" width="200" height="150"> \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" width="200" height="150"> \n <img src="/images/almeria3.jpg" alt="Almeria3" width="200" height="150"> \n <img src="/images/almeria4.jpg" alt="Almeria4" width="200" height="150"> \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" width="200" height="150"> \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" width="200" height="150"> \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria8.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria9.jpg" alt="Almeria5" width="200" height="150"> \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.jpg" alt="Almeria5" width="200" height="150"> \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
+    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" width="200" height="150"> \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" width="200" height="150"> \n <img src="/images/almeria3.jpg" alt="Almeria3" width="200" height="150"> \n <img src="/images/almeria4.jpg" alt="Almeria4" width="200" height="150"> \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" width="200" height="150"> \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" width="200" height="150"> \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria8.jpg" alt="Almeria5" width="200" height="150"> \n <img src="/images/almeria9.jpg" alt="Almeria5" width="200" height="150"> \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.png" alt="Almeria5" width="200" height="150"> \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
     answers: [
     ],
   },
@@ -199,6 +199,12 @@ export const dialogueData = {
     correctText: 'Gut gemacht! Weiter so. ',
     wrongText: 'Falsch! ',
   },
+  tipsRoboter: {
+    title: 'Bob',
+    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
+    answers: [
+    ],
+  },
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
@@ -299,4 +305,118 @@ export const dialogueData = {
     answers: [
     ],
   },
+  //Campus
+  girl: {
+    title: 'Mentorin',
+    text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studentenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
+    answers: [
+    ],
+  },
+  girl2: [{
+    id:23,
+    title: 'Event Manager Emma',
+    text: `Hey ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben - Partys, Lesungen, Filmabende und mehr. Weisst du schobn welche Events auf dich warten? Zeig mir was du weisst! \n Was gibt es zu Beginn jeden Studienjahres?`,
+    answers: [
+      '1) Gesundheitspruefung',
+      '2) eine Grosse Opening-Party',
+      '3) Kostenloses Essen in der Mensa',
+      '4) Gutscheine fuer das Fehlen in Vorlesungen',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Sehr gut! ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id:22,
+    title: 'Event Manager Emma',
+    text: `Wie viele Personen waren bei der letzten Opening-Party 2024? `,
+    answers: [
+      '1) 300',
+      '2) 1000',
+      '3) 3000',
+      '4) 4000',
+    ],
+    correctAnswer: 4, // = index of correct answer + 1
+    correctText: 'Du bist ein Event-Experte! Freu dich auf coole Abende und viele neue Freunde auf dem Campus. ',
+    wrongText: 'Falsch! ',
+  },
+  ],
+  girl3: [{
+    id:21,
+    title: 'Quiz Coach-Clara',
+    text: `Was ist das Hauptziel des Teams CURE? `,
+    answers: [
+      '1) Entwicklung von Drohnen fuer Luftaufnahmen',
+      '2) Bau eines Formula Student Rennwagens und Teilnahme an internationalen Wettbewerben',
+      '3) Organisation von Studierendenpartys',
+      '4) Forschung zu erneuerbaren Energien',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Richtig! ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id:20,
+    title: 'Quiz Coach-Clara',
+    text: `Was ist ein besonderer Vorteil des Studentenausweises im RNV-Gebiet? `,
+    answers: [
+      '1) Kostenloser Eintritt in Museen',
+      '2) Kostenloser oePNV zu bestimmten Zeiten',
+      '3) Ermaessigte Fluege ins Ausland',
+      '4) Kostenlose Fahrraeder',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Richtig! ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id:19,
+    title: 'Quiz Coach-Clara',
+    text: `Wer vertritt die Studierenden und organisiert Events & Partys? `,
+    answers: [
+      '1) Die Dozenten',
+      '2) Die Studierendenvertetung',
+      '3) Die Bundesregierung',
+      '4) Die Mensa',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Du bist bereit, Teil der Campus-Gemeinschaft zu werden. Such dir einen Club aus und leg los – wir freuen uns auf dich! ',
+    wrongText: 'Falsch! ',
+  },
+],
+  guy1: [{
+    id:18,
+    title: 'Sportler Sam',
+    text: `Hi, ich bin Sam! Auf dem Campus haben wir nicht nur Buecher, sondern auch jede Menge Sportangebote. Mal sehen, ob du fit bist – nicht nur koerperlich, sondern auch im Kopf! \n Welche Sportmoeglichkeit bietet die DHBW Mannheim mit der SportsCard?`,
+    answers: [
+      '1) Kostenlose Nutzung des Fitnessstudios auf dem Campus',
+      '2) Teilnahmemoeglichkeit an ueber 50 verschiedenen Sportarten',
+      '3) Exklusives Schwimmtraining',
+      '4) Regelmaessige Yoga-Sessions in der Bibliothek',
+    ],
+    correctAnswer: 2, // = index of correct answer + 1
+    correctText: 'Gut gemacht! ',
+    wrongText: 'Falsch! ',
+  },
+  {
+    id:17,
+    title: 'Sportler Sam',
+    text: `Was ist das beliebteste Ziel fuer Outdoor-Exkursionen?`,
+    answers: [
+      '1) Luisenpark',
+      '2) Heidelberger Schloss',
+      '3) Neckarufer',
+      '4) Bibliothek',
+    ],
+    correctAnswer: 3, // = index of correct answer + 1
+    correctText: 'Gut gemacht! Jetzt weisst du, wie du dich fit halten kannst – egal, ob beim Basketball, Yoga oder einer Exkursion. ',
+    wrongText: 'Falsch! ',
+  },],
+  sportscar: {
+    title: 'Cure',
+    text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten. `,
+    answers: [
+    ],
+  },
+
 };

@@ -868,17 +868,6 @@
                  "y":113.5
                 }, 
                 {
-                 "height":1.5,
-                 "id":141,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0.5,
-                 "x":832,
-                 "y":161.5
-                }, 
-                {
                  "height":49,
                  "id":142,
                  "name":"boundary",
