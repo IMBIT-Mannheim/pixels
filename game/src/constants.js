@@ -192,7 +192,7 @@ export const dialogueData = {
     text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS?“`,
     answers: [
       '1) Basis Instandhaltungssysteme',
-      '2) Betriebliche Informationssysteme (x)',
+      '2) Betriebliche Informationssysteme',
       '3) Bedingte Informationssperre',
     ],
     correctAnswer: 2, // = index of correct answer + 1
