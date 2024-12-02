@@ -2,6 +2,5 @@
 .vscode
 .idea
 node_modules/
-www/main.js
 dist/
 dist.zip
