@@ -316,7 +316,7 @@ export const dialogueData = {
   girl2: [{
     id:23,
     title: 'Event Manager Emma',
-    text: `Hey ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben - Partys, Lesungen, Filmabende und mehr. Weisst du schobn welche Events auf dich warten? Zeig mir was du weisst! \n Was gibt es zu Beginn jeden Studienjahres?`,
+    text: `Hey ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben - Partys, Lesungen, Filmabende und mehr. Weisst du schon welche Events auf dich warten? Zeig mir was du weisst! \n Was gibt es zu Beginn jeden Studienjahres?`,
     answers: [
       '1) Gesundheitspruefung',
       '2) eine Grosse Opening-Party',
