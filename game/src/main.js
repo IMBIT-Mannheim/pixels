@@ -61,7 +61,7 @@ for (let i = 0; i < maps.length; i++) {
 	button.innerHTML = map.toUpperCase();
 	button.addEventListener("click", () => {
 		world_map.style.display = "none";
-		showWorldMapBtn.innerHTML = "Show World Map (M)";
+		showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
 		k.go(map);
 		game.focus();
 	});
@@ -277,7 +277,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 								walkingSound = null;
 							}
 							stopAnims();
-							showWorldMapBtn.innerHTML = "Show World Map (M)";
+							showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
 						});
 					}
 				}
@@ -458,11 +458,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			if (!isFullMapView) {
 				isFullMapView = true;
 				stopAnims();
-				showWorldMapBtn.innerHTML = "Hide World Map (M)";
+				showWorldMapBtn.innerHTML = "Weltkarte verstecken (M)";
 				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
-				showWorldMapBtn.innerHTML = "Show World Map (M)";
+				showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
 				document.getElementById("game").focus();
 				world_map.style.display = "none";
 			}
