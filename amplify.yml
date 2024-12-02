@@ -13,4 +13,4 @@ frontend:
       - "**/*"
   cache:
     paths:
-      - game/node_modules/**/*
+      - node_modules/**/*
