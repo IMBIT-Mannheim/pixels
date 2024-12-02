@@ -21,7 +21,7 @@ export const dialogueData = {
   },
   almeriaGuy: {
     title: 'Almeria Guy',
-    text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a href="/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
+    text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a target="_blank" href="/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
     answers: [
     ],
   },
@@ -201,14 +201,14 @@ export const dialogueData = {
   },
   tipsRoboter: {
     title: 'Bob',
-    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
+    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
     answers: [
     ],
   },
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
-    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link. `,
+    text: `Auf der Seite des Studierendenwerks findest du immer den tagesaktuellen Speiseplan. <a target="_blank" href="https://www.stw-ma.de/essen-trinken/speiseplaene/mensaria-metropol-greenes/">Hier</a> ist der Link. `,
     answers: [
     ],
   },
@@ -229,7 +229,7 @@ export const dialogueData = {
   ey: {
     id: 0,
     title: 'EY',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/EY_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen?`,
     answers: [
       'Ja',
       'Nein',
@@ -241,7 +241,7 @@ export const dialogueData = {
   siranq: {
     id: 1,
     title: 'Sirona',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/Dentsply_Sirona_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -253,7 +253,7 @@ export const dialogueData = {
   boehringer: {
     id: 2,
     title: 'Boehringer',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/Boehringer_Ingelheim_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -265,7 +265,7 @@ export const dialogueData = {
   pwc: {
     id: 3,
     title: 'PWC',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/PwC_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -277,7 +277,7 @@ export const dialogueData = {
   linde: {
     id: 4,
     title: 'Linde',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/Linde_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
@@ -289,7 +289,7 @@ export const dialogueData = {
   eviden: {
     id: 5,
     title: 'Eviden',
-    text: `Die Infos zu diesem Unternehmen findest du <a href="/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
+    text: `Die Infos zu diesem Unternehmen findest du <a target="_blank" href="/downloads/Eviden_Presentation.pptx">hier</a>. \n Hast du dir die Inhalte gut durchgelesen? `,
     answers: [
       'Ja',
       'Nein',
