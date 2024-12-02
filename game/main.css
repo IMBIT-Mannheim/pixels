@@ -4,7 +4,7 @@
 }
 
 body {
-    font-family: monogram, monospace;
+    font-family: monogram, monospace !important;
     font-size: 2rem;
     overflow: hidden;
     background-color: #311047;
