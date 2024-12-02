@@ -202,6 +202,7 @@ export const dialogueData = {
   tipsRoboter: {
     title: 'Bob',
     text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
+
     answers: [
     ],
   },
