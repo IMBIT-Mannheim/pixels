@@ -287,6 +287,7 @@ input[type="range"]::-ms-thumb {
 
 #dialogue img {
     border-radius: 10px;
+    height: 300px;
 }
 
 /* Large screens (1920px and above) */
