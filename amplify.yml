@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd game
         - npm ci
     build:
       commands:
