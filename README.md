@@ -39,4 +39,4 @@ Builds the app for production to the `dist` folder.
 ## Welcome to IMBIT-PIXELS
 
 This repository serves as a foundation for our small learning game.
-You can access our website in the browser at: _Insert Link Here_
+You can access our website in the browser at: [https://pixels.imbit-n3xt.com](https://pixels.imbit-n3xt.com)
