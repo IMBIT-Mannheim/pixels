@@ -1,5 +1,3 @@
-import {scaleFactor} from "./constants.js";
-
 const closeBtn = document.getElementById("close");
 const dialogueUI = document.getElementById("textbox-container");
 const dialogueContainer = document.getElementById("dialogue");
@@ -28,7 +26,7 @@ class Typing {
         this.textIdx = index;
         this.index = 0;
         this.textElement.innerHTML = "";
-        closeBtn.innerHTML = "Skip";
+        closeBtn.innerHTML = "Ueberspringen";
         this.intervalRef = setInterval(this.type.bind(this), 1);
     }
 
@@ -52,7 +50,7 @@ class Typing {
     }
 
     stop(force = false) {
-        closeBtn.innerHTML = "Next";
+        closeBtn.innerHTML = "Weiter";
         clearInterval(this.intervalRef);
         this.intervalRef = null;
         if (force || this.textIdx >= this.texts.length - 1) {
@@ -84,25 +82,25 @@ class Dialogue {
         });
     }
 
-    display(dialogue_options, onDisplayEnd){
+    display(dialogue_options, onDisplayEnd) {
         this._remainingDialogues = [];
-        if(Array.isArray(dialogue_options)){
+        if (Array.isArray(dialogue_options)) {
             this._remainingDialogues = dialogue_options.map(d => Object.assign({}, d, { onDisplayEnd }));
-        }else{
+        } else {
             this._remainingDialogues = [Object.assign({}, dialogue_options, { onDisplayEnd })];
         }
         this._display();
     }
 
-    inDialogue(){
+    inDialogue() {
         return !!(this._currentDialogue && typeof this._currentDialogue == "object");
     }
 
-    getScore(){
+    getScore() {
         return this._score;
     }
 
-    resetScore(){
+    resetScore() {
         this._answeredQuizzes = [];
         this._score = 0;
     }
@@ -124,7 +122,7 @@ class Dialogue {
         this._typer = new Typing(textElement, textSegments);
         await this._typer.promise;
 
-        closeBtn.innerHTML = "Close";
+        closeBtn.innerHTML = "Schliessen";
     }
 
     _close_or_next() {
@@ -138,8 +136,8 @@ class Dialogue {
         dialogueUI.style.display = "none";
     }
 
-    async _display(){
-        if(this._remainingDialogues.length === 0) return this._close_or_next();
+    async _display() {
+        if (this._remainingDialogues.length === 0) return this._close_or_next();
         this._currentDialogue = this._remainingDialogues.shift();
         dialogueUI.style.display = "block";
         await this._typingEffect(this._currentDialogue.text);
@@ -164,10 +162,11 @@ class Dialogue {
         if (this._currentDialogue.answers.length < number) return;
 
         if (this._currentDialogue.correctAnswer === number) {
-            if(!this._answeredQuizzes.includes(this._currentDialogue.id)){
-            this._score++;
-            scoreUI.innerHTML = this._score;
-            this._answeredQuizzes.push(this._currentDialogue.id);}
+            if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
+                this._score++;
+                scoreUI.innerHTML = this._score;
+                this._answeredQuizzes.push(this._currentDialogue.id);
+            }
             this._typingEffect(this._currentDialogue.correctText);
         } else {
             this._remainingDialogues = []; // Wenn falsch, keine weiteren Dialoge anzeigen
