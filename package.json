@@ -10,6 +10,6 @@
 		"kaplay": "^3001.0.2"
 	},
 	"devDependencies": {
-		"vite": "^6.0.3"
+		"vite": "^6.0.5"
 	}
 }
