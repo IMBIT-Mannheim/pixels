@@ -1,4 +1,6 @@
-name: Deploy to GitHub Pages
+name: Dev Deployment
+# This workflow is triggered on pushes to the development branch
+# It builds the project and deploys it to the FTP server
 
 on:
   push:
