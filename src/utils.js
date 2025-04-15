@@ -1,5 +1,4 @@
 const closeBtn = document.getElementById("close");
-const closeXBtn = document.getElementById("close-x");
 const dialogueUI = document.getElementById("textbox-container");
 const dialogueContainer = document.getElementById("dialogue");
 const scoreUI = document.getElementById("score-value");
@@ -72,7 +71,6 @@ class Dialogue {
 
     constructor() {
         closeBtn.addEventListener("click", this._close_or_next.bind(this));
-        closeXBtn.addEventListener("click", this._close_or_next.bind(this));
         document.addEventListener("keydown", (key) => {
             if (!this._currentDialogue) return;
             if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {

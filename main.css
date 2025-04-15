@@ -57,7 +57,6 @@ body {
 .ui-text {
     margin: 0;
     user-select: none;
-    -webkit-user-select: none;
 }
 
 .btn-container {
@@ -84,25 +83,6 @@ body {
     background-color: black;
     box-shadow: 2px 2px black;
     transform: translate(2px, 2px);
-}
-
-.close-x {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 2rem;
-    color: #2d2929;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 1;
-    z-index: 10;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.close-x:hover {
-    color: black;
-    transform: scale(1.2);
 }
 
 #show-world-map {

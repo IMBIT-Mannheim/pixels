@@ -225,15 +225,15 @@
                  "y":343.636363636364
                 }, 
                 {
-                 "height":10,
+                 "height":32,
                  "id":19,
                  "name":"bendl",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":10,
+                 "width":16,
                  "x":64,
-                 "y":258
+                 "y":256
                 }, 
                 {
                  "height":16,
@@ -672,7 +672,7 @@
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":3,
+                 "width":52,
                  "x":38.25,
                  "y":154
                 }],

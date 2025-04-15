@@ -215,98 +215,36 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name !== "boundary") {
 						let bounceOffset = 0;
 						let bounceSpeed = 0.001;
-						let isInProximity = false;
-						const INTERACTION_RADIUS = 100; // Adjust this value to change the interaction radius
-						let promptTimer = 0; // Timer for prompt visibility
-						const PROMPT_DURATION = 10; // Show prompt for 10 seconds
 
 						const exclamation = k.add([
 							k.text("!", { size: 40 }),
 							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
 							k.z(10),
-							"exclamation"
+							"exclamation",
 						]);
 
-						// Create the popup completely hidden by default
-						const interactionPrompt = k.add([
-							k.text("Press T to interact", { 
-								size: 18,
-								// Use a pixel font that matches the game's style
-								font: "monospace",
-								styles: {
-									fill: "#ffffff",
-									stroke: "#000000",
-									strokeThickness: 3
-								}
-							}),
-							k.pos(0, 0),  // Position will be updated in onUpdate
-							k.z(10),
-							k.opacity(0),  // Start completely invisible
-							"interactionPrompt"
-						]);
-
-						// Keep the exclamation mark update separate
 						k.onUpdate("exclamation", (e) => {
 							bounceOffset += bounceSpeed;
 							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
 								bounceSpeed *= -1;
 							}
 							e.pos.y = e.pos.y + bounceOffset;
-
-							// Check proximity and update prompt visibility
-							const dist = player.pos.dist(k.vec2(boundary.x * scaleFactor, boundary.y * scaleFactor));
-							if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
-								if (!isInProximity) {
-									isInProximity = true;
-									// Use smooth fade in
-									k.tween(interactionPrompt.opacity, 1, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when entering proximity
-								}
-								
-								// Update timer
-								promptTimer += k.dt();
-								
-								// Hide prompt after PROMPT_DURATION seconds
-								if (promptTimer >= PROMPT_DURATION && interactionPrompt.opacity > 0) {
-									// Fade out the prompt
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-								}
-								
-								// Position the prompt above the player's head
-								const promptX = player.pos.x;
-								const promptY = player.pos.y - 50;
-								
-								// Update position
-								interactionPrompt.pos = k.vec2(promptX, promptY);
-								
-							} else {
-								if (isInProximity) {
-									isInProximity = false;
-									// Use smooth fade out
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when leaving proximity
-								}
-							}
 						});
 
-						// Handle T key press
-						k.onKeyPress("t", () => {
-							if (isInProximity && !player.isInDialogue) {
-								showWorldMapBtn.style.display = "none";
-								k.destroy(exclamation);
-								k.destroy(interactionPrompt);
-								k.play("talk", {
-									volume: sound_effects_volume,
-								});
-								if (walkingSound) {
-									walkingSound.stop();
-									walkingSound = null;
-								}
-								dialogue.display(
-									dialogueData[boundary.name],
-									() => (showWorldMapBtn.style.display = "flex", game.focus())
-								);
+						player.onCollide(boundary.name, () => {
+							showWorldMapBtn.style.display = "none";
+							k.destroy(exclamation);
+							k.play("talk", {
+								volume: sound_effects_volume,
+							});
+							if (walkingSound) {
+								walkingSound.stop();
+								walkingSound = null;
 							}
+							dialogue.display(
+								dialogueData[boundary.name],
+								() => (showWorldMapBtn.style.display = "flex", game.focus())
+							);
 						});
 					}
 				}
