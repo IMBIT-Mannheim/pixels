@@ -73,6 +73,35 @@ export function defineCureScene() {
             "player",
         ]);
 
+        const road = k.add([
+            k.rect(ROAD_WIDTH, k.height()),
+            k.color(k.rgb(50, 50, 50)),
+            k.pos(k.width() / 2, k.height() / 2),
+            k.anchor("center"),
+            k.z(1),
+            "road",
+        ]);
+
+        const leftBoundary = k.add([
+            k.rect(20, k.height()),
+            k.color(k.rgb(200, 200, 0)),
+            k.pos(k.width() / 2 - ROAD_WIDTH / 2 - 10, k.height() / 2),
+            k.anchor("center"),
+            k.area(),
+            k.z(2),
+            "boundary",
+        ]);
+
+        const rightBoundary = k.add([
+            k.rect(20, k.height()),
+            k.color(k.rgb(200, 200, 0)),
+            k.pos(k.width() / 2 + ROAD_WIDTH / 2 + 10, k.height() / 2),
+            k.anchor("center"),
+            k.area(),
+            k.z(2),
+            "boundary",
+        ]);
+
 
         k.onUpdate(() => {
             if (isGameOver) return;
