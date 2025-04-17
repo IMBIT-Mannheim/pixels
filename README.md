@@ -9,11 +9,11 @@
 [![Contributors](https://img.shields.io/badge/contributors-IMBIT22B-yellow.svg)](https://github.com/imbit-mannheim/pixels/graphs/contributors)
 
 <div align="center">
-  <img src="public/README/logo.png" alt="IMBIT Pixels Logo" width="200"/>
+  <img src="public/images/logo.png" alt="IMBIT Pixels Logo" width="200"/>
   
   *Explore, Learn, and Have Fun in the IMBIT Universe!* 🚀
   
-  <img src="public/README/DemoGameplay01.gif" alt="Gameplay Preview" width="600"/>
+  <img src="public/images/ReadMe_DemoGameplay_01.gif" alt="Gameplay Preview" width="600"/>
   
   *Experience the IMBIT journey through interactive gameplay!* 🎮
 </div>
@@ -44,12 +44,12 @@ The documentation covers:
   <table>
     <tr>
       <td align="center">
-        <img src="public/README/CharacterSelection.png" alt="Character Selection" width="200"/>
+        <img src="public/images/ReadMeCharacterSelection.png" alt="Character Selection" width="200"/>
         <br/>
         🎭 Character Selection
       </td>
       <td align="center">
-        <img src="public/README/BelloDog.png" alt="Dog Companion" width="200"/>
+        <img src="public/images/ReadMe_BelloDog.png" alt="Dog Companion" width="200"/>
         <br/>
         🐕 Pet Companion
       </td>
