@@ -2,6 +2,10 @@
 
 This project utilizes Kaplay and was bootstrapped with [Vite](https://github.com/vitejs/vite).
 
+# Naming conventions
+For adding new features you should create a new branch. The branch should follow the naming convention: feature_group&groupnumber_featurename 
+example: feature_group4_newhaircolour
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -40,3 +44,5 @@ Builds the app for production to the `dist` folder.
 
 This repository serves as a foundation for our small learning game.
 You can access our website in the browser at: [https://pixels.imbit-n3xt.com](https://pixels.imbit-n3xt.com)
+Within the programming process you can view changes from the dev branch in your browser at: https://dev.pixels.imbit-n3xt.com/
+
