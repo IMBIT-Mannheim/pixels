@@ -109,21 +109,121 @@ k.scene("loading", () => {
 		male_button.classList.add("selected");
 		game.focus();
 	});
+
 	female_button.addEventListener("click", () => {
 		character = "character-female";
 		male_button.classList.remove("selected");
 		female_button.classList.add("selected");
 		game.focus();
 	});
+
 	select_spawnpoint.addEventListener("change", () => {
 		game.focus();
 	});
+
+	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
+
+	
+
+	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
-		startGame();
+		handleStart();
 	});
+
+	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
-		startGame()
+		handleStart();
 	});
+
+	function handleStart() {
+		if (isVideoPlaying) return; // Verhindere mehrfaches Starten
+
+		const introWatched = getCookie("intro_watched"); // Prüfe, ob das Intro bereits geschaut wurde
+		if (introWatched) {
+			// Wenn das Intro bereits geschaut wurde, starte das Spiel direkt
+			startGame();
+		} else {
+			// Zeige das Intro, wenn es noch nicht geschaut wurde
+			showVideoScreen();
+		}
+	}
+
+	function showVideoScreen() {
+		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
+
+		// Erstelle einen neuen Screen für das Video
+		const videoScreen = document.createElement("div");
+		videoScreen.id = "video-screen";
+		videoScreen.style.position = "fixed";
+		videoScreen.style.top = "0";
+		videoScreen.style.left = "0";
+		videoScreen.style.width = "100%";
+		videoScreen.style.height = "100%";
+		videoScreen.style.backgroundColor = "#311047";
+		videoScreen.style.display = "flex";
+		videoScreen.style.flexDirection = "row"; // Ermöglicht horizontale Anordnung
+		videoScreen.style.justifyContent = "center";
+		videoScreen.style.alignItems = "center";
+		videoScreen.style.zIndex = "1000";
+
+		// Füge einen Text über dem Video hinzu
+		const textOverlay = document.createElement("div");
+		textOverlay.innerText = "Intro zu IMBIT Pixel!";
+		textOverlay.style.color = "white";
+		textOverlay.style.fontSize = "48px";
+		textOverlay.style.marginBottom = "20px";
+		textOverlay.style.textAlign = "center";
+
+		// Füge das Video-Element hinzu
+		const video = document.createElement("video");
+		video.src = "/videos/test_intro.mp4";
+		video.style.width = "80%";
+		video.style.height = "auto";
+		video.autoplay = true;
+		video.controls = false;
+
+		// Füge einen "Skip Intro"-Button als Pfeil hinzu
+		const skipButton = document.createElement("button");
+		skipButton.style.width = "256px"; // Breite des Buttons
+		skipButton.style.height = "256px"; // Höhe des Buttons
+		skipButton.style.background = "url('/images/skip-arrow.png') no-repeat center"; // Bild als Hintergrund
+		skipButton.style.backgroundSize = "contain"; // Skaliere das Bild proportional
+		skipButton.style.border = "none"; // Entferne den Rahmen
+		skipButton.style.cursor = "pointer"; // Zeige den Mauszeiger als Hand an
+		skipButton.style.marginLeft = "20px";
+
+		// Event-Listener für den "Skip Intro"-Button
+		skipButton.addEventListener("click", () => {
+			document.body.removeChild(videoScreen);
+			isVideoPlaying = false; // Setze den Zustand zurück
+			setCookie("intro_watched", true, 365); // Setze das Cookie
+			startGame(); // Starte das Spiel
+		});
+
+		// Füge den Text und das Video zum Video-Container hinzu
+		const videoContainer = document.createElement("div");
+		videoContainer.style.display = "flex";
+		videoContainer.style.flexDirection = "column";
+		videoContainer.style.alignItems = "center";
+		videoContainer.appendChild(textOverlay);
+		videoContainer.appendChild(video);
+
+		// Füge den Video-Container und den Button zum Screen hinzu
+		videoScreen.appendChild(videoContainer);
+		videoScreen.appendChild(skipButton);
+
+		// Füge den Screen zum Dokument hinzu
+		document.body.appendChild(videoScreen);
+
+		// Event-Listener, um den Screen zu entfernen, wenn das Video endet
+		video.addEventListener("ended", () => {
+			document.body.removeChild(videoScreen);
+			isVideoPlaying = false; // Setze den Zustand zurück
+			setCookie("intro_watched", true, 365); // Setze das Cookie
+			startGame(); // Starte das Spiel nach dem Video
+		});
+	}
+
 	function startGame() {
 		const music_volume = music_volume_slider.value / 10;
 		sound_effects_volume = sounds_volume.value / 10;
@@ -137,8 +237,9 @@ k.scene("loading", () => {
 
 		const music = k.play("bgm", {
 			volume: music_volume,
-			loop: true
-		})
+			loop: true,
+		});
+
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
