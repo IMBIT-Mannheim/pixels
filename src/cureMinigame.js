@@ -1,6 +1,6 @@
-import { dialogueData, maps, music, scaleFactor } from "./constants";
+
 import { k } from "./kaboomCtx";
-import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
+import {  setCamScale, setCookie } from "./utils";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -101,6 +101,372 @@ export function defineCureScene() {
             k.z(2),
             "boundary",
         ]);
+
+        // Straßenmarkierungen initialisieren
+        function initializeStripes() {
+            const totalLength = k.height() + STRIPE_HEIGHT + STRIPE_GAP;
+            const numStripes =
+                Math.ceil(totalLength / (STRIPE_HEIGHT + STRIPE_GAP)) + 1;
+
+            // Stripes array leeren, falls es bereits Elemente enthält
+            stripes.forEach((stripe) => stripe.destroy());
+            stripes = [];
+
+            // Erstelle die Markierungen mit exakt gleichmäßigem Abstand
+            for (let i = 0; i < numStripes; i++) {
+                const yPos = i * (STRIPE_HEIGHT + STRIPE_GAP);
+
+                const stripe = k.add([
+                    k.rect(10, STRIPE_HEIGHT),
+                    k.color(k.rgb(255, 255, 255)),
+                    k.pos(k.width() / 2, yPos),
+                    k.anchor("center"),
+                    k.z(2),
+                    "stripe",
+                ]);
+
+                stripes.push(stripe);
+            }
+        }
+
+        initializeStripes();
+
+        function createDecorationAt(x, y, type) {
+            const decorationId = "dec_" + Math.random().toString(36).substr(2, 9);
+            let decorationObj;
+
+            switch (type) {
+                case "tree":
+                    decorationObj = k.add([
+                        k.sprite("tree"),
+                        k.pos(x, y),
+                        k.anchor("bot"),
+                        k.z(10),
+                        "decoration",
+                        {
+                            decorationId: decorationId,
+                            speed: gameSpeed,
+                            type: "tree",
+                        },
+                    ]);
+                    break;
+
+                case "bush":
+                    decorationObj = k.add([
+                        k.sprite("bush"),
+                        k.pos(x, y),
+                        k.scale(0.07),
+                        k.anchor("center"),
+                        k.z(3),
+                        "decoration",
+                        {
+                            decorationId: decorationId,
+                            speed: gameSpeed,
+                            type: "bush",
+                        },
+                    ]);
+                    break;
+
+                case "rock":
+                    decorationObj = k.add([
+                        k.sprite("rock"),
+                        k.scale(0.25),
+                        k.pos(x, y),
+                        k.anchor("center"),
+                        k.z(3),
+                        "decoration",
+                        {
+                            decorationId: decorationId,
+                            speed: gameSpeed,
+                            type: "rock",
+                        },
+                    ]);
+                    break;
+
+                case "flower":
+                    // Stängel
+                    k.add([
+                        k.rect(3, 15),
+                        k.color(k.rgb(20, 150, 20)),
+                        k.pos(x, y + 15),
+                        k.anchor("center"),
+                        k.z(2),
+                        "decoration_part",
+                        {
+                            decorationId: decorationId,
+                            speed: gameSpeed,
+                        },
+                    ]);
+
+                    // Blüte
+                    decorationObj = k.add([
+                        k.circle(5),
+                        k.color(k.rgb(255, 200, 0)),
+                        k.pos(x, y),
+                        k.anchor("center"),
+                        k.z(3),
+                        "decoration",
+                        {
+                            decorationId: decorationId,
+                            speed: gameSpeed,
+                            type: "flower",
+                        },
+                    ]);
+                    break;
+            }
+
+            decorations.push(decorationObj);
+            return decorationObj;
+        }
+
+        function initializeDecorations() {
+            // Calculate how many decorations we need based on the visible area
+            const decorationsToGenerate = DECORATION_DENSITY;
+
+            for (let i = 0; i < decorationsToGenerate; i++) {
+                // Random y position within the visible area and slightly beyond
+                const yPos = -k.height() * 0.5 + k.rand(0, k.height() * 2);
+
+                // Generate x position on either side of the road
+                let decorX;
+
+                // Randomly decide left or right side, excluding the road area
+                if (k.rand() < 0.5) {
+                    // Left side of the screen up to the road edge
+                    decorX = k.rand(
+                        DECORATION_MARGIN,
+                        k.width() / 2 - ROAD_WIDTH / 2 - DECORATION_MARGIN
+                    );
+                } else {
+                    // Right side of the screen from the road edge
+                    decorX = k.rand(
+                        k.width() / 2 + ROAD_WIDTH / 2 + DECORATION_MARGIN,
+                        k.width() - DECORATION_MARGIN
+                    );
+                }
+
+                const type = k.choose(DECORATION_TYPES);
+                createDecorationAt(decorX, yPos, type);
+            }
+        }
+
+        initializeDecorations();
+
+        /*
+            // Erste Dekorationen platzieren
+            for (let i = 0; i < 10; i++) {
+              const decoration = createDecoration();
+              decoration.pos.y = k.rand(-k.height(), k.height() * 2);
+            }*/
+
+        function createDecoration() {
+            // Zufällig links oder rechts von der Straße
+            const side = k.choose(["left", "right"]);
+            const type = k.choose(DECORATION_TYPES);
+
+            // Position bestimmen (Abstand von der Straße variabel)
+            const distance = k.rand(50, 150);
+            let decorationX;
+
+            if (side === "left") {
+                decorationX = k.width() / 2 - ROAD_WIDTH / 2 - distance;
+            } else {
+                decorationX = k.width() / 2 + ROAD_WIDTH / 2 + distance;
+            }
+
+            return createDecorationAt(decorationX, -100, type);
+        }
+
+        function createObstacle() {
+            const obstacleX =
+                k.width() / 2 + k.rand(-ROAD_WIDTH / 2 + 50, ROAD_WIDTH / 2 - 50);
+
+            const obstacle = k.add([
+                k.sprite("roadblock") || k.rect(40, 100),
+                //k.color(k.rgb(255, 0, 0)),
+                k.pos(obstacleX, -100),
+                k.anchor("center"),
+                k.area(),
+                k.scale(0.7),
+                k.z(5),
+                "obstacle",
+                {
+                    speed: gameSpeed,
+                },
+            ]);
+
+            obstacles.push(obstacle);
+            return obstacle;
+        }
+
+        // Kollisionen
+        player.onCollide("obstacle", () => {
+            if (!isGameOver) {
+                isGameOver = true;
+                // First, add a background panel
+                const gameOverPanel = k.add([
+                    k.rect(700, 400), // Width and height of the panel
+                    k.pos(k.width() / 2, k.height() / 2 + 50),
+                    k.anchor("center"),
+                    k.color(k.rgb(150, 0, 0, 0.1)), // Black with 80% opacity
+                    k.opacity(0.3),
+                    k.outline(4, k.rgb(255, 0, 0)), // Red outline
+                    k.z(199), // Just below the text
+                ]);
+
+                // Game over text with a slight shadow effect
+                k.add([
+                    k.text("Game Over!", { size: 48 }),
+                    k.pos(k.width() / 2, k.height() / 2 - 15),
+                    k.anchor("center"),
+                    k.color(k.rgb(255, 50, 50)), // Brighter red
+                    k.z(200),
+                ]);
+
+                k.add([
+                    k.text("Drücke Leertaste um zum"),
+                    k.pos(k.width() / 2, k.height() / 2 + 80),
+                    k.anchor("center"),
+                    k.z(200),
+                ]);
+
+                k.add([
+                    k.text("Campus zurückzukehren"),
+                    k.pos(k.width() / 2, k.height() / 2 + 120),
+                    k.anchor("center"),
+                    k.z(200),
+                ]);
+
+                k.onKeyPress("space", () => {
+                    k.go("campus");
+                });
+            }
+        });
+
+        function calculateScore(timePassed) {
+            return Math.floor(timePassed / 10);
+        }
+
+        // Update-Logik
+        k.onUpdate(() => {
+            if (isGameOver) return;
+
+            timePassed += k.dt();
+            const scoreElement = document.getElementById("minigame-score-value");
+            if (scoreElement) {
+                scoreElement.innerText = calculateScore(timePassed).toString();
+            } else {
+                console.error("Element with ID 'minigame-score-value' not found");
+            }
+
+            // Geschwindigkeit erhöhen mit der Zeit
+            const baseSpeed = GAME_SPEED;
+            const maxSpeedIncrease = 300; // Maximum additional speed
+            const difficultyFactor = 0.15; // Lower = slower progression
+
+            gameSpeed =
+                baseSpeed +
+                maxSpeedIncrease *
+                (1 - Math.exp(-difficultyFactor * Math.floor(timePassed / 5)));
+
+            function updateStripes() {
+                // NUR Straßenmarkierungen bewegen
+                for (let i = 0; i < stripes.length; i++) {
+                    const stripe = stripes[i];
+                    stripe.pos.y += gameSpeed * k.dt();
+
+                    // Wenn eine Markierung aus dem Bildschirm verschwindet, setzen wir sie zurück nach oben
+                    if (stripe.pos.y > k.height() + STRIPE_HEIGHT / 2) {
+                        // Finde die aktuelle Position des obersten Streifens
+                        let topStripeY = Infinity;
+                        for (let j = 0; j < stripes.length; j++) {
+                            if (stripes[j].pos.y < topStripeY) {
+                                topStripeY = stripes[j].pos.y;
+                            }
+                        }
+
+                        // Platziere den Streifen exakt STRIPE_HEIGHT + STRIPE_GAP oberhalb des aktuell höchsten Streifens
+                        stripe.pos.y = topStripeY - (STRIPE_HEIGHT + STRIPE_GAP);
+                    }
+                }
+            }
+            updateStripes();
+
+            // Dekorationen bewegen
+            for (let i = decorations.length - 1; i >= 0; i--) {
+                const decoration = decorations[i];
+                const decorId = decoration.decorationId;
+                decoration.pos.y += gameSpeed * k.dt();
+                decoration.z = decoration.pos.y / 10;
+                if (decoration.ty)
+                    // Bewege alle zusammengehörigen Teile
+                    k.get("decoration_part").forEach((part) => {
+                        if (part.decorationId === decorId) {
+                            part.pos.y += gameSpeed * k.dt();
+                        }
+                    });
+
+                // Dekorationen entfernen, die aus dem Bildschirm verschwinden
+                if (decoration.pos.y > k.height() + 100) {
+                    // Zugehörige Teile entfernen
+                    k.get("decoration_part").forEach((part) => {
+                        if (part.decorationId === decorId) {
+                            part.destroy();
+                        }
+                    });
+
+                    decoration.destroy();
+                    decorations.splice(i, 1);
+                }
+            }
+
+            // Calculate dynamic decoration spawn rate based on game speed
+            const speedRatio =
+                (gameSpeed - GAME_SPEED) / (GAME_SPEED + maxSpeedIncrease - GAME_SPEED);
+            const currentDecorationSpawnRate =
+                BASE_DECORATION_SPAWN_RATE +
+                (MAX_DECORATION_SPAWN_RATE - BASE_DECORATION_SPAWN_RATE) *
+                Math.min(1, speedRatio);
+
+            // Generate new decorations across the entire screen (except road)
+            if (k.rand() < currentDecorationSpawnRate) {
+                let decorX;
+
+                // Randomly decide left or right side, excluding the road area
+                if (k.rand() < 0.5) {
+                    // Left side of the screen up to the road edge
+                    decorX = k.rand(
+                        DECORATION_MARGIN,
+                        k.width() / 2 - ROAD_WIDTH / 2 - DECORATION_MARGIN
+                    );
+                } else {
+                    // Right side of the screen from the road edge
+                    decorX = k.rand(
+                        k.width() / 2 + ROAD_WIDTH / 2 + DECORATION_MARGIN,
+                        k.width() - DECORATION_MARGIN
+                    );
+                }
+
+                createDecorationAt(decorX, -100, k.choose(DECORATION_TYPES));
+            }
+
+            // Hindernisse bewegen
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obstacle = obstacles[i];
+                obstacle.pos.y += gameSpeed * k.dt();
+
+                // Hindernisse entfernen, die aus dem Bildschirm verschwinden
+                if (obstacle.pos.y > k.height() + 100) {
+                    obstacle.destroy();
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Zufällig neue Hindernisse erstellen
+            if (k.rand() < OBSTACLE_SPAWN_RATE * (1 + timePassed / 100)) {
+                createObstacle();
+            }
+        });
 
 
         k.onUpdate(() => {
