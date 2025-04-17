@@ -1,6 +1,7 @@
 import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
+import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 const spawnpoints_world_map = document.getElementById("spawnpoints");
@@ -10,6 +11,9 @@ let character = "character-male";
 let spawnpoint;
 let dogName;
 let sound_effects_volume = "0.5";
+
+loadCureSprites();
+defineCureScene();
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
 	sliceX: 3,
@@ -402,6 +406,22 @@ function setupScene(sceneName, mapFile, mapSprite) {
 								if (walkingSound) {
 									walkingSound.stop();
 									walkingSound = null;
+								}
+
+								// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+								if (boundary.name === "sportscar") {
+									dialogue.setQuestionButtonClickListener((buttonIndex) => {
+										dialogue.setQuestionButtonClickListener(null);
+										if (buttonIndex === 1) {
+											dialogue._close_or_next();
+											k.go("cure_minigame");
+										}
+									});
+									dialogue.display(
+										dialogueData[boundary.name],
+										() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+									);
+									return;
 								}
 								dialogue.display(
 									dialogueData[boundary.name],

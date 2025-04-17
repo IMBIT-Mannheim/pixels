@@ -69,6 +69,7 @@ class Dialogue {
 
     _score = 0;
     _answeredQuizzes = [];
+    _onQuestionButtonClick = null;
 
     constructor() {
         closeBtn.addEventListener("click", this._close_or_next.bind(this));
@@ -92,6 +93,16 @@ class Dialogue {
             this._remainingDialogues = [Object.assign({}, dialogue_options, { onDisplayEnd })];
         }
         this._display();
+    }
+
+    setQuestionButtonClickListener(callback) {
+        if (typeof callback === "function") {
+            this._onQuestionButtonClick = callback;
+        } else if (callback === null) {
+            this._onQuestionButtonClick = null;
+        } else {
+            console.error("Event listener must be a function or null");
+        }
     }
 
     inDialogue() {
@@ -158,6 +169,10 @@ class Dialogue {
     }
 
     _questionAnswer(number) {
+        if (this._onQuestionButtonClick) {
+            this._onQuestionButtonClick(number);
+        }
+
         if (!this._currentDialogue) return;
         if (this._currentDialogue.correctAnswer === 0) return;
         if (number === 0) return;
