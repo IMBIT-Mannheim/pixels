@@ -248,7 +248,7 @@ Within the programming process you can view changes from the dev branch in your 
 <div align="center">
   <sub>Built with ❤️ by the IMBIT Team</sub>
   <br/>
-  <img src="public/README/imbit-logo.png" alt="IMBIT Logo" width="100"/>
+  <img src="public/images/imbit-n3xt_logo.png" alt="IMBIT Logo" width="100"/>
 </div>
 
 # Naming conventions
