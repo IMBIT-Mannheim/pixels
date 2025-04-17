@@ -423,12 +423,12 @@ export const dialogueData = {
     {
       id: 20,
       title: "Cure",
-      text: `Moechtest du eine Runde mit dem Auto fahren? Je laenger du es schaffst, ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du. Deal?`,
-      answers: ["Ja, klar!", "Neee, keine Lust.,"],
+      text: `Moechtest du das Cure-Minispiel ausprobieren? Je laenger du es schaffst, auf unserer Rennstrecke zu fahren ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du! Deal? `,
+      answers: ["Ja, klar!", "Neee, lieber nicht"],
       correctAnswer: 1, // = index of correct answer + 1
-      correctText: "Sehr gut!",
+      correctText: "Leider ist beim Start etwas schiefgelaufen. Versuche es gerne spaeter nocheinmal.",
       wrongText:
-        "Schade, komm gerne vorbei, wenn du es dir anders überlegt hast.",
+        "Schade, komm gerne vorbei, wenn du es dir anders ueberlegt hast.",
     },
   ],
 
