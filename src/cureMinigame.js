@@ -8,7 +8,6 @@ const PLAYER_SPEED = 400;
 const ROAD_WIDTH = 400;
 const OBSTACLE_SPAWN_RATE = 0.02; // Wahrscheinlichkeit pro Frame
 
-const DECORATION_SPAWN_RATE = 0.03; // Wahrscheinlichkeit pro Frame für Dekoration
 const DECORATION_TYPES = [
     "tree",
     "tree",
@@ -25,7 +24,6 @@ const DECORATION_TYPES = [
 const BASE_DECORATION_SPAWN_RATE = 0.5; // Base decoration spawn rate at normal speed
 const MAX_DECORATION_SPAWN_RATE = 0.6; // Maximum decoration spawn rate at high speeds
 const DECORATION_DENSITY = 40; // Initial decoration density (how many decorations to start with)
-const DECORATION_SPAWN_DISTANCE = 100; // Min vertical distance between decorations
 const DECORATION_MARGIN = 20;
 
 const STRIPE_HEIGHT = 80; // Höhe der Straßenmarkierungen
@@ -46,7 +44,6 @@ export function loadCureSprites() {
 export function defineCureScene() {
     let timePassed = 0;
     let gameSpeed = GAME_SPEED;
-    let roadSegments = [];
     let obstacles = [];
     let decorations = [];
     let isGameOver = false;
@@ -73,7 +70,7 @@ export function defineCureScene() {
             "player",
         ]);
 
-        const road = k.add([
+        k.add([
             k.rect(ROAD_WIDTH, k.height()),
             k.color(k.rgb(50, 50, 50)),
             k.pos(k.width() / 2, k.height() / 2),
@@ -82,7 +79,7 @@ export function defineCureScene() {
             "road",
         ]);
 
-        const leftBoundary = k.add([
+        k.add([
             k.rect(20, k.height()),
             k.color(k.rgb(200, 200, 0)),
             k.pos(k.width() / 2 - ROAD_WIDTH / 2 - 10, k.height() / 2),
@@ -92,7 +89,7 @@ export function defineCureScene() {
             "boundary",
         ]);
 
-        const rightBoundary = k.add([
+        k.add([
             k.rect(20, k.height()),
             k.color(k.rgb(200, 200, 0)),
             k.pos(k.width() / 2 + ROAD_WIDTH / 2 + 10, k.height() / 2),
@@ -220,10 +217,8 @@ export function defineCureScene() {
         }
 
         function initializeDecorations() {
-            // Calculate how many decorations we need based on the visible area
-            const decorationsToGenerate = DECORATION_DENSITY;
 
-            for (let i = 0; i < decorationsToGenerate; i++) {
+            for (let i = 0; i < DECORATION_DENSITY; i++) {
                 // Random y position within the visible area and slightly beyond
                 const yPos = -k.height() * 0.5 + k.rand(0, k.height() * 2);
 
@@ -259,23 +254,6 @@ export function defineCureScene() {
               decoration.pos.y = k.rand(-k.height(), k.height() * 2);
             }*/
 
-        function createDecoration() {
-            // Zufällig links oder rechts von der Straße
-            const side = k.choose(["left", "right"]);
-            const type = k.choose(DECORATION_TYPES);
-
-            // Position bestimmen (Abstand von der Straße variabel)
-            const distance = k.rand(50, 150);
-            let decorationX;
-
-            if (side === "left") {
-                decorationX = k.width() / 2 - ROAD_WIDTH / 2 - distance;
-            } else {
-                decorationX = k.width() / 2 + ROAD_WIDTH / 2 + distance;
-            }
-
-            return createDecorationAt(decorationX, -100, type);
-        }
 
         function createObstacle() {
             const obstacleX =
@@ -304,7 +282,7 @@ export function defineCureScene() {
             if (!isGameOver) {
                 isGameOver = true;
                 // First, add a background panel
-                const gameOverPanel = k.add([
+                k.add([
                     k.rect(700, 400), // Width and height of the panel
                     k.pos(k.width() / 2, k.height() / 2 + 50),
                     k.anchor("center"),
