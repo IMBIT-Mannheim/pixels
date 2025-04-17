@@ -413,11 +413,23 @@ export const dialogueData = {
     correctText: 'Gut gemacht! Jetzt weisst du, wie du dich fit halten kannst – egal, ob beim Basketball, Yoga oder einer Exkursion. ',
     wrongText: 'Falsch! ',
   },],
-  sportscar: {
-    title: 'Cure',
-    text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten. `,
-    answers: [
-    ],
-  },
+  sportscar: [
+    {
+      id: 19,
+      title: "Cure",
+      text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten.`,
+      answers: [],
+    },
+    {
+      id: 20,
+      title: "Cure",
+      text: `Moechtest du eine Runde mit dem Auto fahren? Je laenger du es schaffst, ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du. Deal?`,
+      answers: ["Ja, klar!", "Neee, keine Lust.,"],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: "Sehr gut!",
+      wrongText:
+        "Schade, komm gerne vorbei, wenn du es dir anders überlegt hast.",
+    },
+  ],
 
 };

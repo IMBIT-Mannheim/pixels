@@ -403,6 +403,22 @@ function setupScene(sceneName, mapFile, mapSprite) {
 									walkingSound.stop();
 									walkingSound = null;
 								}
+
+								// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+								if (boundary.name === "sportscar") {
+									dialogue.setQuestionButtonClickListener((buttonIndex) => {
+										dialogue.setQuestionButtonClickListener(null);
+										if (buttonIndex === 1) {
+											dialogue._close_or_next();
+											//k.go("cure_minigame");
+										}
+									});
+									dialogue.display(
+										dialogueData[boundary.name],
+										() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+									);
+									return;
+								}
 								dialogue.display(
 									dialogueData[boundary.name],
 									() => (showWorldMapBtn.style.display = "flex", game.focus())
