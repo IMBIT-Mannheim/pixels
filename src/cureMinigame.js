@@ -302,14 +302,14 @@ export function defineCureScene() {
                 ]);
 
                 k.add([
-                    k.text("Drücke Leertaste um zum"),
+                    k.text("Leertaste: zurück zum Campus"),
                     k.pos(k.width() / 2, k.height() / 2 + 80),
                     k.anchor("center"),
                     k.z(200),
                 ]);
 
                 k.add([
-                    k.text("Campus zurückzukehren"),
+                    k.text("ESC: Minispiel neustaten"),
                     k.pos(k.width() / 2, k.height() / 2 + 120),
                     k.anchor("center"),
                     k.z(200),
@@ -317,6 +317,9 @@ export function defineCureScene() {
 
                 k.onKeyPress("space", () => {
                     k.go("campus");
+                });
+                k.onKeyPress("escape", () => {
+                    k.go("cure_minigame");
                 });
             }
         });
