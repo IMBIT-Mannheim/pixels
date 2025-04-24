@@ -29,7 +29,7 @@ export const dialogueData = {
   //Klassenzimmer
   factone: {
     title: '5 Fakten ueber Mannheim',
-    text: `1.Quadratestadt: Mannheim ist einzigartig in Deutschland – die Innenstadt ist als Quadrat/Raster aufgebaut, statt Strassennamen gibt es Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest".`,
+    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Straßennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest".`,
     answers: [
     ],
   },
@@ -111,11 +111,11 @@ export const dialogueData = {
   bwlgirl: [{
     id: 12,
     title: 'Prof. Eibe',
-    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was beschreibt eine SWOT-Analyse? `,
+    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
     answers: [
-      '1) Geschaeftsrisiken',
-      '2) Finanzbuchhaltung',
-      '3) Softwareentwicklung',
+      '1) Die Bilanz eines Unternehmens zu erstellen',
+      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
+      '3) Die Mitarbeiterzufriedenheit zu messen',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
