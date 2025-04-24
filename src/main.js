@@ -127,8 +127,6 @@ k.scene("loading", () => {
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
-	
-
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
 		handleStart();
@@ -180,11 +178,15 @@ k.scene("loading", () => {
 
 		// Füge das Video-Element hinzu
 		const video = document.createElement("video");
-		video.src = "/videos/test_intro.mp4";
+		video.src = "/videos/Intro.mp4";
 		video.style.width = "80%";
 		video.style.height = "auto";
 		video.autoplay = true;
 		video.controls = false;
+
+		// Setze die Lautstärke des Videos basierend auf dem Musiklautstärke-Slider
+		const musicVolume = music_volume_slider.value / 100; // Slider-Wert in einen Bereich von 0 bis 1 umwandeln
+		video.volume = musicVolume;
 
 		// Füge einen "Skip Intro"-Button als Pfeil hinzu
 		const skipButton = document.createElement("button");
@@ -195,6 +197,12 @@ k.scene("loading", () => {
 		skipButton.style.border = "none"; // Entferne den Rahmen
 		skipButton.style.cursor = "pointer"; // Zeige den Mauszeiger als Hand an
 		skipButton.style.marginLeft = "20px";
+		skipButton.addEventListener("mouseover", () => {
+			skipButton.style.transform = "scale(1.2) translate(2px, 2px)";
+		});
+		skipButton.addEventListener("mouseout", () => {
+			skipButton.style.transform = "";
+		});
 
 		// Event-Listener für den "Skip Intro"-Button
 		skipButton.addEventListener("click", () => {
@@ -229,8 +237,8 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 10;
-		sound_effects_volume = sounds_volume.value / 10;
+		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
+		sound_effects_volume = sounds_volume.value / 100;
 		spawnpoint = select_spawnpoint.value;
 		dogName = dog_name_input.value;
 
@@ -240,7 +248,7 @@ k.scene("loading", () => {
 		setCookie("dog_name", dogName, 365);
 
 		const music = k.play("bgm", {
-			volume: music_volume,
+			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
 			loop: true,
 		});
 
