@@ -3,12 +3,12 @@ import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 
-const select_spawnpoint = document.getElementById("spawnpoint");
+
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 let character = "character-male";
-let spawnpoint;
+let spawnpoint = "campus";
 let dogName;
 let sound_effects_volume = "0.5";
 
@@ -56,10 +56,6 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
-	let opt = document.createElement('option');
-	opt.value = map;
-	opt.innerHTML = map;
-	select_spawnpoint.appendChild(opt);
 	let button = document.createElement('button');
 	button.className = "button";
 	button.innerHTML = map.toUpperCase();
@@ -97,14 +93,13 @@ k.scene("loading", () => {
 	const game = document.getElementById("game");
 	const dog_name_input = document.getElementById("dog-name");
 
-	const lastSpawnpoint = getCookie("spawnpoint");
+
 	const lastMusicVolume = getCookie("music_volume");
 	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
 	const lastDogName = getCookie("dog_name");
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
-	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
@@ -121,9 +116,7 @@ k.scene("loading", () => {
 		game.focus();
 	});
 
-	select_spawnpoint.addEventListener("change", () => {
-		game.focus();
-	});
+	
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
@@ -239,10 +232,9 @@ k.scene("loading", () => {
 	function startGame() {
 		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
 		sound_effects_volume = sounds_volume.value / 100;
-		spawnpoint = select_spawnpoint.value;
+		spawnpoint = spawnpoint;
 		dogName = dog_name_input.value;
 
-		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("dog_name", dogName, 365);
