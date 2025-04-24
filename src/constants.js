@@ -5,11 +5,23 @@ export let maps = [
   'almeria',
   'campus',
 ]
+
+// Define specific music for each map/location
+export const mapMusic = {
+  'mensa': 'Mensa',
+  'klassenzimmer': 'Klassenzimmer',
+  'unternehmensausstellung': 'Unternehmensausstellung',
+  'almeria': 'Almeria',
+  'campus': 'Campus',
+}
+
+// Keep general music array for fallback or random selection
 export const music = [
   'cave_tuto',
   'eglise_orgue',
   'haunted'
 ]
+
 export const scaleFactor = 4;
 export const dialogueData = {
   //Almeria
@@ -309,7 +321,7 @@ export const dialogueData = {
   //Campus
   girl: {
     title: 'Mentorin',
-    text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studentenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
+    text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studierendenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
     answers: [
     ],
   },
@@ -413,11 +425,23 @@ export const dialogueData = {
     correctText: 'Gut gemacht! Jetzt weisst du, wie du dich fit halten kannst – egal, ob beim Basketball, Yoga oder einer Exkursion. ',
     wrongText: 'Falsch! ',
   },],
-  sportscar: {
-    title: 'Cure',
-    text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten. `,
-    answers: [
-    ],
-  },
+  sportscar: [
+    {
+      id: 19,
+      title: "Cure",
+      text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten.`,
+      answers: [],
+    },
+    {
+      id: 20,
+      title: "Cure",
+      text: `Moechtest du das Cure-Minispiel ausprobieren? Je laenger du es schaffst, auf unserer Rennstrecke zu fahren ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du! Deal? `,
+      answers: ["Ja, klar!", "Neee, lieber nicht"],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: "Leider ist beim Start etwas schiefgelaufen. Versuche es gerne spaeter nocheinmal.",
+      wrongText:
+        "Schade, komm gerne vorbei, wenn du es dir anders ueberlegt hast.",
+    },
+  ],
 
 };

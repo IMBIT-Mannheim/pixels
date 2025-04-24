@@ -1,6 +1,7 @@
-import { dialogueData, maps, music, scaleFactor } from "./constants";
+import { dialogueData, maps, music, mapMusic, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
+import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 const spawnpoints_world_map = document.getElementById("spawnpoints");
@@ -10,6 +11,9 @@ let character = "character-male";
 let spawnpoint;
 let dogName;
 let sound_effects_volume = "0.5";
+
+loadCureSprites();
+defineCureScene();
 
 k.loadSprite("character-male", "./sprites/character-male.png", {
 	sliceX: 3,
@@ -50,6 +54,7 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	},
 });
 
+// Load all music tracks at the beginning
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
 	let opt = document.createElement('option');
@@ -62,14 +67,27 @@ for (let i = 0; i < maps.length; i++) {
 	button.addEventListener("click", () => {
 		world_map.style.display = "none";
 		showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+		
+		// Stop current music before going to a new location
+		if (window.currentBgm) {
+			window.currentBgm.stop();
+		}
+		
 		k.go(map);
 		game.focus();
 	});
 	spawnpoints_world_map.appendChild(button);
 	k.loadSprite(map, `./maps/${map}.png`)
 	setupScene(map, `./maps/${map}.json`, map);
+	
+	// Load map-specific music
+	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
+	// Encode the URL to handle spaces in filenames
+	const musicFilePath = `./sounds/music/${encodeURIComponent(mapSpecificMusic)}.mp3`;
+	k.loadSound(`bgm_${map}`, musicFilePath);
 }
 
+// Load a default background music for initial loading screen
 const random_song = music[Math.floor(Math.random() * music.length)];
 k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
 
@@ -109,21 +127,132 @@ k.scene("loading", () => {
 		male_button.classList.add("selected");
 		game.focus();
 	});
+
 	female_button.addEventListener("click", () => {
 		character = "character-female";
 		male_button.classList.remove("selected");
 		female_button.classList.add("selected");
 		game.focus();
 	});
+
 	select_spawnpoint.addEventListener("change", () => {
 		game.focus();
 	});
+
+	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
+
+	
+
+	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
-		startGame();
+		handleStart();
 	});
+
+	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
-		startGame()
+		handleStart();
 	});
+
+	// Add event listener for music volume slider
+	music_volume_slider.addEventListener("input", () => {
+		const music_volume = music_volume_slider.value / 10;
+		// Update volume for current playing background music
+		if (window.currentBgm) {
+			window.currentBgm.volume(music_volume);
+		}
+		setCookie("music_volume", music_volume, 365);
+		game.focus();
+	});
+
+	function handleStart() {
+		if (isVideoPlaying) return; // Verhindere mehrfaches Starten
+
+		const introWatched = getCookie("intro_watched"); // Prüfe, ob das Intro bereits geschaut wurde
+		if (introWatched) {
+			// Wenn das Intro bereits geschaut wurde, starte das Spiel direkt
+			startGame();
+		} else {
+			// Zeige das Intro, wenn es noch nicht geschaut wurde
+			showVideoScreen();
+		}
+	}
+
+	function showVideoScreen() {
+		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
+
+		// Erstelle einen neuen Screen für das Video
+		const videoScreen = document.createElement("div");
+		videoScreen.id = "video-screen";
+		videoScreen.style.position = "fixed";
+		videoScreen.style.top = "0";
+		videoScreen.style.left = "0";
+		videoScreen.style.width = "100%";
+		videoScreen.style.height = "100%";
+		videoScreen.style.backgroundColor = "#311047";
+		videoScreen.style.display = "flex";
+		videoScreen.style.flexDirection = "row"; // Ermöglicht horizontale Anordnung
+		videoScreen.style.justifyContent = "center";
+		videoScreen.style.alignItems = "center";
+		videoScreen.style.zIndex = "1000";
+
+		// Füge einen Text über dem Video hinzu
+		const textOverlay = document.createElement("div");
+		textOverlay.innerText = "Intro zu IMBIT Pixel!";
+		textOverlay.style.color = "white";
+		textOverlay.style.fontSize = "48px";
+		textOverlay.style.marginBottom = "20px";
+		textOverlay.style.textAlign = "center";
+
+		// Füge das Video-Element hinzu
+		const video = document.createElement("video");
+		video.src = "/videos/test_intro.mp4";
+		video.style.width = "80%";
+		video.style.height = "auto";
+		video.autoplay = true;
+		video.controls = false;
+
+		// Füge einen "Skip Intro"-Button als Pfeil hinzu
+		const skipButton = document.createElement("button");
+		skipButton.style.width = "256px"; // Breite des Buttons
+		skipButton.style.height = "256px"; // Höhe des Buttons
+		skipButton.style.background = "url('/images/skip-arrow.png') no-repeat center"; // Bild als Hintergrund
+		skipButton.style.backgroundSize = "contain"; // Skaliere das Bild proportional
+		skipButton.style.border = "none"; // Entferne den Rahmen
+		skipButton.style.cursor = "pointer"; // Zeige den Mauszeiger als Hand an
+		skipButton.style.marginLeft = "20px";
+
+		// Event-Listener für den "Skip Intro"-Button
+		skipButton.addEventListener("click", () => {
+			document.body.removeChild(videoScreen);
+			isVideoPlaying = false; // Setze den Zustand zurück
+			setCookie("intro_watched", true, 365); // Setze das Cookie
+			startGame(); // Starte das Spiel
+		});
+
+		// Füge den Text und das Video zum Video-Container hinzu
+		const videoContainer = document.createElement("div");
+		videoContainer.style.display = "flex";
+		videoContainer.style.flexDirection = "column";
+		videoContainer.style.alignItems = "center";
+		videoContainer.appendChild(textOverlay);
+		videoContainer.appendChild(video);
+
+		// Füge den Video-Container und den Button zum Screen hinzu
+		videoScreen.appendChild(videoContainer);
+		videoScreen.appendChild(skipButton);
+
+		// Füge den Screen zum Dokument hinzu
+		document.body.appendChild(videoScreen);
+
+		// Event-Listener, um den Screen zu entfernen, wenn das Video endet
+		video.addEventListener("ended", () => {
+			document.body.removeChild(videoScreen);
+			isVideoPlaying = false; // Setze den Zustand zurück
+			setCookie("intro_watched", true, 365); // Setze das Cookie
+			startGame(); // Starte das Spiel nach dem Video
+		});
+	}
+
 	function startGame() {
 		const music_volume = music_volume_slider.value / 10;
 		sound_effects_volume = sounds_volume.value / 10;
@@ -135,10 +264,12 @@ k.scene("loading", () => {
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("dog_name", dogName, 365);
 
-		const music = k.play("bgm", {
-			volume: music_volume,
-			loop: true
-		})
+		// We'll play scene-specific music instead of a general background music
+		// const music = k.play("bgm", {
+		//	volume: music_volume,
+		//	loop: true,
+		// });
+
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
@@ -151,6 +282,21 @@ k.scene("loading", () => {
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
 		let isFullMapView = false;  // Variable to track if in full map view
+		
+		// Play the location-specific music when entering this scene
+		// Stop any currently playing music first
+		if (window.currentBgm) {
+			window.currentBgm.stop();
+		}
+		
+		// Get the music volume from cookie or default to 0.5
+		const music_volume = getCookie("music_volume") || 0.5;
+		
+		// Play the map-specific background music
+		window.currentBgm = k.play(`bgm_${sceneName}`, {
+			volume: music_volume,
+			loop: true,
+		});
 
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
@@ -215,36 +361,114 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					if (boundary.name !== "boundary") {
 						let bounceOffset = 0;
 						let bounceSpeed = 0.001;
+						let isInProximity = false;
+						const INTERACTION_RADIUS = 100; // Adjust this value to change the interaction radius
+						let promptTimer = 0; // Timer for prompt visibility
+						const PROMPT_DURATION = 10; // Show prompt for 10 seconds
 
 						const exclamation = k.add([
 							k.text("!", { size: 40 }),
 							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
 							k.z(10),
-							"exclamation",
+							"exclamation"
 						]);
 
+						// Create the popup completely hidden by default
+						const interactionPrompt = k.add([
+							k.text("Press T to interact", { 
+								size: 18,
+								// Use a pixel font that matches the game's style
+								font: "monospace",
+								styles: {
+									fill: "#ffffff",
+									stroke: "#000000",
+									strokeThickness: 3
+								}
+							}),
+							k.pos(0, 0),  // Position will be updated in onUpdate
+							k.z(10),
+							k.opacity(0),  // Start completely invisible
+							"interactionPrompt"
+						]);
+
+						// Keep the exclamation mark update separate
 						k.onUpdate("exclamation", (e) => {
 							bounceOffset += bounceSpeed;
 							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
 								bounceSpeed *= -1;
 							}
 							e.pos.y = e.pos.y + bounceOffset;
+
+							// Check proximity and update prompt visibility
+							const dist = player.pos.dist(k.vec2(boundary.x * scaleFactor, boundary.y * scaleFactor));
+							if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+								if (!isInProximity) {
+									isInProximity = true;
+									// Use smooth fade in
+									k.tween(interactionPrompt.opacity, 1, 0.3, (v) => interactionPrompt.opacity = v);
+									promptTimer = 0; // Reset timer when entering proximity
+								}
+								
+								// Update timer
+								promptTimer += k.dt();
+								
+								// Hide prompt after PROMPT_DURATION seconds
+								if (promptTimer >= PROMPT_DURATION && interactionPrompt.opacity > 0) {
+									// Fade out the prompt
+									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
+								}
+								
+								// Position the prompt above the player's head
+								const promptX = player.pos.x;
+								const promptY = player.pos.y - 50;
+								
+								// Update position
+								interactionPrompt.pos = k.vec2(promptX, promptY);
+								
+							} else {
+								if (isInProximity) {
+									isInProximity = false;
+									// Use smooth fade out
+									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
+									promptTimer = 0; // Reset timer when leaving proximity
+								}
+							}
 						});
 
-						player.onCollide(boundary.name, () => {
-							showWorldMapBtn.style.display = "none";
-							k.destroy(exclamation);
-							k.play("talk", {
-								volume: sound_effects_volume,
-							});
-							if (walkingSound) {
-								walkingSound.stop();
-								walkingSound = null;
+						// Handle T key press
+						k.onKeyPress("t", () => {
+							if (isInProximity && !player.isInDialogue) {
+								showWorldMapBtn.style.display = "none";
+								k.destroy(exclamation);
+								k.destroy(interactionPrompt);
+								k.play("talk", {
+									volume: sound_effects_volume,
+								});
+								if (walkingSound) {
+									walkingSound.stop();
+									walkingSound = null;
+								}
+
+								// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+								if (boundary.name === "sportscar") {
+									dialogue.setQuestionButtonClickListener((buttonIndex) => {
+										dialogue.setQuestionButtonClickListener(null);
+										if (buttonIndex === 1) {
+											dialogue._close_or_next();
+											k.go("cure_minigame");
+										}
+									});
+									dialogue.display(
+										dialogueData[boundary.name],
+										() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+									);
+									return;
+								}
+								dialogue.display(
+									dialogueData[boundary.name],
+									() => (showWorldMapBtn.style.display = "flex", game.focus())
+								);
 							}
-							dialogue.display(
-								dialogueData[boundary.name],
-								() => (showWorldMapBtn.style.display = "flex", game.focus())
-							);
 						});
 					}
 				}
@@ -271,6 +495,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 					if (boundary.name) {
 						player.onCollide(boundary.name, () => {
+							// Stop current music before transitioning to new map
+							if (window.currentBgm) {
+								window.currentBgm.stop();
+							}
+							
 							k.go(boundary.name);
 							if (walkingSound) {
 								walkingSound.stop();
