@@ -1,4 +1,5 @@
 const closeBtn = document.getElementById("close");
+const closeXBtn = document.getElementById("close-x");
 const dialogueUI = document.getElementById("textbox-container");
 const dialogueContainer = document.getElementById("dialogue");
 const scoreUI = document.getElementById("score-value");
@@ -68,9 +69,11 @@ class Dialogue {
 
     _score = 0;
     _answeredQuizzes = [];
+    _onQuestionButtonClick = null;
 
     constructor() {
         closeBtn.addEventListener("click", this._close_or_next.bind(this));
+        closeXBtn.addEventListener("click", this._close_or_next.bind(this));
         document.addEventListener("keydown", (key) => {
             if (!this._currentDialogue) return;
             if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
@@ -90,6 +93,16 @@ class Dialogue {
             this._remainingDialogues = [Object.assign({}, dialogue_options, { onDisplayEnd })];
         }
         this._display();
+    }
+
+    setQuestionButtonClickListener(callback) {
+        if (typeof callback === "function") {
+            this._onQuestionButtonClick = callback;
+        } else if (callback === null) {
+            this._onQuestionButtonClick = null;
+        } else {
+            console.error("Event listener must be a function or null");
+        }
     }
 
     inDialogue() {
@@ -156,6 +169,10 @@ class Dialogue {
     }
 
     _questionAnswer(number) {
+        if (this._onQuestionButtonClick) {
+            this._onQuestionButtonClick(number);
+        }
+
         if (!this._currentDialogue) return;
         if (this._currentDialogue.correctAnswer === 0) return;
         if (number === 0) return;
