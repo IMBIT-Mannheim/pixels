@@ -1,4 +1,4 @@
-import { dialogueData, maps, music, mapMusic, scaleFactor } from "./constants";
+import { dialogueData, maps, music, scaleFactor } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
@@ -54,7 +54,6 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	},
 });
 
-// Load all music tracks at the beginning
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
 	let opt = document.createElement('option');
@@ -67,27 +66,14 @@ for (let i = 0; i < maps.length; i++) {
 	button.addEventListener("click", () => {
 		world_map.style.display = "none";
 		showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-		
-		// Stop current music before going to a new location
-		if (window.currentBgm) {
-			window.currentBgm.stop();
-		}
-		
 		k.go(map);
 		game.focus();
 	});
 	spawnpoints_world_map.appendChild(button);
 	k.loadSprite(map, `./maps/${map}.png`)
 	setupScene(map, `./maps/${map}.json`, map);
-	
-	// Load map-specific music
-	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
-	// Encode the URL to handle spaces in filenames
-	const musicFilePath = `./sounds/music/${encodeURIComponent(mapSpecificMusic)}.mp3`;
-	k.loadSound(`bgm_${map}`, musicFilePath);
 }
 
-// Load a default background music for initial loading screen
 const random_song = music[Math.floor(Math.random() * music.length)];
 k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
 
@@ -149,19 +135,6 @@ k.scene("loading", () => {
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
-
-	});
-
-	// Add event listener for music volume slider
-	music_volume_slider.addEventListener("input", () => {
-		const music_volume = music_volume_slider.value / 10;
-		// Update volume for current playing background music
-		if (window.currentBgm) {
-			window.currentBgm.volume(music_volume);
-		}
-		setCookie("music_volume", music_volume, 365);
-		game.focus();
-
 	});
 
 	function handleStart() {
@@ -205,12 +178,15 @@ k.scene("loading", () => {
 
 		// Füge das Video-Element hinzu
 		const video = document.createElement("video");
-
 		video.src = "/videos/Intro.mp4";
 		video.style.width = "80%";
 		video.style.height = "auto";
 		video.autoplay = true;
 		video.controls = false;
+
+		// Setze die Lautstärke des Videos basierend auf dem Musiklautstärke-Slider
+		const musicVolume = music_volume_slider.value / 100; // Slider-Wert in einen Bereich von 0 bis 1 umwandeln
+		video.volume = musicVolume;
 
 		// Füge einen "Skip Intro"-Button als Pfeil hinzu
 		const skipButton = document.createElement("button");
@@ -221,7 +197,6 @@ k.scene("loading", () => {
 		skipButton.style.border = "none"; // Entferne den Rahmen
 		skipButton.style.cursor = "pointer"; // Zeige den Mauszeiger als Hand an
 		skipButton.style.marginLeft = "20px";
-
 		skipButton.addEventListener("mouseover", () => {
 			skipButton.style.transform = "scale(1.2) translate(2px, 2px)";
 		});
@@ -272,6 +247,11 @@ k.scene("loading", () => {
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("dog_name", dogName, 365);
 
+		const music = k.play("bgm", {
+			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
+			loop: true,
+		});
+
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
@@ -284,26 +264,6 @@ k.scene("loading", () => {
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
 		let isFullMapView = false;  // Variable to track if in full map view
-		
-		// Play the location-specific music when entering this scene
-		// Stop any currently playing music first
-		if (window.currentBgm) {
-			window.currentBgm.stop();
-		}
-		
-		// Get the music volume from cookie or default to 0.5
-		const music_volume = getCookie("music_volume") || 0.5;
-		
-		// Play the map-specific background music
-		window.currentBgm = 
-      
-      
-      
-      
-      (`bgm_${sceneName}`, {
-			volume: music_volume,
-			loop: true,
-		});
 
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
@@ -502,11 +462,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 					if (boundary.name) {
 						player.onCollide(boundary.name, () => {
-							// Stop current music before transitioning to new map
-							if (window.currentBgm) {
-								window.currentBgm.stop();
-							}
-							
 							k.go(boundary.name);
 							if (walkingSound) {
 								walkingSound.stop();

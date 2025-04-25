@@ -5,23 +5,11 @@ export let maps = [
   'almeria',
   'campus',
 ]
-
-// Define specific music for each map/location
-export const mapMusic = {
-  'mensa': 'Mensa',
-  'klassenzimmer': 'Klassenzimmer',
-  'unternehmensausstellung': 'Unternehmensausstellung',
-  'almeria': 'Almeria',
-  'campus': 'Campus',
-}
-
-// Keep general music array for fallback or random selection
 export const music = [
   'cave_tuto',
   'eglise_orgue',
   'haunted'
 ]
-
 export const scaleFactor = 4;
 export const dialogueData = {
   //Almeria
@@ -321,7 +309,7 @@ export const dialogueData = {
   //Campus
   girl: {
     title: 'Mentorin',
-    text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studierendenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
+    text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studentenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
     answers: [
     ],
   },
