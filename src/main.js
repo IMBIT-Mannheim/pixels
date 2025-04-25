@@ -141,8 +141,6 @@ k.scene("loading", () => {
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
-	
-
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
 		handleStart();
@@ -151,6 +149,7 @@ k.scene("loading", () => {
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
+
 	});
 
 	// Add event listener for music volume slider
@@ -162,6 +161,7 @@ k.scene("loading", () => {
 		}
 		setCookie("music_volume", music_volume, 365);
 		game.focus();
+
 	});
 
 	function handleStart() {
@@ -205,7 +205,8 @@ k.scene("loading", () => {
 
 		// Füge das Video-Element hinzu
 		const video = document.createElement("video");
-		video.src = "/videos/test_intro.mp4";
+
+		video.src = "/videos/Intro.mp4";
 		video.style.width = "80%";
 		video.style.height = "auto";
 		video.autoplay = true;
@@ -220,6 +221,13 @@ k.scene("loading", () => {
 		skipButton.style.border = "none"; // Entferne den Rahmen
 		skipButton.style.cursor = "pointer"; // Zeige den Mauszeiger als Hand an
 		skipButton.style.marginLeft = "20px";
+
+		skipButton.addEventListener("mouseover", () => {
+			skipButton.style.transform = "scale(1.2) translate(2px, 2px)";
+		});
+		skipButton.addEventListener("mouseout", () => {
+			skipButton.style.transform = "";
+		});
 
 		// Event-Listener für den "Skip Intro"-Button
 		skipButton.addEventListener("click", () => {
@@ -254,8 +262,8 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 10;
-		sound_effects_volume = sounds_volume.value / 10;
+		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
+		sound_effects_volume = sounds_volume.value / 100;
 		spawnpoint = select_spawnpoint.value;
 		dogName = dog_name_input.value;
 
@@ -263,12 +271,6 @@ k.scene("loading", () => {
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("dog_name", dogName, 365);
-
-		// We'll play scene-specific music instead of a general background music
-		// const music = k.play("bgm", {
-		//	volume: music_volume,
-		//	loop: true,
-		// });
 
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
@@ -293,7 +295,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		const music_volume = getCookie("music_volume") || 0.5;
 		
 		// Play the map-specific background music
-		window.currentBgm = k.play(`bgm_${sceneName}`, {
+		window.currentBgm = 
+      
+      
+      
+      
+      (`bgm_${sceneName}`, {
 			volume: music_volume,
 			loop: true,
 		});
