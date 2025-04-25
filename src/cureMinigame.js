@@ -1,6 +1,6 @@
 
 import { k } from "./kaboomCtx";
-import {  setCamScale, setCookie } from "./utils";
+import {getCookie, setCamScale, setCookie} from "./utils";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -48,8 +48,19 @@ export function defineCureScene() {
     let decorations = [];
     let isGameOver = false;
     let stripes = []; // Array für alle Straßenmarkierungen
+    let music = undefined;
 
     k.scene("cure_minigame", async () => {
+        const music_volume = getCookie("music_volume") || 0.5;
+
+        if (music === undefined) {
+            // Play the map-specific background music
+            music = k.play("bgm_cureMinigame", {
+                volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
+                loop: true,
+            });
+        }
+
         const during_minigame = document.getElementsByClassName("during-minigame");
         for (let i = 0; i < during_minigame.length; i++) {
             during_minigame[i].style.display = "block";
@@ -302,23 +313,25 @@ export function defineCureScene() {
                 ]);
 
                 k.add([
-                    k.text("Leertaste: zurück zum Campus"),
+                    k.text("ESC: zurück zum Campus"),
                     k.pos(k.width() / 2, k.height() / 2 + 80),
                     k.anchor("center"),
                     k.z(200),
                 ]);
 
                 k.add([
-                    k.text("ESC: Minispiel neustaten"),
+                    k.text("Leertaste: Minispiel neustarten"),
                     k.pos(k.width() / 2, k.height() / 2 + 120),
                     k.anchor("center"),
                     k.z(200),
                 ]);
 
-                k.onKeyPress("space", () => {
+                k.onKeyPress("escape", () => {
+                    music.stop();
+                    music = undefined;
                     k.go("campus");
                 });
-                k.onKeyPress("escape", () => {
+                k.onKeyPress("space", () => {
                     k.go("cure_minigame");
                 });
             }

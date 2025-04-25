@@ -5,6 +5,13 @@ export let maps = [
   'almeria',
   'campus',
 ]
+export const mapMusic = {
+  'mensa': 'Mensa',
+  'klassenzimmer': 'Klassenzimmer',
+  'unternehmensausstellung': 'Unternehmensausstellung',
+  'almeria': 'Almeria',
+  'campus': 'Campus',
+}
 export const music = [
   'cave_tuto',
   'eglise_orgue',
