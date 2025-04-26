@@ -12,6 +12,20 @@ export const music = [
 ]
 export const scaleFactor = 4;
 export const dialogueData = {
+
+  //Hund
+  dogInitial: {
+    title: 'selin',
+    text: "Hey du! Bevor es richtig losgeht: Kennst du schon das duale Studium?",
+    answers: [
+      "Ja, kenne ich schon.",
+      "Nein, was ist das?"
+    ],
+    correctAnswer: 1,
+    correctText: "Super! Dann kann es ja losgehen!",
+    wrongText: "Das ist kein Problem. Ich erklaer es dir gerne! Ein duales Studium an der DHBW bedeutet: Du studierst an der Hochschule und arbeitest parallel in einem Unternehmen. So sammelst du schon während des Studiums Berufserfahrung – ziemlich praktisch, oder? Du wechselst alle paar Monate zwischen Theorie und Praxis. Und das Beste: Du bekommst sogar ein Gehalt!"
+  },
+
   //Almeria
   almeriaOpa: {
     title: 'Almeria Opa',
