@@ -117,7 +117,7 @@ export const dialogueData = {
       '2) Staerken, Schwaechen, Chancen und Risiken eines Unternehmens zu analysieren',
       '3) Die Mitarbeiterzufriedenheit zu messen',
     ],
-    correctAnswer: 1, // = index of correct answer + 1
+    correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
     wrongText: 'Falsch! ',
   },
