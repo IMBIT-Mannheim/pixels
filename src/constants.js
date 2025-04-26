@@ -114,7 +114,7 @@ export const dialogueData = {
     text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
     answers: [
       '1) Die Bilanz eines Unternehmens zu erstellen',
-      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
+      '2) Staerken, Schwaechen, Chancen und Risiken eines Unternehmens zu analysieren',
       '3) Die Mitarbeiterzufriedenheit zu messen',
     ],
     correctAnswer: 1, // = index of correct answer + 1
