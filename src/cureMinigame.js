@@ -504,8 +504,15 @@ export function defineCureScene() {
         });
 
         k.onSceneLeave(() => {
-            console.log("Exiting racing minigame scene");
-            setCookie("scoreAchievedInMinigame", calculateScore(timePassed));
+            const currentScore = calculateScore(timePassed);
+            sessionState.progress.scoreInMinigame = currentScore;
+
+            if (currentScore > sessionState.minigames.cureMinigame.bestScore) {
+                sessionState.minigames.cureMinigame.bestScore = currentScore;
+            }
+            
+            saveGame();
+
             // Clean up resources
             k.setBackground(k.Color.fromHex("#311047"));
             obstacles.forEach((obstacle) => obstacle.destroy());
