@@ -4,12 +4,12 @@ import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 
-const select_spawnpoint = document.getElementById("spawnpoint");
+// const select_spawnpoint = document.getElementById("spawnpoint");
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 let character = "character-male";
-let spawnpoint;
+let spawnpoint = maps[0];
 let dogName;
 let sound_effects_volume = "0.5";
 
@@ -60,7 +60,7 @@ for (let i = 0; i < maps.length; i++) {
 	let opt = document.createElement('option');
 	opt.value = map;
 	opt.innerHTML = map;
-	select_spawnpoint.appendChild(opt);
+	// select_spawnpoint.appendChild(opt);
 	let button = document.createElement('button');
 	button.className = "button";
 	button.innerHTML = map.toUpperCase();
@@ -107,14 +107,13 @@ k.scene("loading", () => {
 	// Load previous session state if available
 	ensureSessionId();
 	loadGame();
-	const lastSpawnpoint = sessionState.settings.spawnpoint;
 	const lastMusicVolume = sessionState.settings.musicVolume;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
 	const lastDogName = sessionState.settings.dogName;
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
-	select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
+	// select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
@@ -131,9 +130,9 @@ k.scene("loading", () => {
 		game.focus();
 	});
 
-	select_spawnpoint.addEventListener("change", () => {
-		game.focus();
-	});
+	// select_spawnpoint.addEventListener("change", () => {
+	// 	game.focus();
+	// });
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
@@ -274,7 +273,7 @@ k.scene("loading", () => {
 	function startGame() {
 		const music_volume = music_volume_slider.value / 100;
         const sound_effects_volume = sounds_volume.value / 100;
-        spawnpoint = select_spawnpoint.value;
+        spawnpoint = maps[0];
         dogName = dog_name_input.value;
 
 		sessionState.settings.spawnpoint = spawnpoint;
