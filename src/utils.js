@@ -144,7 +144,9 @@ class Dialogue {
         if (this._typer) this._typer.stop(true);
         if (this._remainingDialogues.length > 0)
             return this._display();
-        this._currentDialogue.onDisplayEnd();
+        if (typeof this._currentDialogue.onDisplayEnd === "function"); {
+            this._currentDialogue.onDisplayEnd();
+        }
         this._currentDialogue = null;
         dialogueUI.style.display = "none";
     }
