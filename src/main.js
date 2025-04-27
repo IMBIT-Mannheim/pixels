@@ -1,4 +1,4 @@
-import { dialogueData, maps, music, scaleFactor } from "./constants";
+import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
@@ -67,11 +67,17 @@ for (let i = 0; i < maps.length; i++) {
 	});
 	spawnpoints_world_map.appendChild(button);
 	k.loadSprite(map, `./maps/${map}.png`)
+
+	// Load map-specific music
+	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
+	const musicFilePath = `./sounds/music/${encodeURIComponent(mapSpecificMusic)}.mp3`;
+	k.loadSound(`bgm_${map}`, musicFilePath);
 	setupScene(map, `./maps/${map}.json`, map);
 }
 
 const random_song = music[Math.floor(Math.random() * music.length)];
 k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
 
 //läd die Sounds im Hintergrund
 k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
@@ -116,13 +122,26 @@ k.scene("loading", () => {
 		game.focus();
 	});
 
-	
+
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
 		handleStart();
+	});
+
+
+	// Add event listener for music volume slider
+	music_volume_slider.addEventListener("input", () => {
+		const music_volume = music_volume_slider.value / 10;
+		// Update volume for current playing background music
+		if (window.currentBgm) {
+			window.currentBgm.volume(music_volume);
+		}
+		setCookie("music_volume", music_volume, 365);
+		game.focus();
+
 	});
 
 	// Event-Listener für Enter- und Leertaste
@@ -235,27 +254,52 @@ k.scene("loading", () => {
 		spawnpoint = spawnpoint;
 		dogName = dog_name_input.value;
 
+		dialogueData.dogInitial.title = dogName;
+
+		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("dog_name", dogName, 365);
 
+		/*
 		const music = k.play("bgm", {
 			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
 			loop: true,
-		});
+		});*/
 
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
 		game.focus();
-		k.go(spawnpoint);
+
+		if (getCookie("dog_initial_answered")) {
+			window.showDogInitialDialogue = false;
+			k.go(spawnpoint);
+		} else {
+			window.showDogInitialDialogue = true;
+			k.go(spawnpoint);
+		}
 	}
 });
 
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
 		let isFullMapView = false;  // Variable to track if in full map view
+
+		const music_volume = getCookie("music_volume") || 0.5;
+
+		// Play the map-specific background music
+		const music = k.play("bgm_" + sceneName, {
+			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
+			loop: true,
+		});
+
+		k.onSceneLeave(() => {
+			music.stop();
+		});
+
+
 
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
@@ -743,6 +787,15 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
 		});
+
+		if (window.showDogInitialDialogue) {
+			dialogue.display(dialogueData.dogInitial, () => {
+				setCookie("dog_initial_answered", true, 365);
+			});
+			window.showDogInitialDialogue = false;
+		}
+
+
 	});
 }
 

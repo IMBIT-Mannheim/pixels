@@ -5,6 +5,13 @@ export let maps = [
   'almeria',
   'campus',
 ]
+export const mapMusic = {
+  'mensa': 'Mensa',
+  'klassenzimmer': 'Klassenzimmer',
+  'unternehmensausstellung': 'Unternehmensausstellung',
+  'almeria': 'Almeria',
+  'campus': 'Campus',
+}
 export const music = [
   'cave_tuto',
   'eglise_orgue',
@@ -12,6 +19,20 @@ export const music = [
 ]
 export const scaleFactor = 4;
 export const dialogueData = {
+
+  //Hund
+  dogInitial: {
+    title: 'selin',
+    text: "Hey du! Bevor es richtig losgeht: Kennst du schon das duale Studium? ",
+    answers: [
+      "Ja, kenne ich schon.",
+      "Nein, was ist das?"
+    ],
+    correctAnswer: 1,
+    correctText: "Super! Dann kann es ja losgehen! ",
+    wrongText: "Das ist kein Problem. Ich erklaer es dir gerne! Ein duales Studium an der DHBW bedeutet: Du studierst an der Hochschule und arbeitest parallel in einem Unternehmen. So sammelst du schon waehrend des Studiums Berufserfahrung – ziemlich praktisch, oder? Du wechselst alle paar Monate zwischen Theorie und Praxis. Und das Beste: Du bekommst sogar ein Gehalt! "
+  },
+
   //Almeria
   almeriaOpa: {
     title: 'Almeria Opa',
@@ -29,13 +50,13 @@ export const dialogueData = {
   //Klassenzimmer
   factone: {
     title: '5 Fakten ueber Mannheim',
-    text: `1.Quadratestadt: Mannheim ist einzigartig in Deutschland – die Innenstadt ist als Quadrate/Raster aufgebaut, statt Strassennamen gibt es Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest".`,
+    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Straßennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
     answers: [
     ],
   },
   facttwo: {
     title: '5 Fakten uebers Duale Studium',
-    text: `1. Praxis und Theorie: Ein duales Studium kombiniert Hochschulstudium mit praktischer Arbeit im Unternehmen.\n2. Verguetung: Studierende erhalten ein Gehalt waehrend des gesamten Studiums.\n3. Kurze Studiendauer: Ein duales Studium dauert 3 Jahre. \n4. Hohe uebernahmechancen: Viele Unternehmen uebernehmen ihre dualen Studierenden nach dem Abschluss.\n5. Wechsel alle 3 Monate: Theorie- und Praxisphasen wechseln alle drei Monate.`,
+    text: `1. Praxis und Theorie: Ein duales Studium kombiniert Hochschulstudium mit praktischer Arbeit im Unternehmen.\n2. Verguetung: Studierende erhalten ein Gehalt waehrend des gesamten Studiums.\n3. Kurze Studiendauer: Ein duales Studium dauert 3 Jahre. \n4. Hohe uebernahmechancen: Viele Unternehmen uebernehmen ihre dualen Studierenden nach dem Abschluss.\n5. Wechsel alle 3 Monate: Theorie- und Praxisphasen wechseln alle drei Monate. `,
     answers: [
     ],
   },
@@ -60,7 +81,7 @@ export const dialogueData = {
   bwlopa: [{
     id: 16,
     title: 'Prof. Magnolica',
-    text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP?`,
+    text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP? `,
     answers: [
       '1) Die Inflation eines Landes',
       '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes',
@@ -111,11 +132,11 @@ export const dialogueData = {
   bwlgirl: [{
     id: 12,
     title: 'Prof. Eibe',
-    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was beschreibt eine SWOT-Analyse? `,
+    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
     answers: [
-      '1) Geschaeftsrisiken',
-      '2) Finanzbuchhaltung',
-      '3) Softwareentwicklung',
+      '1) Die Bilanz eines Unternehmens zu erstellen',
+      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
+      '3) Die Mitarbeiterzufriedenheit zu messen',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
