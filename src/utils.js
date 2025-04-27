@@ -85,6 +85,11 @@ class Dialogue {
                 if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
             }
         });
+    
+        // Initialize from sessionState
+        this._answeredQuizzes = [...sessionState.progress.answeredDialogues];
+        this._score = sessionState.progress.score;
+        scoreUI.innerHTML = this._score;
     }
 
     display(dialogue_options, onDisplayEnd) {
@@ -118,7 +123,14 @@ class Dialogue {
     resetScore() {
         this._answeredQuizzes = [];
         this._score = 0;
+    
+        sessionState.progress.answeredDialogues = [];
+        sessionState.progress.score = 0;
+        saveGame();
+    
+        scoreUI.innerHTML = this._score;
     }
+    
 
     async _typingEffect(text) {
         if (this._typer) this._typer.stop(true);
@@ -182,16 +194,17 @@ class Dialogue {
     
         if (this._currentDialogue.correctAnswer === number) {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
+                // Add to local state
                 this._score++;
-                scoreUI.innerHTML = this._score;
                 this._answeredQuizzes.push(this._currentDialogue.id);
     
-                // Persisting the answered dialogues in session state
-                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
-                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
-                    sessionState.progress.score = this._score;  // Optional, updating main game score
-                    saveGame();  // Save the updated session state
-                }
+                // Persist to session state
+                sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
+                sessionState.progress.score = this._score;
+                saveGame();
+    
+                // Update UI
+                scoreUI.innerHTML = this._score;
             }
             this._typingEffect(this._currentDialogue.correctText);
         } else {
