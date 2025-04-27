@@ -1,6 +1,6 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
-import { dialogue, setCamScale, refreshScoreUI } from "./utils";
+import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, updateTotalScore } from "./sessionstate.js";
 
@@ -270,7 +270,6 @@ k.scene("loading", () => {
         const sound_effects_volume = sounds_volume.value / 100;
 
         spawnpoint = "mensa";
-        development
         dogName = dog_name_input.value;
 
 		sessionState.settings.spawnpoint = spawnpoint;
@@ -289,6 +288,11 @@ k.scene("loading", () => {
 			during_game[i].style.display = "block";
 		}
 		game.focus();
+		if (getCookie("dog_initial_answered")) {
+			window.showDogInitialDialogue = false;
+		} else {
+			window.showDogInitialDialogue = true;
+		}
 		k.go(spawnpoint);
 	}
 });
@@ -796,6 +800,13 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
+
+			if (window.showDogInitialDialogue) {
+				dialogue.display(dialogueData.dogInitial, () => {
+					setCookie("dog_initial_answered", true, 365);
+				});
+				window.showDogInitialDialogue = false;
+			}
 		});
 	});
 }
