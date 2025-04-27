@@ -504,15 +504,11 @@ export function defineCureScene() {
         });
 
         k.onSceneLeave(() => {
-            const currentScore = calculateScore(timePassed);
-            const lastScore = sessionState.progress.scoreInMinigame; // Optionally update lastScore as well
 
-            if (currentScore > lastScore) {
-                sessionState.progress.scoreInMinigame = currentScore;
-            }
-            updateTotalScore();  // 
+            const currentScore = calculateScore(timePassed);
+            console.log("Increasing score by " + currentScore);
+            sessionState.progress.totalScore = sessionState.progress.totalScore + currentScore;
             refreshScoreUI();
-        
             saveGame();
 
             // Clean up resources
