@@ -1,7 +1,7 @@
 
 import { k } from "./kaboomCtx";
 import {setCamScale, refreshScoreUI } from "./utils";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame, updateTotalScore} from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -507,7 +507,7 @@ export function defineCureScene() {
 
             const currentScore = calculateScore(timePassed);
             console.log("Increasing score by " + currentScore);
-            sessionState.progress.totalScore = sessionState.progress.totalScore + currentScore;
+            sessionState.progress.score = sessionState.progress.score + currentScore;
             refreshScoreUI();
             saveGame();
 

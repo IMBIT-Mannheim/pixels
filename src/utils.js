@@ -1,4 +1,4 @@
-import { sessionState, saveGame, updateTotalScore } from "./sessionstate.js";
+import { sessionState, saveGame } from "./sessionstate.js";
 
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
@@ -89,7 +89,7 @@ class Dialogue {
         // Initialize from sessionState
         this._answeredQuizzes = [...sessionState.progress.answeredDialogues];
         this._score = sessionState.progress.score;
-        scoreUI.innerHTML = sessionState.progress.totalScore;
+        scoreUI.innerHTML = sessionState.progress.score;
     }
 
     display(dialogue_options, onDisplayEnd) {
@@ -185,15 +185,11 @@ class Dialogue {
     }
 
     increaseScore(amount) {
-        this._score += amount;
-        sessionState.progress.score = this._score;
-    
-        updateTotalScore(); // Update totalScore after changing dialogue score
+        sessionState.progress.score += amount;
         saveGame();
-    
         const scoreUI = document.getElementById("score-value");
         if (scoreUI) {
-            scoreUI.innerHTML = sessionState.progress.totalScore; // FIXED: Always show TOTAL SCORE
+            scoreUI.innerHTML = sessionState.progress.score;
         }
     }
     
@@ -272,6 +268,6 @@ export function getCookie(name) {
 export function refreshScoreUI() {
     const scoreUI = document.getElementById("score-value");
     if (scoreUI) {
-        scoreUI.innerHTML = sessionState.progress.totalScore;
+        scoreUI.innerHTML = sessionState.progress.score;
     }
 }

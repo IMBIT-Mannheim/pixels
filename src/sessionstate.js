@@ -16,7 +16,6 @@ export const sessionState = {
         score: 0,                 // Points from dialogues
         scoreInMinigame: 0,       // Last played score from minigame
         unlockedMaps: [],
-        totalScore: 0,            // NEW: Always = score + cureMinigame.bestScore
     },
     minigames: {
         cureMinigame: {
@@ -127,8 +126,4 @@ export function ensureSessionId() {
         sessionState.sessionId = newId;
         setCookie("sessionStateId", newId, 365);
     }
-}
-
-export function updateTotalScore() {
-    sessionState.progress.totalScore = sessionState.progress.score + sessionState.progress.scoreInMinigame;
 }

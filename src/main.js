@@ -2,7 +2,7 @@ import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, updateTotalScore } from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
@@ -102,7 +102,6 @@ k.scene("loading", () => {
 	// Load previous session state if available
 	ensureSessionId();
 	loadGame();
-	updateTotalScore();
 	refreshScoreUI();
 	const lastMusicVolume = sessionState.settings.musicVolume;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
