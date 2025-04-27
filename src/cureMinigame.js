@@ -1,6 +1,6 @@
 
 import { k } from "./kaboomCtx";
-import {getCookie, setCamScale, setCookie} from "./utils";
+import {setCamScale, refreshScoreUI } from "./utils";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
 
 // Spielkonstanten
@@ -504,13 +504,11 @@ export function defineCureScene() {
         });
 
         k.onSceneLeave(() => {
-            const currentScore = calculateScore(timePassed);
-            sessionState.progress.scoreInMinigame = currentScore;
 
-            if (currentScore > sessionState.minigames.cureMinigame.bestScore) {
-                sessionState.minigames.cureMinigame.bestScore = currentScore;
-            }
-            
+            const currentScore = calculateScore(timePassed);
+            console.log("Increasing score by " + currentScore);
+            sessionState.progress.score = sessionState.progress.score + currentScore;
+            refreshScoreUI();
             saveGame();
 
             // Clean up resources

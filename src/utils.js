@@ -1,3 +1,5 @@
+import { sessionState, saveGame } from "./sessionstate.js";
+
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
 const dialogueUI = document.getElementById("textbox-container");
@@ -83,6 +85,11 @@ class Dialogue {
                 if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
             }
         });
+    
+        // Initialize from sessionState
+        this._answeredQuizzes = [...sessionState.progress.answeredDialogues];
+        this._score = sessionState.progress.score;
+        scoreUI.innerHTML = sessionState.progress.score;
     }
 
     display(dialogue_options, onDisplayEnd) {
@@ -116,7 +123,14 @@ class Dialogue {
     resetScore() {
         this._answeredQuizzes = [];
         this._score = 0;
+    
+        sessionState.progress.answeredDialogues = [];
+        sessionState.progress.score = 0;
+        saveGame();
+    
+        scoreUI.innerHTML = this._score;
     }
+    
 
     async _typingEffect(text) {
         if (this._typer) this._typer.stop(true);
@@ -170,25 +184,40 @@ class Dialogue {
         }
     }
 
+    increaseScore(amount) {
+        sessionState.progress.score += amount;
+        saveGame();
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = sessionState.progress.score;
+        }
+    }
+    
+    
+
     _questionAnswer(number) {
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
         }
-
+    
         if (!this._currentDialogue) return;
         if (this._currentDialogue.correctAnswer === 0) return;
         if (number === 0) return;
         if (this._currentDialogue.answers.length < number) return;
-
         if (this._currentDialogue.correctAnswer === number) {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
-                this._score++;
-                scoreUI.innerHTML = this._score;
                 this._answeredQuizzes.push(this._currentDialogue.id);
+    
+                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
+                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
+                }
+    
+                this.increaseScore(1);  // Clean scoring
             }
+    
             this._typingEffect(this._currentDialogue.correctText);
         } else {
-            this._remainingDialogues = []; // Wenn falsch, keine weiteren Dialoge anzeigen
+            this._remainingDialogues = [];
             this._typingEffect(this._currentDialogue.wrongText);
         }
         this._currentDialogue.correctAnswer = 0;
@@ -234,4 +263,11 @@ export function getCookie(name) {
         }
     }
     return null;
+}
+
+export function refreshScoreUI() {
+    const scoreUI = document.getElementById("score-value");
+    if (scoreUI) {
+        scoreUI.innerHTML = sessionState.progress.score;
+    }
 }

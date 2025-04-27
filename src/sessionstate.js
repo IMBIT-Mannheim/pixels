@@ -2,7 +2,7 @@
 
 // Defines the main session state object to track game settings, progress, and timestamps
 export const sessionState = {
-    sessionId: null, // Unique ID for this player session
+    sessionId: null, 
     settings: {
         musicVolume: 0.5,
         soundEffectsVolume: 0.5,
@@ -12,20 +12,20 @@ export const sessionState = {
         introWatched: false,
     },
     progress: {
-        answeredDialogues: [],    // List of dialogue IDs the player has answered
-        score: 0,                 // Overall score in the main game
-        scoreInMinigame: 0,       // Score achieved in the minigame
-        unlockedMaps: [],         // Maps unlocked by the player
+        answeredDialogues: [],
+        score: 0,                 // Points from dialogues
+        scoreInMinigame: 0,       // Last played score from minigame
+        unlockedMaps: [],
     },
     minigames: {
         cureMinigame: {
-            bestScore: 0,          // Highest score achieved in the Cure minigame
-            lastScore: 0,          // Last score achieved in the Cure minigame
+            bestScore: 0,         
+            lastScore: 0,          
         },
     },
     timestamps: {
-        sessionStart: Date.now(), // Timestamp when the session started
-        lastSave: null,           // Timestamp of the last manual save (optional)
+        sessionStart: Date.now(),
+        lastSave: null,
     },
 };
 

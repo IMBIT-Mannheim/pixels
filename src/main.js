@@ -1,9 +1,8 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
-import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
+import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
-
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
@@ -103,13 +102,14 @@ k.scene("loading", () => {
 	// Load previous session state if available
 	ensureSessionId();
 	loadGame();
-	const lastSpawnpoint = sessionState.settings.spawnpoint;
+	refreshScoreUI();
 	const lastMusicVolume = sessionState.settings.musicVolume;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
 	const lastDogName = sessionState.settings.dogName;
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
+	// select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
@@ -126,7 +126,7 @@ k.scene("loading", () => {
 		game.focus();
 	});
 
-
+	
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
@@ -265,9 +265,9 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-
 		const music_volume = music_volume_slider.value / 100;
         const sound_effects_volume = sounds_volume.value / 100;
+
         spawnpoint = "mensa";
         dogName = dog_name_input.value;
 
@@ -276,7 +276,6 @@ k.scene("loading", () => {
         sessionState.settings.soundEffectsVolume = sound_effects_volume;
         sessionState.settings.dogName = dogName;
         saveGame();
-
 		/*
 		const music = k.play("bgm", {
 			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
@@ -288,14 +287,12 @@ k.scene("loading", () => {
 			during_game[i].style.display = "block";
 		}
 		game.focus();
-
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
-			k.go(spawnpoint);
 		} else {
 			window.showDogInitialDialogue = true;
-			k.go(spawnpoint);
 		}
+		k.go(spawnpoint);
 	}
 });
 
@@ -802,16 +799,14 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
+
+			if (window.showDogInitialDialogue) {
+				dialogue.display(dialogueData.dogInitial, () => {
+					setCookie("dog_initial_answered", true, 365);
+				});
+				window.showDogInitialDialogue = false;
+			}
 		});
-
-		if (window.showDogInitialDialogue) {
-			dialogue.display(dialogueData.dogInitial, () => {
-				setCookie("dog_initial_answered", true, 365);
-			});
-			window.showDogInitialDialogue = false;
-		}
-
-
 	});
 }
 
