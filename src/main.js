@@ -268,7 +268,7 @@ k.scene("loading", () => {
 
 		const music_volume = music_volume_slider.value / 100;
         const sound_effects_volume = sounds_volume.value / 100;
-        spawnpoint = select_spawnpoint.value;
+        spawnpoint = "mensa";
         dogName = dog_name_input.value;
 
 		sessionState.settings.spawnpoint = spawnpoint;
