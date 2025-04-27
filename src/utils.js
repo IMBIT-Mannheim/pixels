@@ -266,3 +266,10 @@ export function getCookie(name) {
     }
     return null;
 }
+
+export function refreshScoreUI() {
+    const scoreUI = document.getElementById("score-value");
+    if (scoreUI) {
+        scoreUI.innerHTML = sessionState.progress.totalScore;
+    }
+}

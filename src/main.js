@@ -1,6 +1,6 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
-import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
+import { dialogue, setCamScale, refreshScoreUI } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 
@@ -107,6 +107,7 @@ k.scene("loading", () => {
 	// Load previous session state if available
 	ensureSessionId();
 	loadGame();
+	refreshScoreUI();
 	const lastMusicVolume = sessionState.settings.musicVolume;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
 	const lastDogName = sessionState.settings.dogName;
