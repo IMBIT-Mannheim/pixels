@@ -130,5 +130,5 @@ export function ensureSessionId() {
 }
 
 export function updateTotalScore() {
-    sessionState.progress.totalScore = sessionState.progress.score + sessionState.minigames.cureMinigame.bestScore;
+    sessionState.progress.totalScore = sessionState.progress.score + sessionState.progress.scoreInMinigame;
 }
