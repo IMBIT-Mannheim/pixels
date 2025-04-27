@@ -59,23 +59,32 @@ export function deserializeSessionState(jsonString) {
 }
 
 // Saves the session state to localStorage
+// Saves the session state to localStorage
 export function saveGame() {
     try {
         const data = serializeSessionState();
         localStorage.setItem("gameSave", data);
         sessionState.timestamps.lastSave = Date.now();
-        console.log("Game saved successfully.");
+        
+        console.groupCollapsed(`%c[Session Saved] Session ID: ${sessionState.sessionId}`, "color: green; font-weight: bold;");
+        console.log(JSON.parse(JSON.stringify(sessionState)));
+        console.groupEnd();
+
     } catch (error) {
         console.error("Failed to save game:", error);
     }
 }
 
 // Loads the session state from localStorage
+// Loads the session state from localStorage
 export function loadGame() {
     try {
         const data = localStorage.getItem("gameSave");
         if (data) {
             deserializeSessionState(data);
+            console.groupCollapsed(`%c[Session Loaded] Session ID: ${sessionState.sessionId}`, "color: purple; font-weight: bold;");
+            console.log(JSON.parse(JSON.stringify(sessionState)));
+            console.groupEnd();
             console.log("Game loaded successfully.");
         } else {
             console.warn("No saved game found.");
@@ -84,6 +93,7 @@ export function loadGame() {
         console.error("Failed to load game:", error);
     }
 }
+
 
 function setCookie(name, value, days) {
     const d = new Date();
