@@ -261,6 +261,8 @@ k.scene("loading", () => {
 		spawnpoint = select_spawnpoint.value;
 		dogName = dog_name_input.value;
 
+		dialogueData.dogInitial.title = dogName;
+
 		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
@@ -277,7 +279,14 @@ k.scene("loading", () => {
 			during_game[i].style.display = "block";
 		}
 		game.focus();
-		k.go(spawnpoint);
+		
+		if (getCookie("dog_initial_answered")) {
+			window.showDogInitialDialogue = false;
+			k.go(spawnpoint);
+		} else {
+			window.showDogInitialDialogue = true;
+			k.go(spawnpoint);
+		}
 	}
 });
 
@@ -785,6 +794,15 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
 		});
+
+		if (window.showDogInitialDialogue) {
+			dialogue.display(dialogueData.dogInitial, () => {
+				setCookie("dog_initial_answered", true, 365);
+			});
+			window.showDogInitialDialogue = false;
+		}
+
+
 	});
 }
 
