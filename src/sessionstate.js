@@ -1,3 +1,6 @@
+// sessionState.js
+
+// Defines the main session state object to track game settings, progress, and timestamps
 export const sessionState = {
     settings: {
         musicVolume: 0.5,         // Background music volume (0.0 to 1.0)
@@ -33,4 +36,50 @@ export function setSessionState(key, value) {
 // Retrieves a top-level key from the session state object
 export function getSessionState(key) {
     return sessionState[key];
+}
+
+// Serializes the current session state to a JSON string
+export function serializeSessionState() {
+    return JSON.stringify(sessionState);
+}
+
+// Deserializes a JSON string to update the session state
+export function deserializeSessionState(jsonString) {
+    try {
+        const parsed = JSON.parse(jsonString);
+        if (typeof parsed === "object" && parsed !== null) {
+            Object.assign(sessionState, parsed);
+        } else {
+            console.error("Failed to load session state: Invalid format.");
+        }
+    } catch (error) {
+        console.error("Failed to parse session state JSON:", error);
+    }
+}
+
+// Saves the session state to localStorage
+export function saveGame() {
+    try {
+        const data = serializeSessionState();
+        localStorage.setItem("gameSave", data);
+        sessionState.timestamps.lastSave = Date.now();
+        console.log("Game saved successfully.");
+    } catch (error) {
+        console.error("Failed to save game:", error);
+    }
+}
+
+// Loads the session state from localStorage
+export function loadGame() {
+    try {
+        const data = localStorage.getItem("gameSave");
+        if (data) {
+            deserializeSessionState(data);
+            console.log("Game loaded successfully.");
+        } else {
+            console.warn("No saved game found.");
+        }
+    } catch (error) {
+        console.error("Failed to load game:", error);
+    }
 }
