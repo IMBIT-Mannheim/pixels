@@ -2,6 +2,7 @@ import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
@@ -99,10 +100,13 @@ k.scene("loading", () => {
 	const game = document.getElementById("game");
 	const dog_name_input = document.getElementById("dog-name");
 
-
-	const lastMusicVolume = getCookie("music_volume");
-	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
-	const lastDogName = getCookie("dog_name");
+	// Load previous session state if available
+	ensureSessionId();
+	loadGame();
+	const lastSpawnpoint = sessionState.settings.spawnpoint;
+	const lastMusicVolume = sessionState.settings.musicVolume;
+	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
+	const lastDogName = sessionState.settings.dogName;
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
@@ -132,35 +136,39 @@ k.scene("loading", () => {
 	});
 
 
-	// Add event listener for music volume slider
 	music_volume_slider.addEventListener("input", () => {
 		const music_volume = music_volume_slider.value / 10;
+	
 		// Update volume for current playing background music
 		if (window.currentBgm) {
 			window.currentBgm.volume(music_volume);
 		}
-		setCookie("music_volume", music_volume, 365);
+	
+		// Update sessionState instead of setting a cookie
+		sessionState.settings.musicVolume = music_volume;
+		saveGame();
+	
 		game.focus();
-
 	});
-
+	
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
 	});
-
+	
 	function handleStart() {
-		if (isVideoPlaying) return; // Verhindere mehrfaches Starten
-
-		const introWatched = getCookie("intro_watched"); // Prüfe, ob das Intro bereits geschaut wurde
-		if (introWatched) {
-			// Wenn das Intro bereits geschaut wurde, starte das Spiel direkt
+		if (isVideoPlaying) return; // Prevent starting multiple times
+	
+		// Check from sessionState instead of cookie
+		if (sessionState.settings.introWatched) {
+			// Intro already watched, start game directly
 			startGame();
 		} else {
-			// Zeige das Intro, wenn es noch nicht geschaut wurde
+			// Intro not yet watched, show video
 			showVideoScreen();
 		}
 	}
+	
 
 	function showVideoScreen() {
 		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
@@ -216,13 +224,17 @@ k.scene("loading", () => {
 			skipButton.style.transform = "";
 		});
 
-		// Event-Listener für den "Skip Intro"-Button
 		skipButton.addEventListener("click", () => {
 			document.body.removeChild(videoScreen);
-			isVideoPlaying = false; // Setze den Zustand zurück
-			setCookie("intro_watched", true, 365); // Setze das Cookie
-			startGame(); // Starte das Spiel
+			isVideoPlaying = false; // Reset playing state
+		
+			// 🛠️ Set in sessionState instead of cookie
+			sessionState.settings.introWatched = true;
+			saveGame();
+		
+			startGame(); // Start the game
 		});
+		
 
 		// Füge den Text und das Video zum Video-Container hinzu
 		const videoContainer = document.createElement("div");
@@ -239,27 +251,31 @@ k.scene("loading", () => {
 		// Füge den Screen zum Dokument hinzu
 		document.body.appendChild(videoScreen);
 
-		// Event-Listener, um den Screen zu entfernen, wenn das Video endet
 		video.addEventListener("ended", () => {
 			document.body.removeChild(videoScreen);
-			isVideoPlaying = false; // Setze den Zustand zurück
-			setCookie("intro_watched", true, 365); // Setze das Cookie
-			startGame(); // Starte das Spiel nach dem Video
+			isVideoPlaying = false;
+		
+			sessionState.settings.introWatched = true;
+			saveGame();
+		
+			startGame();
 		});
+		
+		
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
-		sound_effects_volume = sounds_volume.value / 100;
-		spawnpoint = spawnpoint;
-		dogName = dog_name_input.value;
 
-		dialogueData.dogInitial.title = dogName;
+		const music_volume = music_volume_slider.value / 100;
+        const sound_effects_volume = sounds_volume.value / 100;
+        spawnpoint = select_spawnpoint.value;
+        dogName = dog_name_input.value;
 
-		setCookie("spawnpoint", spawnpoint, 365);
-		setCookie("music_volume", music_volume, 365);
-		setCookie("sound_effects_volume", sound_effects_volume, 365);
-		setCookie("dog_name", dogName, 365);
+		sessionState.settings.spawnpoint = spawnpoint;
+        sessionState.settings.musicVolume = music_volume;
+        sessionState.settings.soundEffectsVolume = sound_effects_volume;
+        sessionState.settings.dogName = dogName;
+        saveGame();
 
 		/*
 		const music = k.play("bgm", {
@@ -287,7 +303,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
 		let isFullMapView = false;  // Variable to track if in full map view
 
-		const music_volume = getCookie("music_volume") || 0.5;
+		const music_volume = sessionState.settings.musicVolume || 0.5;
 
 		// Play the map-specific background music
 		const music = k.play("bgm_" + sceneName, {

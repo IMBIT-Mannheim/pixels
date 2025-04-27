@@ -206,14 +206,25 @@ export function setCamScale(k) {
     }
 }
 
+
+/**
+ * @deprecated
+ * Use sessionState instead. This function will be removed in a future version.
+ */
 export function setCookie(name, value, days) {
+    console.warn(`[DEPRECATED] setCookie() is deprecated. Use sessionState instead. (Trying to set "${name}")`);
     const d = new Date();
     d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
     const expires = "expires=" + d.toUTCString();
     document.cookie = name + "=" + value + ";" + expires + ";path=/";
 }
 
+/**
+ * @deprecated
+ * Use sessionState instead. This function will be removed in a future version.
+ */
 export function getCookie(name) {
+    console.warn(`[DEPRECATED] getCookie() is deprecated. Use sessionState instead. (Trying to get "${name}")`);
     const nameEQ = name + "=";
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
