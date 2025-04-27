@@ -1,4 +1,4 @@
-import { sessionState, saveGame } from "./sessionstate.js";
+import { sessionState, saveGame, updateTotalScore } from "./sessionstate.js";
 
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
@@ -89,7 +89,7 @@ class Dialogue {
         // Initialize from sessionState
         this._answeredQuizzes = [...sessionState.progress.answeredDialogues];
         this._score = sessionState.progress.score;
-        scoreUI.innerHTML = this._score;
+        scoreUI.innerHTML = sessionState.progress.totalScore;
     }
 
     display(dialogue_options, onDisplayEnd) {
@@ -182,6 +182,21 @@ class Dialogue {
         }
     }
 
+    increaseScore(amount) {
+        this._score += amount;
+        sessionState.progress.score = this._score;
+    
+        updateTotalScore(); // Update totalScore after changing dialogue score
+        saveGame();
+    
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = sessionState.progress.totalScore; // FIXED: Always show TOTAL SCORE
+        }
+    }
+    
+    
+
     _questionAnswer(number) {
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
@@ -191,21 +206,17 @@ class Dialogue {
         if (this._currentDialogue.correctAnswer === 0) return;
         if (number === 0) return;
         if (this._currentDialogue.answers.length < number) return;
-    
         if (this._currentDialogue.correctAnswer === number) {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
-                // Add to local state
-                this._score++;
                 this._answeredQuizzes.push(this._currentDialogue.id);
     
-                // Persist to session state
-                sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
-                sessionState.progress.score = this._score;
-                saveGame();
+                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
+                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
+                }
     
-                // Update UI
-                scoreUI.innerHTML = this._score;
+                this.increaseScore(1);  // Clean scoring
             }
+    
             this._typingEffect(this._currentDialogue.correctText);
         } else {
             this._remainingDialogues = [];
