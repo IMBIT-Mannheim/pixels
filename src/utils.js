@@ -1,3 +1,5 @@
+import { sessionState, saveGame } from "./sessionstate.js";
+
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
 const dialogueUI = document.getElementById("textbox-container");
@@ -172,21 +174,28 @@ class Dialogue {
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
         }
-
+    
         if (!this._currentDialogue) return;
         if (this._currentDialogue.correctAnswer === 0) return;
         if (number === 0) return;
         if (this._currentDialogue.answers.length < number) return;
-
+    
         if (this._currentDialogue.correctAnswer === number) {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
                 this._score++;
                 scoreUI.innerHTML = this._score;
                 this._answeredQuizzes.push(this._currentDialogue.id);
+    
+                // Persisting the answered dialogues in session state
+                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
+                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
+                    sessionState.progress.score = this._score;  // Optional, updating main game score
+                    saveGame();  // Save the updated session state
+                }
             }
             this._typingEffect(this._currentDialogue.correctText);
         } else {
-            this._remainingDialogues = []; // Wenn falsch, keine weiteren Dialoge anzeigen
+            this._remainingDialogues = [];
             this._typingEffect(this._currentDialogue.wrongText);
         }
         this._currentDialogue.correctAnswer = 0;
