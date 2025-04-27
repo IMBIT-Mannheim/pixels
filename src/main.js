@@ -142,35 +142,39 @@ k.scene("loading", () => {
 	});
 
 
-	// Add event listener for music volume slider
 	music_volume_slider.addEventListener("input", () => {
 		const music_volume = music_volume_slider.value / 10;
+	
 		// Update volume for current playing background music
 		if (window.currentBgm) {
 			window.currentBgm.volume(music_volume);
 		}
-		setCookie("music_volume", music_volume, 365);
+	
+		// Update sessionState instead of setting a cookie
+		sessionState.settings.musicVolume = music_volume;
+		saveGame();
+	
 		game.focus();
-
 	});
-
+	
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
 	});
-
+	
 	function handleStart() {
-		if (isVideoPlaying) return; // Verhindere mehrfaches Starten
-
-		const introWatched = getCookie("intro_watched"); // Prüfe, ob das Intro bereits geschaut wurde
-		if (introWatched) {
-			// Wenn das Intro bereits geschaut wurde, starte das Spiel direkt
+		if (isVideoPlaying) return; // Prevent starting multiple times
+	
+		// Check from sessionState instead of cookie
+		if (sessionState.settings.introWatched) {
+			// Intro already watched, start game directly
 			startGame();
 		} else {
-			// Zeige das Intro, wenn es noch nicht geschaut wurde
+			// Intro not yet watched, show video
 			showVideoScreen();
 		}
 	}
+	
 
 	function showVideoScreen() {
 		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
@@ -226,13 +230,17 @@ k.scene("loading", () => {
 			skipButton.style.transform = "";
 		});
 
-		// Event-Listener für den "Skip Intro"-Button
 		skipButton.addEventListener("click", () => {
 			document.body.removeChild(videoScreen);
-			isVideoPlaying = false; // Setze den Zustand zurück
-			setCookie("intro_watched", true, 365); // Setze das Cookie
-			startGame(); // Starte das Spiel
+			isVideoPlaying = false; // Reset playing state
+		
+			// 🛠️ Set in sessionState instead of cookie
+			sessionState.settings.introWatched = true;
+			saveGame();
+		
+			startGame(); // Start the game
 		});
+		
 
 		// Füge den Text und das Video zum Video-Container hinzu
 		const videoContainer = document.createElement("div");
@@ -249,13 +257,17 @@ k.scene("loading", () => {
 		// Füge den Screen zum Dokument hinzu
 		document.body.appendChild(videoScreen);
 
-		// Event-Listener, um den Screen zu entfernen, wenn das Video endet
 		video.addEventListener("ended", () => {
 			document.body.removeChild(videoScreen);
-			isVideoPlaying = false; // Setze den Zustand zurück
-			setCookie("intro_watched", true, 365); // Setze das Cookie
-			startGame(); // Starte das Spiel nach dem Video
+			isVideoPlaying = false;
+		
+			sessionState.settings.introWatched = true;
+			saveGame();
+		
+			startGame();
 		});
+		
+		
 	}
 
 	function startGame() {
