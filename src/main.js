@@ -2,7 +2,7 @@ import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, setCookie, getCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 
 const select_spawnpoint = document.getElementById("spawnpoint");
 const spawnpoints_world_map = document.getElementById("spawnpoints");
@@ -105,6 +105,7 @@ k.scene("loading", () => {
 	const dog_name_input = document.getElementById("dog-name");
 
 	// Load previous session state if available
+	ensureSessionId();
 	loadGame();
 	const lastSpawnpoint = sessionState.settings.spawnpoint;
 	const lastMusicVolume = sessionState.settings.musicVolume;

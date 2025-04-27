@@ -2,13 +2,14 @@
 
 // Defines the main session state object to track game settings, progress, and timestamps
 export const sessionState = {
+    sessionId: null, // Unique ID for this player session
     settings: {
-        musicVolume: 0.5,         // Background music volume (0.0 to 1.0)
-        soundEffectsVolume: 0.5,  // Sound effects volume (0.0 to 1.0)
-        spawnpoint: null,         // Player's chosen spawnpoint (e.g., 'campus')
-        character: 'character-male', // Character sprite selected
-        dogName: 'Bello',         // Name of the player's dog companion
-        introWatched: false,      // Whether the player has watched the intro video
+        musicVolume: 0.5,
+        soundEffectsVolume: 0.5,
+        spawnpoint: null,
+        character: 'character-male',
+        dogName: 'Bello',
+        introWatched: false,
     },
     progress: {
         answeredDialogues: [],    // List of dialogue IDs the player has answered
@@ -81,5 +82,38 @@ export function loadGame() {
         }
     } catch (error) {
         console.error("Failed to load game:", error);
+    }
+}
+
+function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+// Private cookie getter
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.indexOf(nameEQ) === 0) {
+            return cookie.substring(nameEQ.length);
+        }
+    }
+    return null;
+}
+
+// Ensures the sessionState has a valid sessionId
+export function ensureSessionId() {
+    const cookieId = getCookie("sessionStateId");
+
+    if (cookieId) {
+        sessionState.sessionId = cookieId;
+    } else {
+        const newId = crypto.randomUUID(); // Use crypto API to generate random UUID
+        sessionState.sessionId = newId;
+        setCookie("sessionStateId", newId, 365);
     }
 }
