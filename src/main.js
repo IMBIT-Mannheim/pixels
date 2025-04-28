@@ -289,16 +289,31 @@ k.scene("loading", () => {
 		game.focus();
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
+			window.showDogIntro = true;
 		} else {
 			window.showDogInitialDialogue = true;
 		}
 		k.go(spawnpoint);
+		if (getCookie("dog_intro_done")) {
+			window.showDogIntro = false;
+		} else {
+			window.showDogIntro = true;
+		}
 	}
 });
 
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async () => {
-		let isFullMapView = false;  // Variable to track if in full map view
+		let dogIntroActive = !getCookie("dog_intro_done");
+		let dogHasReachedPlayer = false;
+		let introDialogueShown = false;
+		const dogIntroSpeed = 60;
+		const dogFollowSpeed = 150;
+		const dogIntroStopDistance = 80;
+
+		console.log("Hund Intro aktiv?", dogIntroActive);
+
+		let isFullMapView = false;
 
 		const music_volume = sessionState.settings.musicVolume || 0.5;
 
@@ -359,6 +374,184 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			k.pos(dog.pos.x, dog.pos.y - 50),
 			{ followOffset: k.vec2(-20, -50) },
 		]);
+
+		if (dogIntroActive) {
+			player.isFrozen = true;
+		
+			// Hund außerhalb spawnen
+			dog.pos = k.vec2(k.width() / 2 / scaleFactor, k.height() / scaleFactor + 50);
+
+			dog.isWaiting = true;
+			k.wait(1.0, () => {
+				dog.isWaiting = false;
+			});
+		} else {
+			// Hund normale Position (direkt wie Spieler)
+			dog.isWaiting = false;
+		}
+		
+
+		// Intro-Update für den Hund
+		dog.onUpdate(() => {
+			if (dogIntroActive) {
+				if (dog.isWaiting) return; // Dog is still waiting, do nothing
+		
+				const distance = dog.pos.dist(player.pos);
+		
+				if (distance > dogIntroStopDistance) {
+					const direction = player.pos.sub(dog.pos).unit();
+					dog.move(direction.scale(dogIntroSpeed));
+		
+					// Dog walking animation
+					if (Math.abs(direction.x) > Math.abs(direction.y)) {
+						dog.play("dog-walk-side");
+						dog.flipX = direction.x < 0;
+					} else if (direction.y < 0) {
+						dog.play("dog-walk-up");
+					} else {
+						dog.play("dog-walk-down");
+					}
+				} else {
+					// Dog has reached player
+					dog.move(k.vec2(0));
+					dogIntroActive = false;
+					setCookie("dog_intro_done", true, 365); 
+					window.showDogIntro = false;
+
+					dogHasReachedPlayer = true;
+					dog.speed = dogFollowSpeed; // Set normal speed
+					
+					const dogIntroDialogue = JSON.parse(JSON.stringify(dialogueData["dogInitial"])); // Tiefe Kopie
+
+					// Ersetze {dogName} im Titel und Texten
+					dogIntroDialogue.title = dogIntroDialogue.title.replace("{dogName}", dogName);
+					dogIntroDialogue.text = dogIntroDialogue.text.replace("{dogName}", dogName);
+					dogIntroDialogue.correctText = dogIntroDialogue.correctText.replace("{dogName}", dogName);
+					dogIntroDialogue.wrongText = dogIntroDialogue.wrongText.replace("{dogName}", dogName);
+
+					// Dann zeige den Dialog an
+					dialogue.display(dogIntroDialogue, () => {
+						player.isFrozen = false; // Spieler wieder freigeben
+					});
+
+		
+					// Dog idle animation
+					if (dog.pos.x < player.pos.x) {
+						dog.flipX = false;
+						dog.play("dog-idle-side");
+					} else {
+						dog.flipX = true;
+						dog.play("dog-idle-side");
+					}
+		
+					// Player idle animation towards dog
+					const directionToDog = dog.pos.sub(player.pos);
+					if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
+						if (directionToDog.x > 0) {
+							player.flipX = true;
+							player.play("idle-side");
+							player.direction = "right";
+						} else {
+							player.flipX = false;
+							player.play("idle-side");
+							player.direction = "left";
+						}
+					} else {
+						if (directionToDog.y > 0) {
+							player.play("idle-down");
+							player.direction = "down";
+						} else {
+							player.play("idle-up");
+							player.direction = "up";
+						}
+					}
+		
+					player.isFrozen = false; // Unfreeze player now
+				}
+		
+				return; // VERY IMPORTANT: stop update here!
+			}
+		
+			// Normal "follow the player" code after intro
+			const distance = dog.pos.dist(player.pos);
+			const followDistance = 130;
+			const maxDistance = 1200;
+			let speed = dog.speed;
+		
+			if (distance > maxDistance + 150) {
+				dog.pos = player.pos.clone();
+			} else if (distance > maxDistance) {
+				speed = 300;
+			}
+		
+			if (distance > followDistance) {
+				const direction = player.pos.sub(dog.pos).unit();
+				dog.move(direction.scale(speed));
+		
+				// Dog walking animation
+				if (Math.abs(direction.x) > Math.abs(direction.y)) {
+					if (direction.x < 0) {
+						dog.flipX = true;
+						if (dog.curAnim() !== "dog-walk-side") dog.play("dog-walk-side");
+					} else {
+						dog.flipX = false;
+						if (dog.curAnim() !== "dog-walk-side") dog.play("dog-walk-side");
+					}
+				} else {
+					if (direction.y < 0) {
+						if (dog.curAnim() !== "dog-walk-up") dog.play("dog-walk-up");
+					} else {
+						if (dog.curAnim() !== "dog-walk-down") dog.play("dog-walk-down");
+					}
+				}
+			} else {
+				// Dog idle animation based on previous direction
+				if (dog.curAnim() !== "dog-idle-side") dog.play("dog-idle-side");
+			}
+		});
+		
+
+		function finishDogIntro() {
+			// Hund stehen lassen
+			dog.move(k.vec2(0));
+		
+			// Spieler freigeben
+			player.isFrozen = false;
+		
+			// Hund Idle-Animation passend einstellen
+			if (dog.pos.x < player.pos.x) {
+				dog.flipX = false;
+				dog.play("dog-idle-side");
+			} else {
+				dog.flipX = true;
+				dog.play("dog-idle-side");
+			}
+		
+			// Spieler Idle-Animation passend einstellen
+			const directionToDog = dog.pos.sub(player.pos);
+			if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
+				if (directionToDog.x > 0) {
+					player.flipX = true;
+					player.play("idle-side");
+					player.direction = "right";
+				} else {
+					player.flipX = false;
+					player.play("idle-side");
+					player.direction = "left";
+				}
+			} else {
+				if (directionToDog.y > 0) {
+					player.play("idle-down");
+					player.direction = "down";
+				} else {
+					player.play("idle-up");
+					player.direction = "up";
+				}
+			}
+		
+			// Optional: Hier könnten wir auch gleich den ersten Dialog starten!
+		}
+		
 
 		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
 		for (const layer of layers) {
@@ -535,10 +728,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						k.add(player);
 					}
 					else if (entity.name === "dog") {
-						dog.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
+						if (!dogIntroActive) {
+							dog.pos = k.vec2(
+								(map.pos.x + entity.x) * scaleFactor,
+								(map.pos.y + entity.y) * scaleFactor
+							);
+						}
 						k.add(dog);
 						k.add(dogNameTag);
 					}
@@ -600,6 +795,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		k.onUpdate(() => {
 			if (player.isInDialogue) return;
 			if (isFullMapView) return;
+			if (player.isFrozen) return; 
 
 			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
 				if (!walkingSound) {
@@ -734,7 +930,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		dog.onUpdate(() => {
 			const distance = dog.pos.dist(player.pos);
-			const maxDistance = 200;
+			const maxDistance = 1200;
 			let speed = dog.speed;
 
 			if (distance > maxDistance + 200) {
@@ -799,13 +995,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 			// Update previous position for the next frame
 			previousPos = dog.pos.clone();
-
-			if (window.showDogInitialDialogue) {
-				dialogue.display(dialogueData.dogInitial, () => {
-					setCookie("dog_initial_answered", true, 365);
-				});
-				window.showDogInitialDialogue = false;
-			}
 		});
 	});
 }

@@ -22,8 +22,17 @@ export const dialogueData = {
 
   //Hund
   dogInitial: {
-    title: 'selin',
-    text: "Hey du! Bevor es richtig losgeht: Kennst du schon das duale Studium? ",
+    title: '{dogName}',
+    text: `Wuff! Da bist du ja! Hallo, ich bin dein treuer Begleiter fuer dieses Abenteuer! 
+      Bevor es losgeht, hier die Steuerung...
+      - Bewegen: WASD, Pfeiltasten oder Mausklick
+      - Dialog oeffnen: Automatisch, wenn man in der Naehe ist
+      - Dialog schliessen: ESC oder Schliessen-Button
+      - Quiz beantworten: Antworten auswaehlen mit den "Answer"-Buttons
+      - Weltkarte oeffnen: M gedrueckt halten oder den Button unten rechts druecken
+      - Teleportieren: Ueber die Weltkarte zu einem anderen Punkt
+      Diese Infos findest du spaeter jederzeit unten rechts ueber den Button "Weltkarte anzeigen".
+      Bevor wir mit unserer Reise anfangen, habe ich bereits eine Frage fuer dich: Kennst du schon das duale Studium?`,
     answers: [
       "Ja, kenne ich schon.",
       "Nein, was ist das?"
