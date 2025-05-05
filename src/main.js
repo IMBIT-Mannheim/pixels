@@ -320,10 +320,16 @@ k.scene("loading", () => {
 		
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
+			window.showDogIntro = true;
 		} else {
 			window.showDogInitialDialogue = true;
 		}
 		k.go(spawnpoint);
+		if (getCookie("dog_intro_done")) {
+			window.showDogIntro = false;
+		} else {
+			window.showDogIntro = true;
+		}
 	}
 });
 
@@ -1350,7 +1356,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		dog.onUpdate(() => {
 			const distance = dog.pos.dist(player.pos);
-			const maxDistance = 200;
+			const maxDistance = 1200;
 			let speed = dog.speed;
 
 			if (distance > maxDistance + 200) {
