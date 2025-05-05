@@ -67,6 +67,7 @@ body {
 
 .ui-text {
     margin: 0;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -107,8 +108,8 @@ body {
     font-weight: bold;
     line-height: 1;
     z-index: 10;
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
 }
 
 .close-x:hover {
@@ -365,5 +366,40 @@ input[type="range"]::-ms-thumb {
 @media screen and (max-width: 479px) {
     #logo, #dhbw_logo {
         width: 80px;
+    }
+}
+
+#interact-button {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2d2929;
+    color: #ffffff;
+    padding: 8px 16px;
+    font-size: 2rem;
+    display: none;
+    z-index: 9999;
+    font-family: monogram, monospace;
+    border: 2px solid #ffd700;
+    border-radius: 0;
+    box-shadow: 4px 4px black;
+    -webkit-user-select: none;
+    user-select: none;
+    image-rendering: pixelated;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 4px 4px black;
+    }
+    100% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 6px 6px black;
+        border-color: white;
     }
 }

@@ -1,6 +1,7 @@
 
 import { k } from "./kaboomCtx";
-import {getCookie, setCamScale, setCookie} from "./utils";
+import {setCamScale, refreshScoreUI } from "./utils";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -51,7 +52,7 @@ export function defineCureScene() {
     let music = undefined;
 
     k.scene("cure_minigame", async () => {
-        const music_volume = getCookie("music_volume") || 0.5;
+        const music_volume = sessionState.settings.musicVolume || 0.5;
 
         if (music === undefined) {
             // Play the map-specific background music
@@ -503,8 +504,13 @@ export function defineCureScene() {
         });
 
         k.onSceneLeave(() => {
-            console.log("Exiting racing minigame scene");
-            setCookie("scoreAchievedInMinigame", calculateScore(timePassed));
+
+            const currentScore = calculateScore(timePassed);
+            console.log("Increasing score by " + currentScore);
+            sessionState.progress.score = sessionState.progress.score + currentScore;
+            refreshScoreUI();
+            saveGame();
+
             // Clean up resources
             k.setBackground(k.Color.fromHex("#311047"));
             obstacles.forEach((obstacle) => obstacle.destroy());

@@ -195,9 +195,9 @@ The game features several key locations, each with unique content and interactio
 
 1. Create a new branch following the naming convention:
    ```
-   feature_Group&groupnumber_featurename
+   feature_Group/Groupnumber/featurename
    ```
-   Example: `feature_group3_minigame`
+   Example: `feature/Group3/minigame`
 
 2. Develop and test your feature in the feature branch
 
