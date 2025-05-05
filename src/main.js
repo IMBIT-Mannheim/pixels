@@ -358,7 +358,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Set random time for tooltip (between 2-5 minutes)
 		if (!homeKeyTooltipShown && homeKeyTooltipTime === 0) {
 			// For debugging/testing - short time of 20-30 seconds
-			homeKeyTooltipTime = k.rand(20, 30);
+			homeKeyTooltipTime = k.rand(120, 300);
 			console.log("Tooltip will show after", homeKeyTooltipTime, "seconds"); // Debug log
 		}
 
