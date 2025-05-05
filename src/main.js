@@ -337,6 +337,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
 		let isFullMapView = false;  // Variable to track if in full map view
 		const showDebugOverlay = false; // Set to true to enable debug overlay
+		// Store default spawn positions
+		let defaultPlayerSpawnPos = null;
+		let defaultDogSpawnPos = null;
 
 		// Create debug overlay
 		const debugOverlay = k.add([
@@ -1031,9 +1034,19 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					}
 					else if (entity.name === "player") {
 						defaultPlayerSpawn = entity;
+						// Store the default player spawn position for the "h" key teleport feature
+						defaultPlayerSpawnPos = k.vec2(
+							(map.pos.x + defaultPlayerSpawn.x) * scaleFactor,
+							(map.pos.y + defaultPlayerSpawn.y) * scaleFactor
+						);
 					}
 					else if (entity.name === "dog") {
 						defaultDogSpawn = entity;
+						// Store the default dog spawn position for the "h" key teleport feature
+						defaultDogSpawnPos = k.vec2(
+							(map.pos.x + defaultDogSpawn.x) * scaleFactor,
+							(map.pos.y + defaultDogSpawn.y) * scaleFactor
+						);
 					}
 				}
 				
@@ -1362,6 +1375,105 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					setCookie("dog_initial_answered", true, 365);
 				});
 				window.showDogInitialDialogue = false;
+			}
+		});
+
+		// Return to spawn points when "h" key is pressed
+		k.onKeyPress("h", () => {
+			if (player.isInDialogue || player.isFrozen) return;
+			
+			// If already on campus map, just return to spawn point
+			if (sceneName === "campus" && defaultPlayerSpawnPos && defaultDogSpawnPos) {
+				// Teleport player to default spawn
+				player.pos = defaultPlayerSpawnPos.clone();
+				
+				// Teleport dog to default spawn
+				dog.pos = defaultDogSpawnPos.clone();
+				
+				// Play a sound effect for feedback
+				k.play("boundary", {
+					volume: sound_effects_volume,
+				});
+				
+				// Reset animations to idle based on direction
+				stopAnims();
+				stopDogAnims();
+				
+				// Reset any boundary collision state
+				inBoundaryCollision = false;
+				boundaryCollisionTimer = 0;
+				lastSoundTime = 0;
+				
+				// Create retro-style background for text
+				const bgBox = k.add([
+					k.rect(340, 48, { radius: 0 }), // Rectangular box with no rounded corners for retro look
+					k.color(k.Color.fromHex("#311047")), // Match the game's primary background color
+					k.pos(player.pos.x, player.pos.y - 60),
+					k.anchor("center"),
+					k.opacity(0.85),
+					k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+					k.lifespan(1.6, { fade: 0.6 }),
+					k.z(99)
+				]);
+				
+				// Retro pixel-style text
+				k.add([
+					k.text("* RETURNED TO CAMPUS *", { 
+						size: 22, 
+						font: "monospace", // Monospace for more pixelated look
+						styles: {
+							fill: k.Color.fromHex("#ffffff"),
+							outline: { width: 2, color: k.Color.fromHex("#000000") } // Retro text outline
+						}
+					}),
+					k.pos(player.pos.x, player.pos.y - 60),
+					k.anchor("center"),
+					k.opacity(1), // Add opacity component for lifespan fade to work
+					k.lifespan(1.5, { fade: 0.5 }),
+					k.z(100)
+				]);
+			} else {
+				// Not on campus, so switch to campus scene
+				if (walkingSound) {
+					walkingSound.stop();
+					walkingSound = null;
+				}
+				
+				// Create retro-style background for transition message
+				const transitionBox = k.add([
+					k.rect(400, 60, { radius: 0 }), // Rectangular box with no rounded corners
+					k.color(k.Color.fromHex("#311047")), // Match game's background
+					k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+					k.anchor("center"),
+					k.pos(k.width() / 2, k.height() / 2),
+					k.fixed(),
+					k.opacity(0.85),
+					k.lifespan(1.1, { fade: 0.5 }),
+					k.z(99)
+				]);
+				
+				// Retro style teleport message
+				k.add([
+					k.text("* TELEPORTING TO CAMPUS *", { 
+						size: 22, 
+						font: "monospace", // Monospace for more pixelated look
+						styles: {
+							fill: k.Color.fromHex("#ffffff"),
+							outline: { width: 2, color: k.Color.fromHex("#000000") } // Retro text outline
+						}
+					}),
+					k.anchor("center"),
+					k.pos(k.width() / 2, k.height() / 2),
+					k.fixed(),
+					k.z(100),
+					k.opacity(1),
+					k.lifespan(1, { fade: 0.5 }),
+				]);
+				
+				// Brief pause and then go to campus
+				k.wait(0.5, () => {
+					k.go("campus", { from: sceneName });
+				});
 			}
 		});
 	});
