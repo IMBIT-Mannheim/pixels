@@ -10,6 +10,7 @@ const showWorldMapBtn = document.getElementById("show-world-map");
 const interactButton = document.getElementById("interact-button");
 let character = "character-male";
 let spawnpoint = "campus";
+let characterName;
 let dogName;
 let sound_effects_volume = "0.5";
 
@@ -119,19 +120,17 @@ k.scene("loading", () => {
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
 
-	// Load previous session state if available
-	ensureSessionId();
-	loadGame();
-	refreshScoreUI();
-	const lastMusicVolume = sessionState.settings.musicVolume;
-	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
-	const lastDogName = sessionState.settings.dogName;
+	const lastMusicVolume = getCookie("music_volume");
+	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
+	const lastcharacterName = getCookie("characterName")
+	const lastDogName = getCookie("dog_name");
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
-	// select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
+	character_name_input.value = lastcharacterName ? lastcharacterName : "New Student";
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
@@ -287,11 +286,20 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 100;
-        const sound_effects_volume = sounds_volume.value / 100;
+		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
+		sound_effects_volume = sounds_volume.value / 100;
+		spawnpoint = spawnpoint;
+		characterName = character_name_input.value;
+		dogName = dog_name_input.value;
 
-        spawnpoint = "mensa";
-        dogName = dog_name_input.value;
+		dialogueData.dogInitial.title = dogName;
+		
+
+		setCookie("spawnpoint", spawnpoint, 365);
+		setCookie("music_volume", music_volume, 365);
+		setCookie("sound_effects_volume", sound_effects_volume, 365);
+		setCookie("characterName", characterName, 365);
+		setCookie("dog_name", dogName, 365);
 
 		sessionState.settings.spawnpoint = spawnpoint;
         sessionState.settings.musicVolume = music_volume;
@@ -440,6 +448,13 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				direction: "right",
 			},
 			"dog",
+		]);
+
+		//Erstellt den Spielername-Tag
+		const playerNameTag = k.make([
+			k.text(characterName.toUpperCase(), { size: 18 }),
+			k.pos(player.pos.x, player.pos.y - 100),
+			{ followOffset: k.vec2(-40, -90) },
 		]);
 
 		//Erstellt den Hundename-Tag
@@ -1066,6 +1081,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							(map.pos.x + defaultPlayerSpawn.x) * scaleFactor,
 							(map.pos.y + defaultPlayerSpawn.y) * scaleFactor
 						);
+						k.add(player);
+						k.add(playerNameTag);
 					}
 					else if (entity.name === "dog") {
 						defaultDogSpawn = entity;
@@ -1341,6 +1358,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		k.onResize(() => {
 			setCamScale(k);
+		});
+
+		//player movement
+		playerNameTag.onUpdate(() => {
+			playerNameTag.pos = player.pos.add(playerNameTag.followOffset);
 		});
 
 		//Dog movement
