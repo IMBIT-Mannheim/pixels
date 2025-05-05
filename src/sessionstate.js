@@ -117,16 +117,37 @@ function getCookie(name) {
 
 // Ensures the sessionState has a valid sessionId
 export function ensureSessionId() {
+    // Check if sessionState already has an ID before looking at cookies
+    if (sessionState.sessionId) {
+        console.log("Using existing session ID:", sessionState.sessionId);
+        return;
+    }
+    
     const cookieId = getCookie("sessionStateId");
 
     if (cookieId) {
+        console.log("Using cookie session ID:", cookieId);
         sessionState.sessionId = cookieId;
     } else {
         let newId;
         try {
             // Try using the crypto API to generate a UUID
-            newId = crypto.randomUUID();
+            if (window.crypto && window.crypto.randomUUID) {
+                newId = window.crypto.randomUUID();
+            } else if (window.crypto && window.crypto.getRandomValues) {
+                // Alternative method using getRandomValues
+                const array = new Uint8Array(16);
+                window.crypto.getRandomValues(array);
+                
+                // Format as UUID
+                newId = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+                newId = newId.slice(0, 8) + '-' + newId.slice(8, 12) + '-4' + 
+                       newId.slice(13, 16) + '-' + newId.slice(16, 20) + '-' + newId.slice(20);
+            } else {
+                throw new Error("Crypto API not available");
+            }
         } catch (error) {
+            console.warn("Using fallback UUID generation:", error);
             // Fallback implementation to generate a UUID
             newId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0;
@@ -134,6 +155,8 @@ export function ensureSessionId() {
                 return v.toString(16);
             });
         }
+        
+        console.log("Generated new session ID:", newId);
         sessionState.sessionId = newId;
         setCookie("sessionStateId", newId, 365);
     }

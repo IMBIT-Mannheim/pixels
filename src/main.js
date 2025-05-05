@@ -84,12 +84,22 @@ for (let i = 0; i < maps.length; i++) {
 	k.loadSprite(map, `./maps/${map}.png`)
 
 	// Try to load foreground objects sprite if it exists
-	try {
-		k.loadSprite(`${map}-ForegroundObjects`, `./maps/${map}-ForegroundObjects.png`);
-	} catch (e) {
-		// Silently ignore if foreground sprite doesn't exist
-		console.log(`No foreground objects for ${map}`);
-	}
+	// Check if the file exists first before attempting to load it
+	const foregroundImg = new Image();
+	foregroundImg.onerror = () => {
+		console.log(`No foreground objects for ${map} (expected)`);
+	};
+	foregroundImg.onload = () => {
+		// Only load the sprite if the image exists
+		try {
+			k.loadSprite(`${map}-ForegroundObjects`, `./maps/${map}-ForegroundObjects.png`);
+			console.log(`Loaded foreground objects for ${map}`);
+		} catch (e) {
+			console.log(`Error loading foreground objects for ${map}`, e);
+		}
+	};
+	// Set source last to trigger load
+	foregroundImg.src = `./maps/${map}-ForegroundObjects.png`;
 
 	// Load map-specific music
 	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
@@ -123,15 +133,23 @@ k.scene("loading", () => {
 	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
 
-	const lastMusicVolume = getCookie("music_volume");
-	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
-	const lastcharacterName = getCookie("characterName")
-	const lastDogName = getCookie("dog_name");
+	// Properly initialize session state
+	console.log("Initializing session state...");
+	ensureSessionId(); // Make sure we have a session ID first
+	console.log("Session ID:", sessionState.sessionId);
+	loadGame(); // Then load saved data
+	refreshScoreUI();
+	
+	// Use sessionState for settings, with cookies as fallback
+	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
+	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
+	const lastcharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
+	const lastDogName = sessionState.settings.dogName || getCookie("dog_name") || "Bello";
 
-	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
-	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
-	character_name_input.value = lastcharacterName ? lastcharacterName : "New Student";
-	dog_name_input.value = lastDogName ? lastDogName : "Bello";
+	music_volume_slider.value = lastMusicVolume * 100;
+	sounds_volume.value = lastSoundEffectsVolume * 100;
+	character_name_input.value = lastcharacterName;
+	dog_name_input.value = lastDogName;
 
 	male_button.addEventListener("click", () => {
 		character = "character-male";
@@ -158,7 +176,7 @@ k.scene("loading", () => {
 
 
 	music_volume_slider.addEventListener("input", () => {
-		const music_volume = music_volume_slider.value / 10;
+		const music_volume = music_volume_slider.value / 100;
 	
 		// Update volume for current playing background music
 		if (window.currentBgm) {
@@ -286,58 +304,60 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
+		const music_volume = music_volume_slider.value / 100; // Consistent volume calculation
 		sound_effects_volume = sounds_volume.value / 100;
-		spawnpoint = spawnpoint;
+		spawnpoint = "campus"; // Always start at campus
 		characterName = character_name_input.value;
 		dogName = dog_name_input.value;
 
 		dialogueData.dogInitial.title = dogName;
 		
-
+		// Update both cookies and sessionState
 		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
 		setCookie("characterName", characterName, 365);
 		setCookie("dog_name", dogName, 365);
 
+		// Ensure we have a session ID
+		ensureSessionId();
+		
+		// Update session state with all current settings
 		sessionState.settings.spawnpoint = spawnpoint;
-        sessionState.settings.musicVolume = music_volume;
-        sessionState.settings.soundEffectsVolume = sound_effects_volume;
-        sessionState.settings.dogName = dogName;
-        saveGame();
-		/*
-		const music = k.play("bgm", {
-			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
-			loop: true,
-		});*/
+		sessionState.settings.musicVolume = music_volume;
+		sessionState.settings.soundEffectsVolume = sound_effects_volume;
+		sessionState.settings.dogName = dogName;
+		sessionState.settings.characterName = characterName;
+		sessionState.settings.character = character;
+		saveGame();
 
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
+		
+		// Add game-active class to body for CSS fallback
+		document.body.classList.add('game-active');
+		
 		game.focus();
 		
 		// Check if dog intro has been done before
 		const dogIntroDone = getCookie("dog_intro_done");
 		if (!dogIntroDone) {
 			dogIntroActive = true;
+			window.showDogIntro = true;
 		} else {
 			dogIntroActive = false;
+			window.showDogIntro = false;
 		}
 		
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
-			window.showDogIntro = true;
 		} else {
 			window.showDogInitialDialogue = true;
 		}
+		
 		k.go(spawnpoint);
-		if (getCookie("dog_intro_done")) {
-			window.showDogIntro = false;
-		} else {
-			window.showDogIntro = true;
-		}
 	}
 });
 
@@ -452,9 +472,27 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Erstellt den Spielername-Tag
 		const playerNameTag = k.make([
-			k.text(characterName.toUpperCase(), { size: 18 }),
-			k.pos(player.pos.x, player.pos.y - 100),
-			{ followOffset: k.vec2(-40, -90) },
+			k.text(characterName.toUpperCase(), { 
+				size: 16,
+				font: "monospace",
+				styles: {
+					fill: k.Color.WHITE,
+					outline: { width: 2, color: k.Color.BLACK }
+				}
+			}),
+			k.pos(0, 0), // Initial position will be set in update function
+			k.anchor("center"),
+			k.z(15), // Higher than player (9) to ensure visibility
+			{
+				offset: k.vec2(0, -80), // Increased vertical offset to account for hitbox difference
+				updatePosition() {
+					// This method will be called in the update function
+					this.pos = k.vec2(
+						player.pos.x + this.offset.x,
+						player.pos.y + this.offset.y
+					);
+				}
+			},
 		]);
 
 		//Erstellt den Hundename-Tag
@@ -652,16 +690,40 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				layer.name === "ForegroundObjects01" || layer.name === "ForegroundObjects02");
 			
 			if (hasForegroundLayers) {
+				// Safely check if we have the sprite loaded
 				try {
-					// Add the foreground objects sprite with a higher z-index than player
-					k.add([
-						k.sprite(`${sceneName}-ForegroundObjects`), 
-						k.pos(0), 
-						k.scale(scaleFactor),
-						k.z(20) // Higher z-index than player (9) so it renders above
-					]);
-				} catch (e) {
-					console.warn(`Failed to render foreground objects for ${sceneName}: ${e.message}`);
+					// Try to safely access assets
+					const hasSprite = (
+						k.assets && 
+						k.assets.sprites && 
+						k.assets.sprites[`${sceneName}-ForegroundObjects`]
+					) || false;
+					
+					// Alternative check if direct access didn't work
+					const canLoadSprite = (function() {
+						try {
+							// Try to get the sprite in a different way
+							k.sprite(`${sceneName}-ForegroundObjects`);
+							return true;
+						} catch (e) {
+							return false;
+						}
+					})();
+					
+					if (hasSprite || canLoadSprite) {
+						// Add the foreground objects sprite with a higher z-index than player
+						k.add([
+							k.sprite(`${sceneName}-ForegroundObjects`), 
+							k.pos(0), 
+							k.scale(scaleFactor),
+							k.z(20) // Higher z-index than player (9) so it renders above
+						]);
+						console.log(`Rendered foreground objects for ${sceneName}`);
+					} else {
+						console.log(`Foreground sprite not loaded for ${sceneName}, skipping render`);
+					}
+				} catch (error) {
+					console.warn(`Could not check or render foreground for ${sceneName}:`, error);
 				}
 			}
 		}
@@ -1081,8 +1143,6 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							(map.pos.x + defaultPlayerSpawn.x) * scaleFactor,
 							(map.pos.y + defaultPlayerSpawn.y) * scaleFactor
 						);
-						k.add(player);
-						k.add(playerNameTag);
 					}
 					else if (entity.name === "dog") {
 						defaultDogSpawn = entity;
@@ -1105,6 +1165,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 						(map.pos.y + playerSpawn.y) * scaleFactor
 					);
 					k.add(player);
+					k.add(playerNameTag);
 				}
 				
 				// Position dog
@@ -1362,7 +1423,8 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//player movement
 		playerNameTag.onUpdate(() => {
-			playerNameTag.pos = player.pos.add(playerNameTag.followOffset);
+			// Use the custom method to update position
+			playerNameTag.updatePosition();
 		});
 
 		//Dog movement
