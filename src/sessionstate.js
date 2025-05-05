@@ -122,7 +122,18 @@ export function ensureSessionId() {
     if (cookieId) {
         sessionState.sessionId = cookieId;
     } else {
-        const newId = crypto.randomUUID(); // Use crypto API to generate random UUID
+        let newId;
+        try {
+            // Try using the crypto API to generate a UUID
+            newId = crypto.randomUUID();
+        } catch (error) {
+            // Fallback implementation to generate a UUID
+            newId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
         sessionState.sessionId = newId;
         setCookie("sessionStateId", newId, 365);
     }
