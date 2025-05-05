@@ -663,8 +663,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				
 				// Simple collision resolution - only if significant movement detected
 				const movementDist = player.pos.dist(lastSafePosition);
-				if (movementDist > 5) {
-					player.pos = lastSafePosition.clone();
+				if (movementDist > 8) { // Increased threshold to avoid jittery movement
+					// Use a smoother approach - move partially back to safe position
+					const moveBackRatio = 0.7; // Move back 70% of the way
+					const targetPos = player.pos.lerp(lastSafePosition, moveBackRatio);
+					player.pos = targetPos;
 				}
 			}
 		});
@@ -1068,51 +1071,49 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			const currentSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
 			
 			// Store player's position before mouse movement
-			// This prevents tunneling when clicking far beyond a boundary
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			}
 			
-			// Use the built-in moveTo method for better performance
+			// Calculate direction vector for smoother movement handling
+			const direction = worldMousePos.sub(player.pos).unit();
+			
+			// Use moveTo with the calculated direction for better control
 			player.moveTo(worldMousePos, currentSpeed);
 
 			// Update animation based on movement direction
-			const mouseAngle = player.pos.angle(worldMousePos);
+			const mouseAngle = Math.atan2(direction.y, direction.x) * 180 / Math.PI;
 
-			const lowerBound = 50;
-			const upperBound = 125;
-
-			if (
-				mouseAngle > lowerBound &&
-				mouseAngle < upperBound &&
-				player.getCurAnim().name !== "walk-up"
-			) {
-				player.play("walk-up");
-				player.direction = "up";
-				return;
-			}
-
-			if (
-				mouseAngle < -lowerBound &&
-				mouseAngle > -upperBound &&
-				player.getCurAnim().name !== "walk-down"
-			) {
-				player.play("walk-down");
-				player.direction = "down";
-				return;
-			}
-
-			if (Math.abs(mouseAngle) > upperBound) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-				return;
-			}
-
-			if (Math.abs(mouseAngle) < lowerBound) {
+			// More precise angle calculations with animation checks
+			if (mouseAngle > -45 && mouseAngle < 45) {
+				// Moving right
 				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				if (player.curAnim() !== "walk-side") {
+					player.play("walk-side");
+				}
+				player.direction = "right";
+			} 
+			else if (mouseAngle >= 45 && mouseAngle <= 135) {
+				// Moving down
+				if (player.curAnim() !== "walk-down") {
+					player.play("walk-down");
+				}
+				player.direction = "down";
+			}
+			else if (mouseAngle > 135 || mouseAngle < -135) {
+				// Moving left
+				player.flipX = true;
+				if (player.curAnim() !== "walk-side") {
+					player.play("walk-side");
+				}
 				player.direction = "left";
+			}
+			else if (mouseAngle >= -135 && mouseAngle <= -45) {
+				// Moving up
+				if (player.curAnim() !== "walk-up") {
+					player.play("walk-up");
+				}
+				player.direction = "up";
 			}
 		});
 
@@ -1153,32 +1154,47 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			
 			// Create movement vector - optimized to avoid redundant checks
 			const directionVector = k.vec2(0, 0);
+			let animationChanged = false;
+			
+			// Vertical movement takes priority for diagonal movement
+			if (k.isKeyDown("up") || k.isKeyDown("w")) {
+				directionVector.y = -1;
+				if (player.curAnim() !== "walk-up") {
+					player.play("walk-up");
+				}
+				player.direction = "up";
+				animationChanged = true;
+			} else if (k.isKeyDown("down") || k.isKeyDown("s")) {
+				directionVector.y = 1;
+				if (player.curAnim() !== "walk-down") {
+					player.play("walk-down");
+				}
+				player.direction = "down";
+				animationChanged = true;
+			}
 			
 			// Horizontal movement
 			if (k.isKeyDown("left") || k.isKeyDown("a")) {
 				directionVector.x = -1;
-				player.flipX = false;
-				player.direction = "left";
-				player.play("walk-side");
+				if (!animationChanged) {
+					player.flipX = false;
+					player.direction = "left";
+					if (player.curAnim() !== "walk-side") {
+						player.play("walk-side");
+					}
+				}
 			} else if (k.isKeyDown("right") || k.isKeyDown("d")) {
 				directionVector.x = 1;
-				player.flipX = true;
-				player.direction = "right";
-				player.play("walk-side");
-			}
-			
-			// Vertical movement
-			if (k.isKeyDown("up") || k.isKeyDown("w")) {
-				directionVector.y = -1;
-				player.direction = "up";
-				player.play("walk-up");
-			} else if (k.isKeyDown("down") || k.isKeyDown("s")) {
-				directionVector.y = 1;
-				player.direction = "down";
-				player.play("walk-down");
+				if (!animationChanged) {
+					player.flipX = true;
+					player.direction = "right";
+					if (player.curAnim() !== "walk-side") {
+						player.play("walk-side");
+					}
+				}
 			}
 
-			// Apply movement - simple code for better performance
+			// Apply movement
 			const moveSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
 			const finalSpeed = directionVector.x && directionVector.y ? 
 				moveSpeed * diagonalFactor : moveSpeed;
