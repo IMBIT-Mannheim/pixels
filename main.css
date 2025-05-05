@@ -33,6 +33,70 @@ body {
     z-index: 10;
 }
 
+/* This is the correct way to target the logo during gameplay */
+body:has(.during-game[style*="display: block"]) #dhbw_logo {
+    position: absolute;
+    left: 1vh;
+    bottom: 1vh;
+    top: auto;
+    width: 100px;
+    margin: 0.5em 0;
+    z-index: 10;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+/* For browsers that don't support :has(), provide a JavaScript class alternative */
+body.game-active #dhbw_logo {
+    position: absolute;
+    left: 1vh;
+    bottom: 1vh;
+    top: auto;
+    width: 100px;
+    margin: 0.5em 0;
+    z-index: 10;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+body:has(.during-game[style*="display: block"]) #dhbw_logo:hover,
+body.game-active #dhbw_logo:hover {
+    opacity: 1;
+}
+
+/* Responsive adjustments for DHBW logo during gameplay */
+@media screen and (min-width: 1920px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 180px;
+        bottom: 2vh;
+    }
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1919px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 150px;
+        bottom: 1.5vh;
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1439px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 130px;
+        bottom: 1vh;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 100px;
+        bottom: 1vh;
+    }
+}
+
 #textbox {
     position: absolute;
     left: 10%;
