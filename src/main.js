@@ -147,13 +147,20 @@ k.scene("loading", () => {
 		game.focus();
 	});
 
-	
+	// Funktion zum Ausblenden des DHBW-Logos
+	function hideDHBWLogo() {
+		const dhbwLogo = document.getElementById("dhbw_logo");
+		if (dhbwLogo) {
+			dhbwLogo.style.display = "none"; // Versteckt das DHBW-Logo
+		}
+	}
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
-		handleStart();
+		hideDHBWLogo(); // DHBW-Logo ausblenden
+		handleStart();  // Spiel starten
 	});
 
 
@@ -174,7 +181,8 @@ k.scene("loading", () => {
 	
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
-		handleStart();
+		hideDHBWLogo(); // DHBW-Logo ausblenden
+		handleStart();  // Spiel starten
 	});
 	
 	function handleStart() {
