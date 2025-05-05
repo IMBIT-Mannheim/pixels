@@ -56,6 +56,34 @@ k.loadSprite("character-female", "./sprites/character-female.png", {
 	},
 });
 
+	//change source to divchar1 if available
+	k.loadSprite("character-divchar1", "./sprites/character-male.png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			"idle-down": 0,
+			"idle-up": 3,
+			"idle-side": 6,
+			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+		},
+	});
+	
+	//change source to div char 2 if available
+	k.loadSprite("character-divchar2", "./sprites/character-female.png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			"idle-down": 0,
+			"idle-up": 3,
+			"idle-side": 6,
+			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+		},
+});
+
 k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	sliceX: 4,
 	sliceY: 3,
@@ -129,6 +157,8 @@ k.scene("loading", () => {
 	const sounds_volume = document.getElementById("sounds-volume");
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
+	const divchar1_button = document.getElementById("divchar1-button");
+	const divchar2_button = document.getElementById("divchar2-button");
 	const game = document.getElementById("game");
 	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
@@ -154,6 +184,8 @@ k.scene("loading", () => {
 	male_button.addEventListener("click", () => {
 		character = "character-male";
 		female_button.classList.remove("selected");
+		divchar1_button.classList.remove("selected");
+		divchar2_button.classList.remove("selected");
 		male_button.classList.add("selected");
 		game.focus();
 	});
@@ -161,11 +193,30 @@ k.scene("loading", () => {
 	female_button.addEventListener("click", () => {
 		character = "character-female";
 		male_button.classList.remove("selected");
+		divchar1_button.classList.remove("selected");
+		divchar2_button.classList.remove("selected");
 		female_button.classList.add("selected");
 		game.focus();
 	});
 
+	divchar1_button.addEventListener("click", () => {
+		character = "character-divchar1";
+		male_button.classList.remove("selected");
+		female_button.classList.remove("selected");
+		divchar2_button.classList.remove("selected");
+		divchar1_button.classList.add("selected");
+		game.focus();
+	});
+
 	
+	divchar2_button.addEventListener("click", () => {
+		character = "character-divchar2";
+		male_button.classList.remove("selected");
+		female_button.classList.remove("selected");
+		divchar1_button.classList.remove("selected");
+		divchar2_button.classList.add("selected");
+		game.focus();
+	});	
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
