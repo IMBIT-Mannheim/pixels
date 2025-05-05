@@ -20,6 +20,12 @@ let dogIntroSpeed = 200;
 let dogFollowSpeed = 150;
 let dogHasReachedPlayer = false;
 
+// Tooltip variables
+let gameplayTimer = 0;
+let homeKeyTooltipTime = 0;
+let homeKeyTooltipShown = false;
+let debugTooltip = false; // For debugging
+
 loadCureSprites();
 defineCureScene();
 
@@ -340,6 +346,21 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Store default spawn positions
 		let defaultPlayerSpawnPos = null;
 		let defaultDogSpawnPos = null;
+
+		// Check if home key tooltip has been shown before
+		if (sessionState.tooltips && sessionState.tooltips.homeKeyShown) {
+			homeKeyTooltipShown = true;
+			console.log("Tooltip already shown in previous session"); // Debug log
+		} else {
+			console.log("Tooltip not shown yet"); // Debug log
+		}
+		
+		// Set random time for tooltip (between 2-5 minutes)
+		if (!homeKeyTooltipShown && homeKeyTooltipTime === 0) {
+			// For debugging/testing - short time of 20-30 seconds
+			homeKeyTooltipTime = k.rand(20, 30);
+			console.log("Tooltip will show after", homeKeyTooltipTime, "seconds"); // Debug log
+		}
 
 		// Create debug overlay
 		const debugOverlay = k.add([
@@ -1252,6 +1273,31 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			k.camPos(player.worldPos().x, player.worldPos().y - 100);
 		});
 
+		// Tooltip timer update with improved logging
+		k.onUpdate(() => {
+			// Skip updating timer if tooltip already shown or player is in dialogue
+			if (homeKeyTooltipShown || player.isInDialogue || player.isFrozen || isFullMapView) {
+				return;
+			}
+			
+			// Increment gameplay timer
+			gameplayTimer += k.dt();
+			
+			// Log progress occasionally for debugging
+			if (Math.floor(gameplayTimer) % 10 === 0 && Math.floor(gameplayTimer) !== 0 && !debugTooltip) {
+				console.log("Gameplay timer:", Math.floor(gameplayTimer), "/ Target:", homeKeyTooltipTime);
+				debugTooltip = true;
+			} else if (Math.floor(gameplayTimer) % 10 !== 0) {
+				debugTooltip = false;
+			}
+			
+			// Check if it's time to show the tooltip
+			if (gameplayTimer >= homeKeyTooltipTime) {
+				console.log("Time to show tooltip!");
+				showHomeKeyTooltip();
+			}
+		});
+
 		// Show full world map while holding down m key
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
@@ -1476,7 +1522,114 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				});
 			}
 		});
+
+		// Function to show "Return Home" tooltip in retro style
+		function showHomeKeyTooltip() {
+			if (homeKeyTooltipShown) return;
+			
+			console.log("Showing home key tooltip!"); // Debug log
+			homeKeyTooltipShown = true;
+			
+			// Save to session state
+			sessionState.tooltips = sessionState.tooltips || {};
+			sessionState.tooltips.homeKeyShown = true;
+			saveGame();
+			
+			// Background box for tooltip
+			const tooltipBox = k.add([
+				k.rect(440, 100, { radius: 0 }), // Rectangular box for retro style
+				k.color(k.Color.fromHex("#311047")), // Match game's background
+				k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2),
+				k.fixed(),
+				k.opacity(0.95),
+				k.z(150),
+			]);
+			
+			// Header text
+			const tooltipHeader = k.add([
+				k.text("NEW ABILITY UNLOCKED!", { 
+					size: 24, 
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#ffffff"),
+						outline: { width: 2, color: k.Color.fromHex("#000000") }
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 - 25),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+			
+			// Instruction text
+			const tooltipText = k.add([
+				k.text("Press H key to return to campus", { 
+					size: 20, 
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#ffff00"), // Yellow text for emphasis
+						outline: { width: 2, color: k.Color.fromHex("#000000") }
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 + 15),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+			
+			// Create a continue prompt
+			const continuePrompt = k.add([
+				k.text("Press any key to continue", { 
+					size: 16, 
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#aaaaaa"),
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 + 50),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+			
+			// Make continue text blink
+			let blinkTimer = 0;
+			const blinkInterval = k.onUpdate(() => {
+				blinkTimer += k.dt();
+				if (blinkTimer > 0.5) {
+					continuePrompt.opacity = continuePrompt.opacity === 1 ? 0 : 1;
+					blinkTimer = 0;
+				}
+			});
+			
+			// Pause the game while tooltip is showing
+			const playerWasFrozen = player.isFrozen;
+			player.isFrozen = true;
+			
+			// Listen for any key to dismiss
+			const keyHandler = k.onKeyPress(() => {
+				tooltipBox.destroy();
+				tooltipHeader.destroy();
+				tooltipText.destroy();
+				continuePrompt.destroy();
+				k.onUpdate(blinkInterval, () => {});
+				k.onKeyPress(keyHandler, () => {});
+				player.isFrozen = playerWasFrozen;
+			});
+		}
 	});
 }
 
 k.go("loading");
+
+// For testing, add a key to force show the tooltip
+k.onKeyPress("t", () => {
+	if (k.isKeyDown("shift")) {
+		showHomeKeyTooltip();
+	}
+});
