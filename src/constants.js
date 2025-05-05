@@ -461,5 +461,4 @@ export const dialogueData = {
         "Schade, komm gerne vorbei, wenn du es dir anders ueberlegt hast.",
     },
   ],
-
 };

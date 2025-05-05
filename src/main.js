@@ -27,6 +27,11 @@ let homeKeyTooltipTime = 0;
 let homeKeyTooltipShown = false;
 let debugTooltip = false; // For debugging
 
+// Konami code sequence
+const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
+let konamiIndex = 0;
+let konamiDebug = true; // Enable debug logging
+
 loadCureSprites();
 defineCureScene();
 
@@ -116,6 +121,7 @@ k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
 k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
 k.loadSound("talk", "./sounds/effects/talk.mp3");
 k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
+k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -1712,6 +1718,263 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				player.isFrozen = playerWasFrozen;
 			});
 		}
+
+		// Global function to play 8-bit melody as fallback
+		function play8BitMelody(volume) {
+		  try {
+			// Create audio context
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			const audioCtx = new AudioContext();
+			
+			// Notes for the Super Mario Bros theme (simplified)
+			const notes = [
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'C5', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'G5', duration: 0.2 },
+			  { note: 'rest', duration: 0.4 },
+			  { note: 'G4', duration: 0.2 }
+			];
+			
+			// Frequency mapping
+			const frequencies = {
+			  'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+			  'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+			};
+			
+			// Play each note sequentially
+			let timeOffset = 0;
+			notes.forEach(note => {
+			  if (note.note !== 'rest') {
+				// Create oscillator for each note
+				const oscillator = audioCtx.createOscillator();
+				const gainNode = audioCtx.createGain();
+				
+				oscillator.connect(gainNode);
+				gainNode.connect(audioCtx.destination);
+				
+				// Set waveform and frequency
+				oscillator.type = 'square'; // Square wave for that 8-bit sound
+				oscillator.frequency.value = frequencies[note.note];
+				
+				// Set volume
+				gainNode.gain.value = volume;
+				
+				// Schedule note start and stop
+				oscillator.start(audioCtx.currentTime + timeOffset);
+				oscillator.stop(audioCtx.currentTime + timeOffset + note.duration);
+				
+				// Add slight decay for more natural sound
+				gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + timeOffset + note.duration);
+			  }
+			  timeOffset += note.duration;
+			});
+		  } catch (err) {
+			console.log("Error playing 8-bit melody", err);
+		  }
+		}
+
+		// Global function to trigger the retro easter egg
+		window.triggerRetroEasterEgg = function() {
+		  console.log("🎮 Triggering retro easter egg! 🎮");
+		  
+		  // Play retro sound
+		  try {
+			const retroSound = k.play("retro-sound", {
+			  volume: 0.5, // Use fixed volume for consistency
+			});
+			console.log("Playing retro sound...");
+		  } catch (e) {
+			console.error("Error playing retro sound:", e);
+			// Try fallback 8-bit melody
+			play8BitMelody(0.5);
+		  }
+		  
+		  // Get screen dimensions
+		  const width = window.innerWidth;
+		  const height = window.innerHeight;
+		  
+		  // Create retro visual effect with primitive shapes
+		  try {
+			// Create overlay
+			const retroOverlay = k.add([
+			  k.rect(width, height),
+			  k.pos(0, 0),
+			  k.color(0, 0, 0, 0.1),
+			  k.fixed(),
+			  k.z(1000),
+			  "retro-effect",
+			  {
+				update() {
+				  // Flicker effect
+				  this.opacity = 0.1 + Math.sin(k.time() * 10) * 0.05;
+				}
+			  }
+			]);
+			
+			// Add scanlines
+			for (let i = 0; i < height; i += 4) {
+			  k.add([
+				k.rect(width, 1),
+				k.pos(0, i),
+				k.color(0, 0, 0, 0.2),
+				k.fixed(),
+				k.z(1001),
+				"retro-scanline"
+			  ]);
+			}
+			
+			// Add RGB shift text effect
+			const rgbShiftR = k.add([
+			  k.text("RETRO MODE", { size: 32, font: "sink" }),
+			  k.pos(width / 2 - 2, 100 - 2),
+			  k.anchor("center"),
+			  k.fixed(),
+			  k.color(k.rgb(255, 0, 0, 0.7)),
+			  k.z(1002),
+			  "retro-text"
+			]);
+			
+			const rgbShiftG = k.add([
+			  k.text("RETRO MODE", { size: 32, font: "sink" }),
+			  k.pos(width / 2, 100),
+			  k.anchor("center"),
+			  k.fixed(),
+			  k.color(k.rgb(0, 255, 0, 0.7)),
+			  k.z(1002),
+			  "retro-text"
+			]);
+			
+			const rgbShiftB = k.add([
+			  k.text("RETRO MODE", { size: 32, font: "sink" }),
+			  k.pos(width / 2 + 2, 100 + 2),
+			  k.anchor("center"),
+			  k.fixed(),
+			  k.color(k.rgb(0, 0, 255, 0.7)),
+			  k.z(1002),
+			  "retro-text"
+			]);
+			
+			// Create some pixelated objects that move around
+			for (let i = 0; i < 20; i++) {
+			  const pixelSize = 4 + Math.floor(Math.random() * 8);
+			  const pixelObject = k.add([
+				k.rect(pixelSize, pixelSize),
+				k.pos(Math.random() * width, Math.random() * height),
+				k.color(k.hsl2rgb(Math.random(), 0.8, 0.8)),
+				k.fixed(),
+				k.z(999),
+				k.move(Math.random() * 360, 50 + Math.random() * 100),
+				k.lifespan(60),
+				"retro-pixel"
+			  ]);
+			}
+			
+			// Increase player speed during the easter egg
+			let originalSpeed = null;
+			let originalSprintSpeed = null;
+			const player = k.get("player")[0];
+			if (player) {
+				console.log("Enhancing player with easter egg effects - Original speed:", player.speed);
+				
+				// Store original values
+				originalSpeed = player.speed;
+				originalSprintSpeed = player.sprintSpeed;
+				
+				// Set significantly faster speeds - regular and sprint
+				player.speed = 400; // Much faster than normal (typically around 200-250)
+				player.sprintSpeed = 600; // Even faster sprint speed
+				
+				// Add a speed indicator text
+				const speedBoostText = k.add([
+					k.text("SPEED BOOST ACTIVE", { size: 20, font: "sink" }),
+					k.pos(width / 2, height - 50),
+					k.anchor("center"),
+					k.fixed(),
+					k.color(k.rgb(255, 255, 0)),
+					k.z(1002),
+					"retro-speed-text"
+				]);
+				
+				// Add a slight visual effect to the player
+				const playerInterval = setInterval(() => {
+					if (player) {
+						// More noticeable jitter
+						player.pos.x += Math.random() * 6 - 3;
+						player.pos.y += Math.random() * 4 - 2;
+					}
+				}, 300);
+				
+				// Clean up the interval when the easter egg ends
+				k.onDestroy("retro-text", () => {
+					clearInterval(playerInterval);
+				});
+				
+				console.log("Speed boosted to:", player.speed, "Sprint speed boosted to:", player.sprintSpeed);
+			} else {
+				console.log("Player not found - cannot apply speed boost");
+			}
+			
+			// Remove all effects after a minute
+			k.wait(60, () => {
+			  console.log("Removing retro effects...");
+			  
+			  // Restore player speed
+			  if (player) {
+				if (originalSpeed !== null) {
+					player.speed = originalSpeed;
+					console.log("Restored player speed to", originalSpeed);
+				}
+				
+				if (originalSprintSpeed !== null) {
+					player.sprintSpeed = originalSprintSpeed;
+					console.log("Restored player sprint speed to", originalSprintSpeed);
+				}
+			  }
+			  
+			  k.destroyAll("retro-effect");
+			  k.destroyAll("retro-scanline");
+			  k.destroyAll("retro-text");
+			  k.destroyAll("retro-pixel");
+			  k.destroyAll("retro-speed-text");
+			});
+			
+		  } catch (e) {
+			console.error("Error creating visual effects:", e);
+		  }
+		};
+
+		// Add global key handler for Konami code detection
+		document.addEventListener("keydown", (e) => {
+		  // Check if the pressed key matches the next key in the Konami sequence
+		  if (e.code === konamiCode[konamiIndex]) {
+			konamiIndex++;
+			if (konamiDebug) {
+			  console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+			}
+			
+			// If the full sequence is entered, trigger the easter egg
+			if (konamiIndex === konamiCode.length) {
+			  console.log("🎮 KONAMI CODE ACTIVATED! 🎮");
+			  window.triggerRetroEasterEgg();
+			  konamiIndex = 0; // Reset for next time
+			}
+		  } else {
+			konamiIndex = 0; // Reset if incorrect key
+			// If the first key of the sequence is pressed, start the sequence again
+			if (e.code === konamiCode[0]) {
+			  konamiIndex = 1;
+			  if (konamiDebug) {
+				console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+			  }
+			}
+		  }
+		});
 	});
 }
 
