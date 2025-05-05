@@ -9,6 +9,7 @@ const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 let character = "character-male";
 let spawnpoint = "campus";
+let characterName;
 let dogName;
 let sound_effects_volume = "0.5";
 
@@ -97,15 +98,18 @@ k.scene("loading", () => {
 	const male_button = document.getElementById("male-button");
 	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
 
 
 	const lastMusicVolume = getCookie("music_volume");
 	const lastSoundEffectsVolume = getCookie("sound_effects_volume");
+	const lastcharacterName = getCookie("characterName")
 	const lastDogName = getCookie("dog_name");
 
 	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
 	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
+	character_name_input.value = lastcharacterName ? lastcharacterName : "New Student";
 	dog_name_input.value = lastDogName ? lastDogName : "Bello";
 
 	male_button.addEventListener("click", () => {
@@ -252,13 +256,16 @@ k.scene("loading", () => {
 		const music_volume = music_volume_slider.value / 100; // Konsistente Lautstärke-Berechnung
 		sound_effects_volume = sounds_volume.value / 100;
 		spawnpoint = spawnpoint;
+		characterName = character_name_input.value;
 		dogName = dog_name_input.value;
 
 		dialogueData.dogInitial.title = dogName;
+		
 
 		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
 		setCookie("sound_effects_volume", sound_effects_volume, 365);
+		setCookie("characterName", characterName, 365);
 		setCookie("dog_name", dogName, 365);
 
 		/*
@@ -338,6 +345,13 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				direction: "right",
 			},
 			"dog",
+		]);
+
+		//Erstellt den Spielername-Tag
+		const playerNameTag = k.make([
+			k.text(characterName.toUpperCase(), { size: 18 }),
+			k.pos(player.pos.x, player.pos.y - 100),
+			{ followOffset: k.vec2(-40, -90) },
 		]);
 
 		//Erstellt den Hundename-Tag
@@ -520,6 +534,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 							(map.pos.y + entity.y) * scaleFactor
 						);
 						k.add(player);
+						k.add(playerNameTag);
 					}
 					else if (entity.name === "dog") {
 						dog.pos = k.vec2(
@@ -706,6 +721,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		k.onResize(() => {
 			setCamScale(k);
+		});
+
+		//player movement
+		playerNameTag.onUpdate(() => {
+			playerNameTag.pos = player.pos.add(playerNameTag.followOffset);
 		});
 
 		//Dog movement
