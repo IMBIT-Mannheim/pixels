@@ -7,6 +7,7 @@ import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ens
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
+const interactButton = document.getElementById("interact-button");
 let character = "character-male";
 let spawnpoint = "campus";
 let dogName;
@@ -67,6 +68,14 @@ for (let i = 0; i < maps.length; i++) {
 	});
 	spawnpoints_world_map.appendChild(button);
 	k.loadSprite(map, `./maps/${map}.png`)
+
+	// Try to load foreground objects sprite if it exists
+	try {
+		k.loadSprite(`${map}-ForegroundObjects`, `./maps/${map}-ForegroundObjects.png`);
+	} catch (e) {
+		// Silently ignore if foreground sprite doesn't exist
+		console.log(`No foreground objects for ${map}`);
+	}
 
 	// Load map-specific music
 	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
@@ -296,9 +305,42 @@ k.scene("loading", () => {
 	}
 });
 
+// Function to get appropriate spawnpoint names based on source map
+function getSpawnPointNamesBySource(sourceMap) {
+	if (!sourceMap) {
+		return { player: "player", dog: "dog" }; // Default spawnpoints
+	}
+	
+	return {
+		player: `player-${sourceMap}`,
+		dog: `dog-${sourceMap}`
+	};
+}
+
 function setupScene(sceneName, mapFile, mapSprite) {
-	k.scene(sceneName, async () => {
+	k.scene(sceneName, async (sceneData = {}) => {
 		let isFullMapView = false;  // Variable to track if in full map view
+		const showDebugOverlay = false; // Set to true to enable debug overlay
+
+		// Create debug overlay
+		const debugOverlay = k.add([
+			k.text("Debug Info: No interactive objects nearby", {
+				size: 16,
+				font: "monospace",
+				styles: {
+					fill: "#ff0000",
+				}
+			}),
+			k.pos(10, 10),
+			k.fixed(),
+			k.z(200),
+			k.opacity(showDebugOverlay ? 1 : 0), // Only visible when showDebugOverlay is true
+			{
+				updateDebug: function(msg) {
+					this.text = msg;
+				}
+			}
+		]);
 
 		const music_volume = sessionState.settings.musicVolume || 0.5;
 
@@ -324,7 +366,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Erstellt den Spieler
 		const player = k.make([
 			k.sprite(character, { anim: "idle-down" }),
-			k.area({ shape: new k.Rect(k.vec2(0), 15, 30) }),
+			k.area({ shape: new k.Rect(k.vec2(0, 10), 14, 10) }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
@@ -332,6 +374,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			k.scale(scaleFactor),
 			{
 				speed: 250,
+				sprintSpeed: 400, // Sprint speed when space is pressed
 				direction: "down",
 				get isInDialogue() { return dialogue.inDialogue() },
 				get score() { return dialogue.getScore() },
@@ -360,188 +403,466 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			{ followOffset: k.vec2(-20, -50) },
 		]);
 
+		// Add foreground objects if they exist for this map
+		// Find foreground group and layers
+		const foregroundGroup = layers.find(layer => 
+			layer.name === "ForegroundObjects" && layer.layers);
+
+			// If the foreground group exists and at least one of the foreground layers exists
+		if (foregroundGroup) {
+			// Check if the required foreground layers exist
+			const hasForegroundLayers = foregroundGroup.layers.some(layer => 
+				layer.name === "ForegroundObjects01" || layer.name === "ForegroundObjects02");
+			
+			if (hasForegroundLayers) {
+				try {
+					// Add the foreground objects sprite with a higher z-index than player
+					k.add([
+						k.sprite(`${sceneName}-ForegroundObjects`), 
+						k.pos(0), 
+						k.scale(scaleFactor),
+						k.z(20) // Higher z-index than player (9) so it renders above
+					]);
+				} catch (e) {
+					console.warn(`Failed to render foreground objects for ${sceneName}: ${e.message}`);
+				}
+			}
+		}
+
+		// Main collision prevention handler - simplified and optimized
+		let inBoundaryCollision = false;
+		let boundaryCollisionTimer = 0;
+		let lastSoundTime = 0;
+		// lastSafePosition is declared later in the code
+
+		// Set flag when collision starts
+		k.onCollide("player", "boundary", () => {
+			inBoundaryCollision = true;
+		});
+		
+		// Reset flag when collision ends
+		player.onCollideEnd("boundary", () => {
+			inBoundaryCollision = false;
+			boundaryCollisionTimer = 0;
+			lastSoundTime = 0;
+		});
+		
+		// Single update handler for all collision-related logic
+		// This is much more efficient than multiple handlers
+		k.onUpdate(() => {
+			// Skip processing if player is in dialogue
+			if (player.isInDialogue) return;
+			
+			// Track safe positions for boundary handling
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
+			} else {
+				// Handle sound
+				boundaryCollisionTimer += k.dt();
+				
+				// Play sound at intervals
+				if (boundaryCollisionTimer >= 0.5 && 
+					(boundaryCollisionTimer - lastSoundTime >= 1.0 || lastSoundTime === 0)) {
+					k.play("boundary", {
+						volume: sound_effects_volume,
+					});
+					lastSoundTime = boundaryCollisionTimer;
+				}
+				
+				// Simple collision resolution - only if significant movement detected
+				const movementDist = player.pos.dist(lastSafePosition);
+				if (movementDist > 5) {
+					player.pos = lastSafePosition.clone();
+				}
+			}
+		});
+
 		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
 		for (const layer of layers) {
 			if (layer.name === "boundaries") {
+				// Keep a collection of all boundaries for efficient culling
+				const allBoundaries = [];
+				const CULLING_RADIUS = 800; // Adjust this value based on viewport size
+
 				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
+					// Create a boundary object with all necessary properties
+					const boundaryObj = {
+						area: {
 							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
+						},
+						isStatic: true,
+						pos: k.vec2(boundary.x, boundary.y),
+						rotation: boundary.rotation,
+						name: boundary.name,
+						width: boundary.width,
+						height: boundary.height,
+						gameObj: null, // Will store the actual game object reference
+						isVisible: false, // Track visibility state
+						exclamation: null, // Reference to exclamation mark if needed
+						interactionPrompt: null, // Reference to interaction prompt if needed
+					};
+					
+					allBoundaries.push(boundaryObj);
 
-					if (boundary.name !== "boundary") {
-						let bounceOffset = 0;
-						let bounceSpeed = 0.001;
-						let isInProximity = false;
-						const INTERACTION_RADIUS = 100; // Adjust this value to change the interaction radius
-						let promptTimer = 0; // Timer for prompt visibility
-						const PROMPT_DURATION = 10; // Show prompt for 10 seconds
+					// Initial creation is handled later in the culling logic
+				}
 
-						const exclamation = k.add([
-							k.text("!", { size: 40 }),
-							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
-							k.z(10),
-							"exclamation"
-						]);
-
-						// Create the popup completely hidden by default
-						const interactionPrompt = k.add([
-							k.text("Press T to interact", { 
-								size: 18,
-								// Use a pixel font that matches the game's style
-								font: "monospace",
-								styles: {
-									fill: "#ffffff",
-									stroke: "#000000",
-									strokeThickness: 3
-								}
-							}),
-							k.pos(0, 0),  // Position will be updated in onUpdate
-							k.z(10),
-							k.opacity(0),  // Start completely invisible
-							"interactionPrompt"
-						]);
-
-						// Keep the exclamation mark update separate
-						k.onUpdate("exclamation", (e) => {
-							bounceOffset += bounceSpeed;
-							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
-								bounceSpeed *= -1;
-							}
-							e.pos.y = e.pos.y + bounceOffset;
-
-							// Check proximity and update prompt visibility
-							const dist = player.pos.dist(k.vec2(boundary.x * scaleFactor, boundary.y * scaleFactor));
-							if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
-								if (!isInProximity) {
-									isInProximity = true;
-									// Use smooth fade in
-									k.tween(interactionPrompt.opacity, 1, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when entering proximity
-								}
+				// Set up a culling system that runs on each frame
+				k.onUpdate(() => {
+					// Skip culling if player is in dialogue
+					if (player.isInDialogue) return;
+					
+					
+					// Get player position - need to use world position for proper comparison
+					const playerPos = player.worldPos();
+					
+					// Process each boundary
+					for (const boundaryObj of allBoundaries) {
+						// Calculate boundary center position in world space
+						const boundaryWorldPos = k.vec2(
+							boundaryObj.pos.x * scaleFactor,
+							boundaryObj.pos.y * scaleFactor
+						);
+						
+						// Calculate distance from player to boundary center
+						const distance = playerPos.dist(boundaryWorldPos);
+						
+						// Check if boundary should be visible (within culling radius)
+						const shouldBeVisible = distance <= CULLING_RADIUS;
+						
+						// If visibility status changed, add or remove the boundary
+						if (shouldBeVisible !== boundaryObj.isVisible) {
+							if (shouldBeVisible) {
+								// Create and add the boundary to the map
+								const newObj = map.add([
+									k.area(boundaryObj.area),
+									k.body({ isStatic: boundaryObj.isStatic }),
+									k.pos(boundaryObj.pos.x, boundaryObj.pos.y),
+									k.rotate(boundaryObj.rotation),
+									boundaryObj.name,
+								]);
 								
-								// Update timer
-								promptTimer += k.dt();
+								boundaryObj.gameObj = newObj;
 								
-								// Hide prompt after PROMPT_DURATION seconds
-								if (promptTimer >= PROMPT_DURATION && interactionPrompt.opacity > 0) {
-									// Fade out the prompt
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-								}
-								
-								// Position the prompt above the player's head
-								const promptX = player.pos.x;
-								const promptY = player.pos.y - 50;
-								
-								// Update position
-								interactionPrompt.pos = k.vec2(promptX, promptY);
-								
-							} else {
-								if (isInProximity) {
-									isInProximity = false;
-									// Use smooth fade out
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when leaving proximity
-								}
-							}
-						});
+								// If this boundary has a name (interactive), create the interaction elements
+								if (boundaryObj.name !== "boundary") {
+									let bounceOffset = 0;
+									let bounceSpeed = 0.001;
+									let isInProximity = false;
+									const INTERACTION_RADIUS = 170;
+									let promptTimer = 0;
+									const PROMPT_DELAY = 1;
 
-						// Handle T key press
-						k.onKeyPress("t", () => {
-							if (isInProximity && !player.isInDialogue) {
-								showWorldMapBtn.style.display = "none";
-								k.destroy(exclamation);
-								k.destroy(interactionPrompt);
-								k.play("talk", {
-									volume: sound_effects_volume,
-								});
-								if (walkingSound) {
-									walkingSound.stop();
-									walkingSound = null;
-								}
+									// Create exclamation mark
+									boundaryObj.exclamation = k.add([
+										k.text("!", { size: 40 }),
+										k.pos(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor - 10),
+										k.z(10),
+										k.color(k.Color.WHITE),
+										"exclamation"
+									]);
 
-								// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
-								if (boundary.name === "sportscar") {
-									dialogue.setQuestionButtonClickListener((buttonIndex) => {
-										dialogue.setQuestionButtonClickListener(null);
-										if (buttonIndex === 1) {
-											dialogue._close_or_next();
-											k.go("cure_minigame");
+									// Create interaction prompt (initially invisible)
+									boundaryObj.interactionPrompt = k.add([
+										k.rect(300, 50, { radius: 10 }), // Background with rounded corners
+										k.color(0, 0, 0, 0.8), // More opaque black background
+										k.pos(k.width() / 2 - 150, 70), // Position at top center immediately
+										k.fixed(), // This makes it stay fixed on screen
+										k.z(100), // Much higher z-index to ensure visibility
+										k.opacity(0),
+										"interactionPrompt"
+									]);
+									
+									// Add text on top of the background
+									boundaryObj.promptText = k.add([
+										k.text("Press T to interact", { 
+											size: 24, // Larger text size for better visibility
+											font: "monospace",
+											styles: {
+												fill: "#ffffff",
+											}
+										}),
+										k.pos(k.width() / 2, 85), // Position at top center immediately
+										k.anchor("center"), // Center the text
+										k.fixed(), // This makes it stay fixed on screen
+										k.z(101), // Higher z-index than the background
+										k.opacity(0),
+										"promptText"
+									]);
+
+									// Add exclamation mark update logic
+									const exclamationUpdateEvent = k.onUpdate("exclamation", (e) => {
+										// Only process if this is the right exclamation mark
+										if (e !== boundaryObj.exclamation) return;
+										
+										bounceOffset += bounceSpeed;
+										if (bounceOffset > 0.1 || bounceOffset < -0.1) {
+											bounceSpeed *= -1;
+										}
+										e.pos.y = e.pos.y + bounceOffset;
+
+										// Check proximity and update prompt visibility
+										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											// Update debug overlay
+											debugOverlay.updateDebug(`In range of: ${boundaryObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`);
+											
+											if (!isInProximity) {
+												isInProximity = true;
+												promptTimer = 0; // Reset timer when entering proximity
+											}
+											
+											// Increment timer while in range
+											promptTimer += k.dt();
+											
+											// Only show the prompt after PROMPT_DELAY seconds
+											if (promptTimer >= PROMPT_DELAY) {
+												// Show the HTML interaction button
+												interactButton.style.display = "block";
+											}
+											
+										} else {
+											if (isInProximity) {
+												isInProximity = false;
+												// Hide the HTML interaction button
+												interactButton.style.display = "none";
+												promptTimer = 0; // Reset timer when leaving proximity
+											}
 										}
 									});
-									dialogue.display(
-										dialogueData[boundary.name],
-										() => ((showWorldMapBtn.style.display = "flex"), game.focus())
-									);
-									return;
+									
+									// Store event ID for cleanup
+									boundaryObj.exclamationUpdateEvent = exclamationUpdateEvent;
+
+									// Handle T key press for this boundary
+									k.onKeyPress("t", () => {
+										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											showWorldMapBtn.style.display = "none";
+											// Hide the interaction button
+											interactButton.style.display = "none";
+											if (boundaryObj.exclamation) k.destroy(boundaryObj.exclamation);
+											if (boundaryObj.interactionPrompt) k.destroy(boundaryObj.interactionPrompt);
+											if (boundaryObj.promptText) k.destroy(boundaryObj.promptText);
+											k.play("talk", {
+												volume: sound_effects_volume,
+											});
+											if (walkingSound) {
+												walkingSound.stop();
+												walkingSound = null;
+											}
+
+											// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+											if (boundaryObj.name === "sportscar") {
+												dialogue.setQuestionButtonClickListener((buttonIndex) => {
+													dialogue.setQuestionButtonClickListener(null);
+													if (buttonIndex === 1) {
+														dialogue._close_or_next();
+														k.go("cure_minigame");
+													}
+												});
+												dialogue.display(
+													dialogueData[boundaryObj.name],
+													() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+												);
+												return;
+											}
+											dialogue.display(
+												dialogueData[boundaryObj.name],
+												() => (showWorldMapBtn.style.display = "flex", game.focus())
+											);
+										}
+									});
 								}
-								dialogue.display(
-									dialogueData[boundary.name],
-									() => (showWorldMapBtn.style.display = "flex", game.focus())
-								);
+							} else {
+								// Remove the boundary from the game
+								if (boundaryObj.gameObj) {
+									k.destroy(boundaryObj.gameObj);
+									boundaryObj.gameObj = null;
+								}
+								
+								// Clean up interaction elements if they exist
+								if (boundaryObj.exclamation) {
+									k.destroy(boundaryObj.exclamation);
+									boundaryObj.exclamation = null;
+								}
+								
+								if (boundaryObj.interactionPrompt) {
+									k.destroy(boundaryObj.interactionPrompt);
+									boundaryObj.interactionPrompt = null;
+								}
+								
+								if (boundaryObj.promptText) {
+									k.destroy(boundaryObj.promptText);
+									boundaryObj.promptText = null;
+								}
 							}
-						});
+							
+							// Update visibility flag
+							boundaryObj.isVisible = shouldBeVisible;
+						}
 					}
-				}
+				});
+				
 				continue;
 			}
 
-			k.onCollide("player", "boundary", () => {
-				k.play("boundary", {
-					volume: sound_effects_volume,
+			// Handle collision layer
+			if (layer.name === "Collisions") {
+				const tileSize = 16; // Tile size in pixels
+				const mapWidth = layer.width;
+				const mapHeight = layer.height;
+				
+				// Convert the 1D array to a 2D array for easier processing
+				const collisionData = [];
+				for (let y = 0; y < mapHeight; y++) {
+					const row = [];
+					for (let x = 0; x < mapWidth; x++) {
+						row.push(layer.data[y * mapWidth + x]);
+					}
+					collisionData.push(row);
+				}
+
+				// Create a collection to store all collision tiles for culling
+				const allCollisionTiles = [];
+				const COLLISION_CULLING_RADIUS = 800; // Adjust based on game needs
+
+				// Prepare all potential collision tiles
+				for (let y = 0; y < mapHeight; y++) {
+					for (let x = 0; x < mapWidth; x++) {
+						if (collisionData[y][x] !== 0) {
+							// Create a tile object with necessary properties
+							const tileObj = {
+								pos: k.vec2(x * tileSize * scaleFactor, y * tileSize * scaleFactor),
+								gameObj: null,
+								isVisible: false
+							};
+							
+							allCollisionTiles.push(tileObj);
+						}
+					}
+				}
+
+				// Set up culling for collision tiles
+				k.onUpdate(() => {
+					// Skip if player is in dialogue
+					if (player.isInDialogue) return;
+					
+					// Get player position for distance calculations
+					const playerPos = player.worldPos();
+					
+					// Process each collision tile
+					for (const tileObj of allCollisionTiles) {
+						// Calculate distance from player to tile
+						const distance = playerPos.dist(tileObj.pos);
+						
+						// Check if tile should be visible
+						const shouldBeVisible = distance <= COLLISION_CULLING_RADIUS;
+						
+						// If visibility changed, add or remove the tile
+						if (shouldBeVisible !== tileObj.isVisible) {
+							if (shouldBeVisible) {
+								// Create and add the collision tile
+								tileObj.gameObj = k.add([
+									k.area({
+										shape: new k.Rect(k.vec2(0), tileSize * scaleFactor, tileSize * scaleFactor),
+									}),
+									k.body({ isStatic: true }),
+									k.pos(tileObj.pos.x, tileObj.pos.y),
+									"boundary",
+								]);
+							} else {
+								// Remove the tile
+								if (tileObj.gameObj) {
+									k.destroy(tileObj.gameObj);
+									tileObj.gameObj = null;
+								}
+							}
+							
+							// Update visibility flag
+							tileObj.isVisible = shouldBeVisible;
+						}
+					}
 				});
-			});
+				
+				continue;
+			}
 
 			if (layer.name === "goto") {
 				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
-
-					if (boundary.name) {
-						player.onCollide(boundary.name, () => {
-							k.go(boundary.name);
-							if (walkingSound) {
-								walkingSound.stop();
-								walkingSound = null;
-							}
-							stopAnims();
-							showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-						});
-					}
+				  map.add([
+					k.area({ shape: new k.Rect(k.vec2(0), boundary.width, boundary.height) }),
+					k.body({ isStatic: true }),
+					k.pos(boundary.x, boundary.y),
+					k.rotate(boundary.rotation),
+					boundary.name,
+				  ]);
+			  
+				  if (boundary.name) {
+					player.onCollide(boundary.name, () => {
+						  // pass along the scene we're coming from
+					  k.go(boundary.name, { from: sceneName });
+			  
+					  if (walkingSound) {
+						walkingSound.stop();
+						walkingSound = null;
+					  }
+					  stopAnims();
+					  showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+					});
+				  }
 				}
 				continue;
-			}
+			  }
 
 			//Setzt den Spieler auf die Spawnposition
 			if (layer.name === "spawnpoints") {
+				// Get appropriate spawnpoint names based on source map
+				const { player: playerSpawnName, dog: dogSpawnName } = getSpawnPointNamesBySource(sceneData.from);
+				
+				// Store specific and default spawn points
+				let specificPlayerSpawn = null;
+				let specificDogSpawn = null;
+				let defaultPlayerSpawn = null;
+				let defaultDogSpawn = null;
+				
+				// First, find all possible spawn points
 				for (const entity of layer.objects) {
-					if (entity.name === "player") {
-						player.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(player);
+					if (entity.name === playerSpawnName) {
+						specificPlayerSpawn = entity;
+					}
+					else if (entity.name === dogSpawnName) {
+						specificDogSpawn = entity;
+					}
+					else if (entity.name === "player") {
+						defaultPlayerSpawn = entity;
 					}
 					else if (entity.name === "dog") {
-						dog.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(dog);
-						k.add(dogNameTag);
+						defaultDogSpawn = entity;
 					}
+				}
+				
+				// Use specific spawn points if available, otherwise fall back to defaults
+				const playerSpawn = specificPlayerSpawn || defaultPlayerSpawn;
+				const dogSpawn = specificDogSpawn || defaultDogSpawn;
+				
+				// Position player
+				if (playerSpawn) {
+					player.pos = k.vec2(
+						(map.pos.x + playerSpawn.x) * scaleFactor,
+						(map.pos.y + playerSpawn.y) * scaleFactor
+					);
+					k.add(player);
+				}
+				
+				// Position dog
+				if (dogSpawn) {
+					dog.pos = k.vec2(
+						(map.pos.x + dogSpawn.x) * scaleFactor,
+						(map.pos.y + dogSpawn.y) * scaleFactor
+					);
+					k.add(dog);
+					k.add(dogNameTag);
 				}
 			}
 		}
@@ -552,8 +873,18 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			if (mouseBtn !== "left" || player.isInDialogue) return;
 
 			const worldMousePos = k.toWorld(k.mousePos());
-			player.moveTo(worldMousePos, player.speed);
+			const currentSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
+			
+			// Store player's position before mouse movement
+			// This prevents tunneling when clicking far beyond a boundary
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
+			}
+			
+			// Use the built-in moveTo method for better performance
+			player.moveTo(worldMousePos, currentSpeed);
 
+			// Update animation based on movement direction
 			const mouseAngle = player.pos.angle(worldMousePos);
 
 			const lowerBound = 50;
@@ -596,53 +927,71 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Player movement with keyboard
 		const diagonalFactor = 1 / Math.sqrt(2);
 		let walkingSound = false;
+		
+		// Keep track of last non-colliding position for both keyboard and mouse movement
+		let lastSafePosition = player.pos.clone();
 
+		// Optimized player movement handler
 		k.onUpdate(() => {
-			if (player.isInDialogue) return;
-			if (isFullMapView) return;
+			// Early returns for better performance
+			if (player.isInDialogue || isFullMapView) return;
+			
+			// Store last safe position if not currently colliding with boundary
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
+			}
 
-			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
+			// Handle walking sound with a simplified check
+			const isMoving = k.isKeyDown("left") || k.isKeyDown("right") || 
+				k.isKeyDown("up") || k.isKeyDown("down") || 
+				k.isKeyDown("a") || k.isKeyDown("d") || 
+				k.isKeyDown("w") || k.isKeyDown("s");
+				
+			if (isMoving) {
 				if (!walkingSound) {
 					walkingSound = k.play("footstep", { loop: true, volume: sound_effects_volume });
 				}
-			} else {
-				if (walkingSound) {
-					walkingSound.stop();
-					walkingSound = null;
-				}
+			} else if (walkingSound) {
+				walkingSound.stop();
+				walkingSound = null;
 			}
 
+			// Only process movement if actually moving
+			if (!isMoving) return;
+			
+			// Create movement vector - optimized to avoid redundant checks
 			const directionVector = k.vec2(0, 0);
+			
+			// Horizontal movement
 			if (k.isKeyDown("left") || k.isKeyDown("a")) {
-				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
 				directionVector.x = -1;
-			}
-			if (k.isKeyDown("right") || k.isKeyDown("d")) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "right";
+				player.flipX = false;
+				player.direction = "left";
+				player.play("walk-side");
+			} else if (k.isKeyDown("right") || k.isKeyDown("d")) {
 				directionVector.x = 1;
+				player.flipX = true;
+				player.direction = "right";
+				player.play("walk-side");
 			}
+			
+			// Vertical movement
 			if (k.isKeyDown("up") || k.isKeyDown("w")) {
-				if (player.getCurAnim().name !== "walk-up") player.play("walk-up");
-				player.direction = "up";
 				directionVector.y = -1;
-			}
-			if (k.isKeyDown("down") || k.isKeyDown("s")) {
-				if (player.getCurAnim().name !== "walk-down") player.play("walk-down");
-				player.direction = "down";
+				player.direction = "up";
+				player.play("walk-up");
+			} else if (k.isKeyDown("down") || k.isKeyDown("s")) {
 				directionVector.y = 1;
+				player.direction = "down";
+				player.play("walk-down");
 			}
 
-			// this is true when the player is moving diagonally
-			if (directionVector.x && directionVector.y) {
-				player.move(directionVector.scale(diagonalFactor * player.speed));
-				return;
-			}
-
-			player.move(directionVector.scale(player.speed));
+			// Apply movement - simple code for better performance
+			const moveSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
+			const finalSpeed = directionVector.x && directionVector.y ? 
+				moveSpeed * diagonalFactor : moveSpeed;
+			
+			player.move(directionVector.scale(finalSpeed));
 		});
 
 		// Stop animations
