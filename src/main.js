@@ -12,7 +12,7 @@ let character = "character-male";
 let spawnpoint = "campus";
 let characterName;
 let dogName;
-let sound_effects_volume = "0.5";
+let sound_effects_volume = 0.5;
 
 // Dog intro variables
 let dogIntroActive = false;
@@ -126,6 +126,29 @@ k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
 
+// Global function to update all music volumes
+function updateMusicVolume(volume) {
+	// Ensure volume is exactly 0 when very low
+	if (volume <= 0.01) {
+		volume = 0;
+		// Stop the music completely when volume is 0
+		if (window.currentBgm) {
+			window.currentBgm.stop();
+			window.currentBgm = null;
+		}
+	} else if (window.currentBgm) {
+		// Only update volume if music is playing and volume > 0
+		window.currentBgm.volume(volume);
+	}
+	
+	// Update session state
+	sessionState.settings.musicVolume = volume;
+	saveGame();
+	
+	console.log("Music volume updated to:", volume);
+	return volume;
+}
+
 //LVL 0: SCENE LOADING
 k.scene("loading", () => {
 	const starting_screen = document.getElementById("starting-screen");
@@ -182,17 +205,31 @@ k.scene("loading", () => {
 
 
 	music_volume_slider.addEventListener("input", () => {
-		const music_volume = music_volume_slider.value / 100;
-	
-		// Update volume for current playing background music
-		if (window.currentBgm) {
-			window.currentBgm.volume(music_volume);
+		let music_volume = music_volume_slider.value / 100;
+		
+		// Ensure volume is exactly 0 when slider is at minimum
+		if (music_volume_slider.value === 0) {
+			music_volume = 0;
 		}
 	
-		// Update sessionState instead of setting a cookie
-		sessionState.settings.musicVolume = music_volume;
-		saveGame();
+		// Use the global function to update all music volumes
+		updateMusicVolume(music_volume);
+		
+		game.focus();
+	});
 	
+	sounds_volume.addEventListener("input", () => {
+		sound_effects_volume = sounds_volume.value / 100;
+		
+		// Ensure volume is exactly 0 when slider is at minimum
+		if (sounds_volume.value <= 1) {
+			sound_effects_volume = 0;
+		}
+		
+		// Update sessionState with new sound effects volume
+		sessionState.settings.soundEffectsVolume = sound_effects_volume;
+		saveGame();
+		
 		game.focus();
 	});
 	
@@ -250,8 +287,16 @@ k.scene("loading", () => {
 		video.controls = false;
 
 		// Setze die Lautstärke des Videos basierend auf dem Musiklautstärke-Slider
-		const musicVolume = music_volume_slider.value / 100; // Slider-Wert in einen Bereich von 0 bis 1 umwandeln
-		video.volume = musicVolume;
+		// Use the current global music volume from sessionState
+		let musicVolume = sessionState.settings.musicVolume;
+		// Ensure volume is 0 when set very low
+		if (musicVolume === 0) {
+			video.volume = 0;
+			video.muted = true; // Explicitly mute the video
+		} else {
+			video.volume = musicVolume;
+			video.muted = false;
+		}
 
 		// Füge einen "Skip Intro"-Button als Pfeil hinzu
 		const skipButton = document.createElement("button");
@@ -310,11 +355,14 @@ k.scene("loading", () => {
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 100; // Consistent volume calculation
+		let music_volume = music_volume_slider.value / 100; // Consistent volume calculation
 		sound_effects_volume = sounds_volume.value / 100;
 		spawnpoint = "campus"; // Always start at campus
 		characterName = character_name_input.value;
 		dogName = dog_name_input.value;
+
+		// Use our global function to update music volume
+		music_volume = updateMusicVolume(music_volume);
 
 		dialogueData.dogInitial.title = dogName;
 		
@@ -328,9 +376,8 @@ k.scene("loading", () => {
 		// Ensure we have a session ID
 		ensureSessionId();
 		
-		// Update session state with all current settings
+		// Update session state with all current settings - music volume already set by updateMusicVolume
 		sessionState.settings.spawnpoint = spawnpoint;
-		sessionState.settings.musicVolume = music_volume;
 		sessionState.settings.soundEffectsVolume = sound_effects_volume;
 		sessionState.settings.dogName = dogName;
 		sessionState.settings.characterName = characterName;
@@ -425,13 +472,21 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		const music_volume = sessionState.settings.musicVolume || 0.5;
 
 		// Play the map-specific background music
-		const music = k.play("bgm_" + sceneName, {
-			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
+		// Only play music if volume is greater than 0
+		const music = (music_volume === 0) ? null : k.play("bgm_" + sceneName, {
+			volume: music_volume,
 			loop: true,
 		});
 
+		// Store global reference to current background music so volume slider can control it
+		window.currentBgm = music;
+
 		k.onSceneLeave(() => {
-			music.stop();
+			if (music) {
+				music.stop();
+			}
+			// Clear the global reference when leaving the scene
+			window.currentBgm = null;
 		});
 
 

@@ -1,4 +1,3 @@
-
 import { k } from "./kaboomCtx";
 import {setCamScale, refreshScoreUI } from "./utils";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
@@ -55,11 +54,21 @@ export function defineCureScene() {
         const music_volume = sessionState.settings.musicVolume || 0.5;
 
         if (music === undefined) {
-            // Play the map-specific background music
-            music = k.play("bgm_cureMinigame", {
-                volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
-                loop: true,
-            });
+            // Play the map-specific background music only if volume is > 0
+            if (music_volume === 0) {
+                music = null;
+                window.currentBgm = null;
+            } else {
+                music = k.play("bgm_cureMinigame", {
+                    volume: music_volume,
+                    loop: true,
+                });
+                // Set this as the current background music for global volume control
+                window.currentBgm = music;
+            }
+        } else if (music && window.currentBgm !== music) {
+            // If music already exists but isn't the current bgm, update the reference
+            window.currentBgm = music;
         }
 
         const during_minigame = document.getElementsByClassName("during-minigame");
@@ -328,8 +337,11 @@ export function defineCureScene() {
                 ]);
 
                 k.onKeyPress("escape", () => {
-                    music.stop();
+                    if (music) {
+                        music.stop();
+                    }
                     music = undefined;
+                    window.currentBgm = null; // Clear the current bgm reference
                     k.go("campus");
                 });
                 k.onKeyPress("space", () => {
@@ -517,12 +529,21 @@ export function defineCureScene() {
             decorations.forEach((decoration) => decoration.destroy());
             stripes.forEach((stripe) => stripe.destroy());
 
+            // Stop the music if it exists
+            if (music) {
+                music.stop();
+            }
+            
+            // Clear the background music reference
+            window.currentBgm = null;
+            
             // Reset game state
             obstacles = [];
             decorations = [];
             stripes = [];
             timePassed = 0;
             isGameOver = false;
+            music = undefined;
 
             //Hide minigame-specific HTML
             for (let i = 0; i < during_minigame.length; i++) {
