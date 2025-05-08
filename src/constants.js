@@ -4,6 +4,7 @@ export let maps = [
   'unternehmensausstellung',
   'almeria',
   'campus',
+  'Classrooms',
 ]
 export const mapMusic = {
   'mensa': 'Mensa',
