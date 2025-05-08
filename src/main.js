@@ -426,6 +426,9 @@ function getSpawnPointNamesBySource(sourceMap) {
 	};
 }
 
+// Add a global variable to track interaction points
+let activeInteractionPoints = [];
+
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
 		let isFullMapView = false;  // Variable to track if in full map view
@@ -433,6 +436,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Store default spawn positions
 		let defaultPlayerSpawnPos = null;
 		let defaultDogSpawnPos = null;
+		
+		// Reset active interaction points for this scene
+		activeInteractionPoints = [];
 
 		// Check if home key tooltip has been shown before
 		if (sessionState.tooltips && sessionState.tooltips.homeKeyShown) {
@@ -978,17 +984,41 @@ function setupScene(sceneName, mapFile, mapSprite) {
 											// Increment timer while in range
 											promptTimer += k.dt();
 											
-											// Only show the prompt after PROMPT_DELAY seconds
-											if (promptTimer >= PROMPT_DELAY) {
-												// Show the HTML interaction button
-												interactButton.style.display = "block";
+											// Only add to active points if timer has reached threshold
+											const isReady = promptTimer >= PROMPT_DELAY;
+											
+											// Track this interaction point in the global list
+											const interactionPoint = {
+												type: 'boundary',
+												name: boundaryObj.name,
+												distance: dist,
+												showPrompt: isReady
+											};
+											
+											// Update or add this interaction point
+											const existingIndex = activeInteractionPoints.findIndex(p => 
+												p.type === 'boundary' && p.name === boundaryObj.name);
+											
+											if (existingIndex >= 0) {
+												activeInteractionPoints[existingIndex] = interactionPoint;
+											} else {
+												activeInteractionPoints.push(interactionPoint);
 											}
 											
+											// Update which interaction prompt should be visible
+											updateInteractionPrompt();
 										} else {
 											if (isInProximity) {
 												isInProximity = false;
-												// Hide the HTML interaction button
-												interactButton.style.display = "none";
+												
+												// Remove from active points
+												activeInteractionPoints = activeInteractionPoints.filter(
+													p => !(p.type === 'boundary' && p.name === boundaryObj.name)
+												);
+												
+												// Update which interaction prompt should be visible
+												updateInteractionPrompt();
+												
 												promptTimer = 0; // Reset timer when leaving proximity
 											}
 										}
@@ -1004,6 +1034,16 @@ function setupScene(sceneName, mapFile, mapSprite) {
 											showWorldMapBtn.style.display = "none";
 											// Hide the interaction button
 											interactButton.style.display = "none";
+											
+											// Clean up this interaction point from the active list
+											activeInteractionPoints = activeInteractionPoints.filter(
+												p => !(p.type === 'boundary' && p.name === boundaryObj.name)
+											);
+											
+											// Ensure no interaction prompts are visible
+											isInProximity = false;
+											promptTimer = 0;
+											
 											if (boundaryObj.exclamation) k.destroy(boundaryObj.exclamation);
 											if (boundaryObj.interactionPrompt) k.destroy(boundaryObj.interactionPrompt);
 											if (boundaryObj.promptText) k.destroy(boundaryObj.promptText);
@@ -1014,6 +1054,9 @@ function setupScene(sceneName, mapFile, mapSprite) {
 												walkingSound.stop();
 												walkingSound = null;
 											}
+
+											// Set the dialogue change listener
+											dialogue.setDialogueChangeListener(true);
 
 											// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
 											if (boundaryObj.name === "sportscar") {
@@ -1070,7 +1113,218 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				continue;
 			}
 
-			// Handle collision layer
+			if (layer.name === "flags") {
+				// Keep a collection of all flags for efficient culling
+				const allFlags = [];
+				const CULLING_RADIUS = 800; // Adjust this value based on viewport size
+
+				for (const flag of layer.objects) {
+					// Create a flag object with all necessary properties
+					const flagObj = {
+						area: {
+							shape: new k.Rect(k.vec2(0), flag.width, flag.height),
+						},
+						isStatic: true,
+						pos: k.vec2(flag.x, flag.y),
+						rotation: flag.rotation,
+						name: flag.name,
+						width: flag.width,
+						height: flag.height,
+						gameObj: null, // Will store the actual game object reference
+						isVisible: false, // Track visibility state
+						exclamation: null, // Reference to exclamation mark if needed
+					};
+					
+					allFlags.push(flagObj);
+				}
+
+				// Set up a culling system that runs on each frame
+				k.onUpdate(() => {
+					// Skip culling if player is in dialogue
+					if (player.isInDialogue) return;
+					
+					// Get player position - need to use world position for proper comparison
+					const playerPos = player.worldPos();
+					
+					// Process each flag
+					for (const flagObj of allFlags) {
+						// Calculate flag center position in world space
+						const flagWorldPos = k.vec2(
+							flagObj.pos.x * scaleFactor,
+							flagObj.pos.y * scaleFactor
+						);
+						
+						// Calculate distance from player to flag center
+						const distance = playerPos.dist(flagWorldPos);
+						
+						// Check if flag should be visible (within culling radius)
+						const shouldBeVisible = distance <= CULLING_RADIUS;
+						
+						// If visibility status changed, add or remove the flag
+						if (shouldBeVisible !== flagObj.isVisible) {
+							if (shouldBeVisible) {
+								// Create and add the flag to the map
+								const newObj = map.add([
+									k.area(flagObj.area),
+									k.body({ isStatic: flagObj.isStatic }),
+									k.pos(flagObj.pos.x, flagObj.pos.y),
+									k.rotate(flagObj.rotation),
+									flagObj.name,
+								]);
+								
+								flagObj.gameObj = newObj;
+								
+								// If this flag has a name (interactive), create the interaction elements
+								if (flagObj.name) {
+									let isInProximity = false;
+									const INTERACTION_RADIUS = 170;
+									let promptTimer = 0;
+									const PROMPT_DELAY = 1;
+
+									// Handle proximity check for this flag
+									const flagInteractionEvent = k.onUpdate(() => {
+										// Check proximity and update prompt visibility
+										const dist = player.pos.dist(k.vec2(flagObj.pos.x * scaleFactor, flagObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											// Update debug overlay
+											debugOverlay.updateDebug(`In range of flag: ${flagObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`);
+											
+											if (!isInProximity) {
+												isInProximity = true;
+												promptTimer = 0; // Reset timer when entering proximity
+											}
+											
+											// Increment timer while in range
+											promptTimer += k.dt();
+											
+											// Only add to active points if timer has reached threshold
+											const isReady = promptTimer >= PROMPT_DELAY;
+											
+											// Track this interaction point in the global list
+											const interactionPoint = {
+												type: 'flag',
+												name: flagObj.name,
+												distance: dist,
+												showPrompt: isReady
+											};
+											
+											// Update or add this interaction point
+											const existingIndex = activeInteractionPoints.findIndex(p => 
+												p.type === 'flag' && p.name === flagObj.name);
+											
+											if (existingIndex >= 0) {
+												activeInteractionPoints[existingIndex] = interactionPoint;
+											} else {
+												activeInteractionPoints.push(interactionPoint);
+											}
+											
+											// Update which interaction prompt should be visible
+											updateInteractionPrompt();
+										} else {
+											if (isInProximity) {
+												isInProximity = false;
+												
+												// Remove from active points
+												activeInteractionPoints = activeInteractionPoints.filter(
+													p => !(p.type === 'flag' && p.name === flagObj.name)
+												);
+												
+												// Update which interaction prompt should be visible
+												updateInteractionPrompt();
+												
+												promptTimer = 0; // Reset timer when leaving proximity
+											}
+										}
+									});
+									
+									// Store event ID for cleanup
+									flagObj.flagInteractionEvent = flagInteractionEvent;
+
+									// Handle T key press for this flag
+									k.onKeyPress("t", () => {
+										const dist = player.pos.dist(k.vec2(flagObj.pos.x * scaleFactor, flagObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											showWorldMapBtn.style.display = "none";
+											// Hide the interaction button
+											interactButton.style.display = "none";
+											
+											// Clean up this interaction point from the active list
+											activeInteractionPoints = activeInteractionPoints.filter(
+												p => !(p.type === 'flag' && p.name === flagObj.name)
+											);
+											
+											// Ensure no interaction prompts are visible
+											isInProximity = false;
+											promptTimer = 0;
+											
+											// Only destroy game objects with k.destroy(), not event handlers
+											if (flagObj.exclamation) k.destroy(flagObj.exclamation);
+											
+											// DON'T try to destroy the event handler - it's not a game object
+											// if (flagObj.flagInteractionEvent) {
+											//     k.destroy(flagObj.flagInteractionEvent);
+											//     flagObj.flagInteractionEvent = null;
+											// }
+											
+											k.play("talk", {
+												volume: sound_effects_volume,
+											});
+											
+											if (walkingSound) {
+												walkingSound.stop();
+												walkingSound = null;
+											}
+
+											// Set the dialogue change listener
+											dialogue.setDialogueChangeListener(true);
+
+											// Navigate to the company map if one exists with the same name as the flag
+											// The flag name directly corresponds to the map name
+											const companyMapName = flagObj.name;
+											
+											// Option 1: Show dialogue first if it exists, then transition to the map
+											if (dialogueData[flagObj.name]) {
+												dialogue.display(
+													dialogueData[flagObj.name],
+													() => {
+														// After dialogue completes, transition to the company map
+														k.go(companyMapName, { from: sceneName });
+														stopAnims();
+														showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+													}
+												);
+											} else {
+												// Option 2: No dialogue, directly transition to the company map
+												k.go(companyMapName, { from: sceneName });
+												stopAnims();
+												showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+											}
+										}
+									});
+								}
+							} else {
+								// Remove the flag from the game
+								if (flagObj.gameObj) {
+									k.destroy(flagObj.gameObj);
+									flagObj.gameObj = null;
+								}
+								
+								// Clean up interaction elements if they exist
+								if (flagObj.flagInteractionEvent) {
+									k.destroy(flagObj.flagInteractionEvent);
+									flagObj.flagInteractionEvent = null;
+								}
+							}
+							
+							// Update visibility flag
+							flagObj.isVisible = shouldBeVisible;
+						}
+					}
+				});
+				
+				continue;
+			}
+
 			if (layer.name === "Collisions") {
 				const tileSize = 16; // Tile size in pixels
 				const mapWidth = layer.width;
@@ -2030,6 +2284,35 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			}
 		  }
 		});
+
+		// Add the updateInteractionPrompt function somewhere in the scene setup
+		// Add this function before the first reference to it
+		function updateInteractionPrompt() {
+			// Filter to only points that should show a prompt
+			const promptPoints = activeInteractionPoints.filter(p => p.showPrompt);
+			
+			if (promptPoints.length === 0) {
+				// No interaction points in range, hide prompt
+				interactButton.style.display = "none";
+				return;
+			}
+			
+			// Find the closest interaction point
+			const closestPoint = promptPoints.reduce((closest, current) => {
+				return (current.distance < closest.distance) ? current : closest;
+			}, promptPoints[0]);
+			
+			// Show prompt based on the closest point type
+			if (closestPoint.type === 'flag') {
+				// Show flag-specific prompt with the company name
+				interactButton.textContent = `DRUECKE T ZUM die Firma ${closestPoint.name} zu besuchen`;
+				interactButton.style.display = "block";
+			} else {
+				// Show default boundary prompt
+				interactButton.textContent = "DRUECKE T ZUM INTERAGIEREN";
+				interactButton.style.display = "block";
+			}
+		}
 	});
 }
 
@@ -2041,3 +2324,14 @@ k.onKeyPress("t", () => {
 		showHomeKeyTooltip();
 	}
 });
+
+// Update the interaction prompt visibility when dialogue state changes
+dialogue.setDialogueChangeListener = function(isActive) {
+    if (isActive) {
+        // Hide interaction prompt when dialogue is active
+        interactButton.style.display = "none";
+    } else {
+        // When dialogue ends, update interaction prompts
+        updateInteractionPrompt();
+    }
+};
