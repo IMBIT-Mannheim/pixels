@@ -508,7 +508,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			if (player.isInDialogue) return;
 			const p = player.worldPos();
 			let nearest = null, bestDist = Infinity;
-			const DISPLAY_RADIUS = 170;
+			const DISPLAY_RADIUS = 200;
 			for (const b of gotoBoundaries) {
 			  const d = p.dist(b.pos);
 			  if (d < DISPLAY_RADIUS && d < bestDist) {
