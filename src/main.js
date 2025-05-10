@@ -494,7 +494,35 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
 		const layers = mapData.layers;
-
+		const gotoBoundaries = [];
+		const gotoLayer = layers.find(l => l.name === "goto");
+		if (gotoLayer && gotoLayer.objects) {
+		gotoLayer.objects.forEach(o => {
+			gotoBoundaries.push({
+			key: o.name,
+			pos:  k.vec2(o.x * scaleFactor, o.y * scaleFactor),
+			});
+		});
+		}
+		k.onUpdate(() => {
+			if (player.isInDialogue) return;
+			const p = player.worldPos();
+			let nearest = null, bestDist = Infinity;
+			const DISPLAY_RADIUS = 170;
+			for (const b of gotoBoundaries) {
+			  const d = p.dist(b.pos);
+			  if (d < DISPLAY_RADIUS && d < bestDist) {
+				bestDist = d;
+				nearest = b;
+			  }
+			}
+			if (nearest) {
+			  interactButton.textContent = nearest.key.charAt(0).toUpperCase() + nearest.key.slice(1);
+			  interactButton.style.display = 'block';
+			} else {
+			  interactButton.style.display = 'none';
+			}
+		  });
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
 
@@ -967,31 +995,40 @@ function setupScene(sceneName, mapFile, mapSprite) {
 										// Check proximity and update prompt visibility
 										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
 										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
-											// Update debug overlay
-											debugOverlay.updateDebug(`In range of: ${boundaryObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`);
-											
+											debugOverlay.updateDebug(
+											  `In range of: ${boundaryObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`
+											);
+										  
 											if (!isInProximity) {
-												isInProximity = true;
-												promptTimer = 0; // Reset timer when entering proximity
+											  isInProximity = true;
+											  promptTimer = 0;
 											}
-											
-											// Increment timer while in range
 											promptTimer += k.dt();
-											
-											// Only show the prompt after PROMPT_DELAY seconds
+										  
 											if (promptTimer >= PROMPT_DELAY) {
-												// Show the HTML interaction button
-												interactButton.style.display = "block";
-											}
-											
-										} else {
-											if (isInProximity) {
-												isInProximity = false;
-												// Hide the HTML interaction button
+											  // If this boundary is a "goto" (scene-transition) object…
+											  if (gotoBoundaries.some(b => b.key === boundaryObj.name)) {
+												// show its name on your world-map overlay
+												const name = boundaryObj.name.charAt(0).toUpperCase() + boundaryObj.name.slice(1);
+												world_map.textContent = name;
+												world_map.style.display = "block";
+												// hide the T-button
 												interactButton.style.display = "none";
-												promptTimer = 0; // Reset timer when leaving proximity
+											  }
+											  else {
+												// normal interactive boundary → show T-button
+												interactButton.style.display = "block";
+												world_map.style.display = "none";
+											  }
 											}
-										}
+										  }
+										  else if (isInProximity) {
+											isInProximity = false;
+											promptTimer = 0;
+											// hide everything as you walk away
+											interactButton.style.display = "none";
+											world_map.style.display = "none";
+										  }
 									});
 									
 									// Store event ID for cleanup
