@@ -1,4 +1,3 @@
-
 import { k } from "./kaboomCtx";
 import {setCamScale, refreshScoreUI } from "./utils";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
@@ -53,6 +52,12 @@ export function defineCureScene() {
 
     k.scene("cure_minigame", async () => {
         const music_volume = sessionState.settings.musicVolume || 0.5;
+
+        // Hide world map and inventory buttons during minigame
+        const showWorldMapBtn = document.getElementById("show-world-map");
+        const showInventoryBtn = document.getElementById("show-inventory");
+        if (showWorldMapBtn) showWorldMapBtn.style.display = "none";
+        if (showInventoryBtn) showInventoryBtn.style.display = "none";
 
         if (music === undefined) {
             // Play the map-specific background music
@@ -510,6 +515,12 @@ export function defineCureScene() {
             sessionState.progress.score = sessionState.progress.score + currentScore;
             refreshScoreUI();
             saveGame();
+
+            // Show world map and inventory buttons when leaving minigame
+            const showWorldMapBtn = document.getElementById("show-world-map");
+            const showInventoryBtn = document.getElementById("show-inventory");
+            if (showWorldMapBtn) showWorldMapBtn.style.display = "flex";
+            if (showInventoryBtn) showInventoryBtn.style.display = "flex";
 
             // Clean up resources
             k.setBackground(k.Color.fromHex("#311047"));
