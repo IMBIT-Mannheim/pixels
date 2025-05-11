@@ -1102,6 +1102,11 @@ function setupScene(sceneName, mapFile, mapSprite) {
 									k.destroy(boundaryObj.promptText);
 									boundaryObj.promptText = null;
 								}
+								
+								// Just nullify the event handler reference - DON'T try to destroy it
+								if (boundaryObj.exclamationUpdateEvent) {
+									boundaryObj.exclamationUpdateEvent = null;
+								}
 							}
 							
 							// Update visibility flag
@@ -1311,7 +1316,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 								
 								// Clean up interaction elements if they exist
 								if (flagObj.flagInteractionEvent) {
-									k.destroy(flagObj.flagInteractionEvent);
+									// We should NOT use k.destroy() on event handlers, just clean up the reference
 									flagObj.flagInteractionEvent = null;
 								}
 							}
