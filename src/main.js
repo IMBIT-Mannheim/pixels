@@ -207,8 +207,13 @@ k.scene("loading", () => {
 	updateCarousel();
 
 	function setActiveCharacter(selectedCharacter) {
-    	character = selectedCharacter; // Aktualisiere die globale Variable `character`
-    	console.log("Selected character:", character);
+		character = selectedCharacter; // Aktualisiere die globale Variable `character`
+		console.log("Selected character:", character);
+
+		// Save the selected character to session state
+		sessionState.settings.character = character;
+		saveGame();
+
 		k.loadSprite(character, "./sprites/"+ character + ".png", {
 		sliceX: 3,
 		sliceY: 3,
@@ -234,53 +239,20 @@ k.scene("loading", () => {
 	// Use sessionState for settings, with cookies as fallback
 	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
-	const lastcharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
+	const lastCharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
 	const lastDogName = sessionState.settings.dogName || getCookie("dog_name") || "Bello";
+	const lastCharacter = sessionState.settings.character || "male"; // Default to "male" character
 
 	music_volume_slider.value = lastMusicVolume * 100;
 	sounds_volume.value = lastSoundEffectsVolume * 100;
-	character_name_input.value = lastcharacterName;
+	character_name_input.value = lastCharacterName;
 	dog_name_input.value = lastDogName;
+	character = lastCharacter; // Set the character based on session state
 
-	/*
-
-	male_button.addEventListener("click", () => {
-		character = "character-male";
-		female_button.classList.remove("selected");
-		divchar1_button.classList.remove("selected");
-		divchar2_button.classList.remove("selected");
-		male_button.classList.add("selected");
-		game.focus();
-	});
-
-	female_button.addEventListener("click", () => {
-		character = "character-female";
-		male_button.classList.remove("selected");
-		divchar1_button.classList.remove("selected");
-		divchar2_button.classList.remove("selected");
-		female_button.classList.add("selected");
-		game.focus();
-	});
-
-	divchar1_button.addEventListener("click", () => {
-		character = "character-divchar1";
-		male_button.classList.remove("selected");
-		female_button.classList.remove("selected");
-		divchar2_button.classList.remove("selected");
-		divchar1_button.classList.add("selected");
-		game.focus();
-	});
-
-	
-	divchar2_button.addEventListener("click", () => {
-		character = "character-divchar2";
-		male_button.classList.remove("selected");
-		female_button.classList.remove("selected");
-		divchar1_button.classList.remove("selected");
-		divchar2_button.classList.add("selected");
-		game.focus();
-	});	
-	*/
+	// Update carousel to reflect the last selected character
+	currentIndex = characterOrder.indexOf(character);
+	if (currentIndex === -1) currentIndex = 0; // Fallback to the first character if not found
+	updateCarousel();
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
