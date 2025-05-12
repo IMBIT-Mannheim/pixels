@@ -201,42 +201,86 @@ body.game-active #dhbw_logo:hover {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-}
-
-#character-container {
-    background-color: rosybrown;
-    border-radius: 5px;
-    padding: 1px;
-}
-
-#starting-screen {
     text-align: center;
     color: #ffd700;
 }
 
-.character {
+#character-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    display: inline-block;
-    border: 3px solid transparent;
-    padding: 10px;
-    margin: 1em;
-    cursor: pointer;
+    width: 100%;
+    margin: 20px 0;
+}
+
+#character-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px; /* Breite des sichtbaren Bereichs */
+    overflow: hidden; /* Versteckt die nicht sichtbaren Charaktere */
+    position: relative;
+}
+
+.character {
+    
+    transition: transform 0.5s;
+    text-align: center;
+    position: relative; /* Ändere von absolute zu relative */
+    display: none; /* Standardmäßig ausblenden */
     image-rendering: pixelated;
-    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .character img {
-    height: 200px;
+    width: 150px;
+    height: auto;
 }
 
-.character:hover {
-    transform: scale(1.1);
+.character.active {
+    display: block; /* Nur der aktive Charakter wird angezeigt */
+    transform: scale(1); /* Der aktive Charakter wird normal dargestellt */
 }
 
-.character.selected {
-    border-color: #ffd700;
-    box-shadow: 0 0 10px 3px #ffd700;
-    transform: scale(1.1);
+.carousel-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+    z-index: 10;
+}
+
+#prev-character{
+    margin-right: 15px;
+}
+
+#next-character{
+    margin-left: 15px;
+}
+
+#character-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active {
+    background-color: yellow; /* Gelber Punkt für den aktiven Charakter */
+}
+
+.carousel-button:hover {
+    color: #ffd700;
 }
 
 select, input {

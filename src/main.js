@@ -8,7 +8,7 @@ const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 const interactButton = document.getElementById("interact-button");
-let character = "character-male";
+let character = "male";
 let spawnpoint = "campus";
 let characterName;
 let dogName;
@@ -30,59 +30,6 @@ let debugTooltip = false; // For debugging
 loadCureSprites();
 defineCureScene();
 
-k.loadSprite("character-male", "./sprites/character-male.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
-
-k.loadSprite("character-female", "./sprites/character-female.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
-
-	//change source to divchar1 if available
-	k.loadSprite("character-divchar1", "./sprites/character-male.png", {
-		sliceX: 3,
-		sliceY: 3,
-		anims: {
-			"idle-down": 0,
-			"idle-up": 3,
-			"idle-side": 6,
-			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-		},
-	});
-	
-	//change source to div char 2 if available
-	k.loadSprite("character-divchar2", "./sprites/character-female.png", {
-		sliceX: 3,
-		sliceY: 3,
-		anims: {
-			"idle-down": 0,
-			"idle-up": 3,
-			"idle-side": 6,
-			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-		},
-});
 
 k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	sliceX: 4,
@@ -155,13 +102,108 @@ k.scene("loading", () => {
 	const start_game = document.getElementById("start");
 	const music_volume_slider = document.getElementById("music-volume");
 	const sounds_volume = document.getElementById("sounds-volume");
-	const male_button = document.getElementById("male-button");
-	const female_button = document.getElementById("female-button");
-	const divchar1_button = document.getElementById("divchar1-button");
-	const divchar2_button = document.getElementById("divchar2-button");
 	const game = document.getElementById("game");
 	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
+
+	//Carousel
+	const characters = document.querySelectorAll(".character");
+	console.log(characters);
+	const prevButton = document.getElementById("prev-character");
+	const nextButton = document.getElementById("next-character");
+	// Array, das die Reihenfolge der Charaktere definiert
+	const characterOrder = [
+    "male",
+    "female",
+    "male_wb",
+    "male_mbrown",
+    "male_dbrown",
+    "male_dblonde",
+    "male_mblonde",
+    "female_dbrown",
+    "female_mbrown",
+    "female_lblonde",
+    "female_dblonde",
+    "female_mblonde"
+];
+
+	function createIndicators() {
+    const indicatorsContainer = document.getElementById("character-indicators");
+    indicatorsContainer.innerHTML = ""; // Vorherige Punkte entfernen
+
+    characterOrder.forEach((_, index) => {
+        const indicator = document.createElement("div");
+        indicator.classList.add("indicator");
+        if (index === currentIndex) {
+            indicator.classList.add("active"); // Aktiven Punkt hervorheben
+        }
+        indicatorsContainer.appendChild(indicator);
+    });
+}
+
+	// Funktion zum Aktualisieren der Punkte
+	function updateIndicators() {
+		const indicators = document.querySelectorAll(".indicator");
+		indicators.forEach((indicator, index) => {
+			if (index === currentIndex) {
+				indicator.classList.add("active");
+			} else {
+				indicator.classList.remove("active");
+			}
+		});
+	}
+
+	let currentIndex = characterOrder.indexOf("male"); // Standardmäßig wird der männliche Charakter angezeigt
+	console.log(currentIndex);
+	// Funktion zum Aktualisieren der Anzeige
+	function updateCarousel() {
+    characters.forEach((characterElement) => {
+        if (characterElement.id === characterOrder[currentIndex]) {
+            characterElement.classList.add("active");
+            character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
+            console.log(`Set active character: ${character}`); // Debugging-Ausgabe
+        } else {
+            characterElement.classList.remove("active");
+        }
+    });
+	updateIndicators(); // Punkte aktualisieren
+}
+
+	// Event-Listener für den "Vorheriger"-Button
+	prevButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Event-Listener für den "Nächster"-Button
+	nextButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex + 1) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Initiale Anzeige aktualisieren (male-button wird standardmäßig aktiv gesetzt)
+	createIndicators();
+	updateCarousel();
+
+	function setActiveCharacter(selectedCharacter) {
+    	character = selectedCharacter; // Aktualisiere die globale Variable `character`
+    	console.log("Selected character:", character);
+		k.loadSprite(character, "./sprites/"+ character + ".png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			"idle-down": 0,
+			"idle-up": 3,
+			"idle-side": 6,
+			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+		},
+});
+	}
+
 
 	// Properly initialize session state
 	console.log("Initializing session state...");
@@ -180,6 +222,8 @@ k.scene("loading", () => {
 	sounds_volume.value = lastSoundEffectsVolume * 100;
 	character_name_input.value = lastcharacterName;
 	dog_name_input.value = lastDogName;
+
+	/*
 
 	male_button.addEventListener("click", () => {
 		character = "character-male";
@@ -217,11 +261,14 @@ k.scene("loading", () => {
 		divchar2_button.classList.add("selected");
 		game.focus();
 	});	
+	*/
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
+		setActiveCharacter(character);
+		console.log("Start game button clicked and aktive character set to:", character);
 		handleStart();
 	});
 
