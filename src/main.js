@@ -157,17 +157,36 @@ k.scene("loading", () => {
 	console.log(currentIndex);
 	// Funktion zum Aktualisieren der Anzeige
 	function updateCarousel() {
-    characters.forEach((characterElement) => {
-        if (characterElement.id === characterOrder[currentIndex]) {
-            characterElement.classList.add("active");
-            character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
-            console.log(`Set active character: ${character}`); // Debugging-Ausgabe
-        } else {
-            characterElement.classList.remove("active");
-        }
-    });
-	updateIndicators(); // Punkte aktualisieren
-}
+		characters.forEach((characterElement) => {
+			if (characterElement.id === characterOrder[currentIndex]) {
+				characterElement.classList.add("active");
+				character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
+				console.log(`Set active character: ${character}`); // Debugging-Ausgabe
+			} else {
+				characterElement.classList.remove("active");
+			}
+		});
+
+		// Zeige den vorherigen Charakter
+		const previousIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+		const previousCharacter = characterOrder[previousIndex];
+		const previousCharacterElement = document.getElementById(previousCharacter);
+		const previousPlaceholder = document.getElementById("previous-character");
+		if (previousCharacterElement) {
+			previousPlaceholder.innerHTML = previousCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		// Zeige den nächsten Charakter
+		const nextIndex = (currentIndex + 1) % characterOrder.length;
+		const nextChar = characterOrder[nextIndex];
+		const nextCharacterElement = document.getElementById(nextChar);
+		const nextPlaceholder = document.getElementById("next-char");
+		if (nextCharacterElement) {
+			nextPlaceholder.innerHTML = nextCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		updateIndicators(); // Punkte aktualisieren
+	}
 
 	// Event-Listener für den "Vorheriger"-Button
 	prevButton.addEventListener("click", () => {

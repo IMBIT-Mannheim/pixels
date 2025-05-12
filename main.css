@@ -281,6 +281,26 @@ body.game-active #dhbw_logo:hover {
 
 .carousel-button:hover {
     color: #ffd700;
+    transform: scale(1.2);
+}
+
+#previous-character, #next-char{
+    width: 100px;
+    height: 50px;
+    opacity: 0.5; /* Charaktere links und rechts sind ausgegraut */
+    transform: scale(5); /* Charaktere links und rechts sind kleiner */
+    transition: transform 0.5s, opacity 0.5s;
+    top: 50%;
+    image-rendering: pixelated;
+    /*transform: translateY(-50%);*/
+}
+
+#previous-character {
+    left: 0; /* Position links */
+}
+
+#next-char {
+    right: 0; /* Position rechts */
 }
 
 select, input {
