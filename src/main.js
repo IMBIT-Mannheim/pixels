@@ -108,7 +108,6 @@ k.scene("loading", () => {
 
 	//Carousel
 	const characters = document.querySelectorAll(".character");
-	console.log(characters);
 	const prevButton = document.getElementById("prev-character");
 	const nextButton = document.getElementById("next-character");
 	// Array, das die Reihenfolge der Charaktere definiert
@@ -154,7 +153,6 @@ k.scene("loading", () => {
 	}
 
 	let currentIndex = characterOrder.indexOf("male"); // Standardmäßig wird der männliche Charakter angezeigt
-	console.log(currentIndex);
 	// Funktion zum Aktualisieren der Anzeige
 	function updateCarousel() {
 		characters.forEach((characterElement) => {
@@ -208,8 +206,6 @@ k.scene("loading", () => {
 
 	function setActiveCharacter(selectedCharacter) {
 		character = selectedCharacter; // Aktualisiere die globale Variable `character`
-		console.log("Selected character:", character);
-
 		// Save the selected character to session state
 		sessionState.settings.character = character;
 		saveGame();
@@ -259,7 +255,6 @@ k.scene("loading", () => {
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
 		setActiveCharacter(character);
-		console.log("Start game button clicked and aktive character set to:", character);
 		handleStart();
 	});
 
