@@ -25,6 +25,78 @@ body {
     z-index: 10;
 }
 
+#dhbw_logo{
+    position: absolute;
+    right: 1vh;
+    width: 150px;
+    margin: 0.5em 0;
+    z-index: 10;
+}
+
+/* This is the correct way to target the logo during gameplay */
+body:has(.during-game[style*="display: block"]) #dhbw_logo {
+    position: absolute;
+    left: 1vh;
+    bottom: 1vh;
+    top: auto;
+    width: 100px;
+    margin: 0.5em 0;
+    z-index: 10;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+/* For browsers that don't support :has(), provide a JavaScript class alternative */
+body.game-active #dhbw_logo {
+    position: absolute;
+    left: 1vh;
+    bottom: 1vh;
+    top: auto;
+    width: 100px;
+    margin: 0.5em 0;
+    z-index: 10;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+body:has(.during-game[style*="display: block"]) #dhbw_logo:hover,
+body.game-active #dhbw_logo:hover {
+    opacity: 1;
+}
+
+/* Responsive adjustments for DHBW logo during gameplay */
+@media screen and (min-width: 1920px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 180px;
+        bottom: 2vh;
+    }
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1919px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 150px;
+        bottom: 1.5vh;
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1439px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 130px;
+        bottom: 1vh;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    body:has(.during-game[style*="display: block"]) #dhbw_logo,
+    body.game-active #dhbw_logo {
+        width: 100px;
+        bottom: 1vh;
+    }
+}
+
 #textbox {
     position: absolute;
     left: 10%;
@@ -59,6 +131,7 @@ body {
 
 .ui-text {
     margin: 0;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -99,8 +172,8 @@ body {
     font-weight: bold;
     line-height: 1;
     z-index: 10;
-    user-select: none;
     -webkit-user-select: none;
+    user-select: none;
 }
 
 .close-x:hover {
@@ -142,42 +215,106 @@ body {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-}
-
-#character-container {
-    background-color: rosybrown;
-    border-radius: 5px;
-    padding: 1px;
-}
-
-#starting-screen {
     text-align: center;
     color: #ffd700;
 }
 
-.character {
+#character-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    display: inline-block;
-    border: 3px solid transparent;
-    padding: 10px;
-    margin: 1em;
-    cursor: pointer;
+    width: 100%;
+    margin: 20px 0;
+}
+
+#character-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px; /* Breite des sichtbaren Bereichs */
+    overflow: hidden; /* Versteckt die nicht sichtbaren Charaktere */
+    position: relative;
+}
+
+.character {
+    
+    transition: transform 0.5s;
+    text-align: center;
+    position: relative; /* Ändere von absolute zu relative */
+    display: none; /* Standardmäßig ausblenden */
     image-rendering: pixelated;
-    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .character img {
-    height: 200px;
+    width: 150px;
+    height: auto;
 }
 
-.character:hover {
-    transform: scale(1.1);
+.character.active {
+    display: block; /* Nur der aktive Charakter wird angezeigt */
+    transform: scale(1); /* Der aktive Charakter wird normal dargestellt */
 }
 
-.character.selected {
-    border-color: #ffd700;
-    box-shadow: 0 0 10px 3px #ffd700;
-    transform: scale(1.1);
+.carousel-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+    z-index: 10;
+}
+
+#prev-character{
+    margin-right: 15px;
+}
+
+#next-character{
+    margin-left: 15px;
+}
+
+#character-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active {
+    background-color: yellow; /* Gelber Punkt für den aktiven Charakter */
+}
+
+.carousel-button:hover {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+#previous-character, #next-char{
+    width: 100px;
+    height: 50px;
+    opacity: 0.5; /* Charaktere links und rechts sind ausgegraut */
+    transform: scale(5); /* Charaktere links und rechts sind kleiner */
+    transition: transform 0.5s, opacity 0.5s;
+    top: 50%;
+    image-rendering: pixelated;
+    /*transform: translateY(-50%);*/
+}
+
+#previous-character {
+    left: 0; /* Position links */
+}
+
+#next-char {
+    right: 0; /* Position rechts */
 }
 
 select, input {
@@ -363,42 +500,77 @@ input[type="range"]::-ms-thumb {
 
 /* Large screens (1920px and above) */
 @media screen and (min-width: 1920px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 300px;
     }
 }
 
 /* Medium to large screens (1440px to 1919px) */
 @media screen and (min-width: 1440px) and (max-width: 1919px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 220px;
     }
 }
 
 /* Laptops and smaller desktops (1024px to 1439px) */
 @media screen and (min-width: 1024px) and (max-width: 1439px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 200px;
     }
 }
 
 /* Tablets (768px to 1023px) */
 @media screen and (min-width: 768px) and (max-width: 1023px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 180px;
     }
 }
 
 /* Large smartphones (480px to 767px) */
 @media screen and (min-width: 480px) and (max-width: 767px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 150px;
     }
 }
 
 /* Small smartphones (up to 479px) */
 @media screen and (max-width: 479px) {
-    #logo {
+    #logo, #dhbw_logo {
         width: 80px;
+    }
+}
+
+#interact-button {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #2d2929;
+    color: #ffffff;
+    padding: 8px 16px;
+    font-size: 2rem;
+    display: none;
+    z-index: 9999;
+    font-family: monogram, monospace;
+    border: 2px solid #ffd700;
+    border-radius: 0;
+    box-shadow: 4px 4px black;
+    -webkit-user-select: none;
+    user-select: none;
+    image-rendering: pixelated;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 4px 4px black;
+    }
+    100% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 6px 6px black;
+        border-color: white;
     }
 }
