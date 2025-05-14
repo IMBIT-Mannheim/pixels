@@ -1285,7 +1285,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Bewegung des Spielers mit der Maus
 		k.onMouseDown((mouseBtn) => {
-			if (isFullMapView) return; // Disable player movement when in full map view
+			if (isFullMapView || isInventoryOpen) return; // Disable player movement when in full map view
 			if (mouseBtn !== "left" || player.isInDialogue || player.isFrozen) return;
 
 			const worldMousePos = k.toWorld(k.mousePos());
@@ -1295,7 +1295,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			}
-			
+
 			// Calculate direction vector for smoother movement handling
 			const direction = worldMousePos.sub(player.pos).unit();
 			
@@ -1348,7 +1348,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Optimized player movement handler
 		k.onUpdate(() => {
 			// Early returns for better performance
-			if (player.isInDialogue || isFullMapView || player.isFrozen) return;
+			if (player.isInDialogue || isFullMapView || player.isFrozen || isInventoryOpen) return;
 			
 			// Store last safe position if not currently colliding with boundary
 			if (!inBoundaryCollision) {
@@ -1488,13 +1488,35 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Show full world map while holding down m key
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
+			showInventoryBtn.style.display = "none";
 			stopAnims();
 			world_map.style.display = "flex";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
 			isFullMapView = false;
+			showInventoryBtn.style.display = "flex";
 			world_map.style.display = "none";
+		});
+
+		let isIAlreadyPressed = false;
+
+		k.onKeyPress("i", () => {
+			isIAlreadyPressed = true;
+			toggleInventory();
+		});
+
+		k.onKeyRelease("i", () => {
+			isIAlreadyPressed = false;
+		});
+
+		document.getElementById("inventory-shop").addEventListener('click', function(event) {
+			// Use setTimeout with 0 delay to put this in the event queue
+			// This ensures it runs after the click event is fully processed
+			setTimeout(function() {
+				// Return focus to the game element
+				document.getElementById("game").focus();
+			}, 0);
 		});
 
 		function toggleInventory() {
@@ -1528,10 +1550,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Weltkarte verstecken (M)";
+				showInventoryBtn.style.display = "none";
 				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				showInventoryBtn.style.display = "flex";
 				document.getElementById("game").focus();
 				world_map.style.display = "none";
 			}
