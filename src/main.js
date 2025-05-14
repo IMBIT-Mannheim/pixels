@@ -8,7 +8,7 @@ const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 const interactButton = document.getElementById("interact-button");
-let character = "character-male";
+let character = "male";
 let spawnpoint = "campus";
 let characterName;
 let dogName;
@@ -30,31 +30,6 @@ let debugTooltip = false; // For debugging
 loadCureSprites();
 defineCureScene();
 
-k.loadSprite("character-male", "./sprites/character-male.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
-
-k.loadSprite("character-female", "./sprites/character-female.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
 
 k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	sliceX: 4,
@@ -127,11 +102,128 @@ k.scene("loading", () => {
 	const start_game = document.getElementById("start");
 	const music_volume_slider = document.getElementById("music-volume");
 	const sounds_volume = document.getElementById("sounds-volume");
-	const male_button = document.getElementById("male-button");
-	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
 	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
+
+	//Carousel
+	const characters = document.querySelectorAll(".character");
+	const prevButton = document.getElementById("prev-character");
+	const nextButton = document.getElementById("next-character");
+	// Array, das die Reihenfolge der Charaktere definiert
+	const characterOrder = [
+    "male",
+    "female",
+    "male_wb",
+    "male_mbrown",
+    "male_dbrown",
+    "male_dblonde",
+    "male_mblonde",
+    "female_dbrown",
+    "female_mbrown",
+    "female_lblonde",
+    "female_dblonde",
+    "female_mblonde"
+];
+
+	function createIndicators() {
+    const indicatorsContainer = document.getElementById("character-indicators");
+    indicatorsContainer.innerHTML = ""; // Vorherige Punkte entfernen
+
+    characterOrder.forEach((_, index) => {
+        const indicator = document.createElement("div");
+        indicator.classList.add("indicator");
+        if (index === currentIndex) {
+            indicator.classList.add("active"); // Aktiven Punkt hervorheben
+        }
+        indicatorsContainer.appendChild(indicator);
+    });
+}
+
+	// Funktion zum Aktualisieren der Punkte
+	function updateIndicators() {
+		const indicators = document.querySelectorAll(".indicator");
+		indicators.forEach((indicator, index) => {
+			if (index === currentIndex) {
+				indicator.classList.add("active");
+			} else {
+				indicator.classList.remove("active");
+			}
+		});
+	}
+
+	let currentIndex = characterOrder.indexOf("male"); // Standardmäßig wird der männliche Charakter angezeigt
+	// Funktion zum Aktualisieren der Anzeige
+	function updateCarousel() {
+		characters.forEach((characterElement) => {
+			if (characterElement.id === characterOrder[currentIndex]) {
+				characterElement.classList.add("active");
+				character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
+				console.log(`Set active character: ${character}`); // Debugging-Ausgabe
+			} else {
+				characterElement.classList.remove("active");
+			}
+		});
+
+		// Zeige den vorherigen Charakter
+		const previousIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+		const previousCharacter = characterOrder[previousIndex];
+		const previousCharacterElement = document.getElementById(previousCharacter);
+		const previousPlaceholder = document.getElementById("previous-character");
+		if (previousCharacterElement) {
+			previousPlaceholder.innerHTML = previousCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		// Zeige den nächsten Charakter
+		const nextIndex = (currentIndex + 1) % characterOrder.length;
+		const nextChar = characterOrder[nextIndex];
+		const nextCharacterElement = document.getElementById(nextChar);
+		const nextPlaceholder = document.getElementById("next-char");
+		if (nextCharacterElement) {
+			nextPlaceholder.innerHTML = nextCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		updateIndicators(); // Punkte aktualisieren
+	}
+
+	// Event-Listener für den "Vorheriger"-Button
+	prevButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Event-Listener für den "Nächster"-Button
+	nextButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex + 1) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Initiale Anzeige aktualisieren (male-button wird standardmäßig aktiv gesetzt)
+	createIndicators();
+	updateCarousel();
+
+	function setActiveCharacter(selectedCharacter) {
+		character = selectedCharacter; // Aktualisiere die globale Variable `character`
+		// Save the selected character to session state
+		sessionState.settings.character = character;
+		saveGame();
+
+		k.loadSprite(character, "./sprites/"+ character + ".png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			"idle-down": 0,
+			"idle-up": 3,
+			"idle-side": 6,
+			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+		},
+});
+	}
+
 
 	// Properly initialize session state
 	console.log("Initializing session state...");
@@ -143,34 +235,26 @@ k.scene("loading", () => {
 	// Use sessionState for settings, with cookies as fallback
 	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
-	const lastcharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
+	const lastCharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
 	const lastDogName = sessionState.settings.dogName || getCookie("dog_name") || "Bello";
+	const lastCharacter = sessionState.settings.character || "male"; // Default to "male" character
 
 	music_volume_slider.value = lastMusicVolume * 100;
 	sounds_volume.value = lastSoundEffectsVolume * 100;
-	character_name_input.value = lastcharacterName;
+	character_name_input.value = lastCharacterName;
 	dog_name_input.value = lastDogName;
+	character = lastCharacter; // Set the character based on session state
 
-	male_button.addEventListener("click", () => {
-		character = "character-male";
-		female_button.classList.remove("selected");
-		male_button.classList.add("selected");
-		game.focus();
-	});
-
-	female_button.addEventListener("click", () => {
-		character = "character-female";
-		male_button.classList.remove("selected");
-		female_button.classList.add("selected");
-		game.focus();
-	});
-
-	
+	// Update carousel to reflect the last selected character
+	currentIndex = characterOrder.indexOf(character);
+	if (currentIndex === -1) currentIndex = 0; // Fallback to the first character if not found
+	updateCarousel();
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
+		setActiveCharacter(character);
 		handleStart();
 	});
 

@@ -14,14 +14,52 @@
         <div>
             <div id="starting-screen">
                 <h2>Waehle einen Charakter</h2>
-                <div id="character-container">
-                    <div class="character selected" id="male-button">
-                        <img src="/images/male.png" alt="Male Character">
+                <div id="character-carousel">
+                    <button id="prev-character" class="carousel-button">❮</button>
+                    <div class="notactive_char" id="previous-character"></div>
+                    <div id="character-display">
+                        <div class="character" id="male">
+                            <img src="/images/character/male.png" alt="Male Character">
+                        </div>
+                        <div class="character" id="female">
+                            <img src="/images/character/female.png" alt="Female Character">
+                        </div>
+                        <div class="character" id="male_wb">
+                            <img src="/images/character/male_wb.png" alt="Male White Blonde Character">
+                        </div>
+                        <div class="character" id="male_mbrown">
+                            <img src="/images/character/male_mbrown.png" alt="Male Medium Brown Character">
+                        </div>
+                        <div class="character" id="male_dbrown">
+                            <img src="/images/character/male_dbrown.png" alt="Male Dark Brown Character">
+                        </div>
+                        <div class="character" id="male_dblonde">
+                            <img src="/images/character/male_dblonde.png" alt="Male Dark Blonde Character">
+                        </div>
+                        <div class="character" id="male_mblonde">
+                            <img src="/images/character/male_mblonde.png" alt="Male Medium Blonde Character">
+                        </div>
+                        <div class="character" id="female_dbrown">
+                            <img src="/images/character/female_dbrown.png" alt="Female Dark Brown Character">
+                        </div>
+                        <div class="character" id="female_mbrown">
+                            <img src="/images/character/female_mbrown.png" alt="Female Medium Brown Character">
+                        </div>
+                        <div class="character" id="female_lblonde">
+                            <img src="/images/character/female_lblonde.png" alt="Female Light Blonde Character">
+                        </div>
+                        <div class="character" id="female_dblonde">
+                            <img src="/images/character/female_dblonde.png" alt="Female Dark Blonde Character">
+                        </div>
+                        <div class="character" id="female_mblonde">
+                            <img src="/images/character/female_mblonde.png" alt="Female Medium Blonde Character">
+                        </div>
                     </div>
-                    <div class="character" id="female-button">
-                        <img src="/images/female.png" alt="Female Character">
-                    </div>
+                    <div class="notactive_char" id="next-char"></div>
+                    <button id="next-character" class="carousel-button">❯</button>
+                    
                 </div>
+                <div id="character-indicators"></div>
                 <div class="settings-container">
                     <label for="character-name">Dein Name: </label><input type="text" id="character-name">
                     <label for="dog-name">Dein Hund heisst: </label><input type="text" id="dog-name">
