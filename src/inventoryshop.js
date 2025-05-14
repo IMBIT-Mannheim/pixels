@@ -98,6 +98,7 @@ export function initInventoryShop() {
     inventorySection.appendChild(inventoryItemsContainer);
 
     // Add default character to inventory
+    /*
     const defaultMaleCharacter = {
         id: "character-male",
         name: "Male Character",
@@ -120,7 +121,7 @@ export function initInventoryShop() {
         renderInventoryItem(defaultMaleCharacter, inventoryItemsContainer);
     } else {
         renderInventoryItem(defaultFemaleCharacter, inventoryItemsContainer);
-    }
+    }*/
 
     // Add purchased items to inventory
     if (sessionState.inventory.purchasedItems.length > 0) {
@@ -229,6 +230,7 @@ function renderShopItem(item, container) {
 
 // Function to render an inventory item
 function renderInventoryItem(item, container) {
+    if(item.description == "Your default character") return;
     const itemElement = document.createElement("div");
     itemElement.className = "inventory-item";
     itemElement.dataset.itemId = item.id; // Store item ID for selection
