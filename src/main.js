@@ -3,11 +3,16 @@ import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
+import { attachInventoryShopListeners } from "./inventoryshop.js";
+
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 const interactButton = document.getElementById("interact-button");
+const inventory_shop = document.getElementById("inventory-shop");
+const showInventoryBtn = document.getElementById("show-inventory");
+
 let character = "male";
 let spawnpoint = "campus";
 let characterName;
@@ -41,6 +46,19 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 		"dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
 		"dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
 		"dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
+	},
+});
+
+k.loadSprite("character-male-paid", "./sprites/character-male-paid.png", {
+	sliceX: 3,
+	sliceY: 3,
+	anims: {
+		"idle-down": 0,
+		"idle-up": 3,
+		"idle-side": 6,
+		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
 	},
 });
 
@@ -440,7 +458,7 @@ k.scene("loading", () => {
 		} else {
 			window.showDogInitialDialogue = true;
 		}
-		
+		attachInventoryShopListeners();
 		k.go(spawnpoint);
 	}
 });
@@ -460,6 +478,7 @@ function getSpawnPointNamesBySource(sourceMap) {
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
 		let isFullMapView = false;  // Variable to track if in full map view
+		let isInventoryOpen = false;
 		const showDebugOverlay = false; // Set to true to enable debug overlay
 		// Store default spawn positions
 		let defaultPlayerSpawnPos = null;
@@ -1266,7 +1285,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		//Bewegung des Spielers mit der Maus
 		k.onMouseDown((mouseBtn) => {
-			if (isFullMapView) return; // Disable player movement when in full map view
+			if (isFullMapView || isInventoryOpen) return; // Disable player movement when in full map view
 			if (mouseBtn !== "left" || player.isInDialogue || player.isFrozen) return;
 
 			const worldMousePos = k.toWorld(k.mousePos());
@@ -1276,7 +1295,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			}
-			
+
 			// Calculate direction vector for smoother movement handling
 			const direction = worldMousePos.sub(player.pos).unit();
 			
@@ -1329,7 +1348,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Optimized player movement handler
 		k.onUpdate(() => {
 			// Early returns for better performance
-			if (player.isInDialogue || isFullMapView || player.isFrozen) return;
+			if (player.isInDialogue || isFullMapView || player.isFrozen || isInventoryOpen) return;
 			
 			// Store last safe position if not currently colliding with boundary
 			if (!inBoundaryCollision) {
@@ -1469,31 +1488,86 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		// Show full world map while holding down m key
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
+			showInventoryBtn.style.display = "none";
 			stopAnims();
 			world_map.style.display = "flex";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
 			isFullMapView = false;
+			showInventoryBtn.style.display = "flex";
 			world_map.style.display = "none";
 		});
+
+		let isIAlreadyPressed = false;
+
+		k.onKeyPress("i", () => {
+			isIAlreadyPressed = true;
+			toggleInventory();
+		});
+
+		k.onKeyRelease("i", () => {
+			isIAlreadyPressed = false;
+		});
+
+		document.getElementById("inventory-shop").addEventListener('click', function(event) {
+			// Use setTimeout with 0 delay to put this in the event queue
+			// This ensures it runs after the click event is fully processed
+			setTimeout(function() {
+				// Return focus to the game element
+				document.getElementById("game").focus();
+			}, 0);
+		});
+
+		function toggleInventory() {
+			if (!isInventoryOpen) {
+				// Show inventory
+				if (isFullMapView) {
+					// Close world map if it's open
+					isFullMapView = false;
+					world_map.style.display = "none";
+					showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				}
+				isInventoryOpen = true;
+				stopAnims();
+				showInventoryBtn.innerHTML = "Inventar/Shop verstecken (I)";
+				showInventoryBtn.classList.add("active");
+				inventory_shop.style.display = "flex";
+				// Hide world map button
+				showWorldMapBtn.style.display = "none";
+			} else {
+				// Hide inventory
+				isInventoryOpen = false;
+				showInventoryBtn.innerHTML = "Inventar/Shop anzeigen (I)";
+				showInventoryBtn.classList.remove("active");
+				inventory_shop.style.display = "none";
+				showWorldMapBtn.style.display = "flex";
+			}
+		}
 
 		showWorldMapBtn.addEventListener("click", () => {
 			if (!isFullMapView) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Weltkarte verstecken (M)";
+				showInventoryBtn.style.display = "none";
 				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				showInventoryBtn.style.display = "flex";
 				document.getElementById("game").focus();
 				world_map.style.display = "none";
 			}
 		});
 
+		showInventoryBtn.addEventListener("click", () => {
+			toggleInventory();
+			document.getElementById("game").focus();
+		});
+
 		k.onUpdate(() => {
-			if (!isFullMapView) {
+			if (!isFullMapView && !isInventoryOpen) {
 				// Follow the player only if not in full map view
 				k.camPos(player.worldPos().x, player.worldPos().y - 100);
 			}

@@ -189,6 +189,20 @@ body.game-active #dhbw_logo:hover {
     z-index: 100;
 }
 
+#show-inventory {
+    font-family: monogram, monospace;
+    position: absolute;
+    right: 2vh;
+    bottom: 10vh;
+    z-index: 101;
+}
+
+#show-inventory.active {
+    background-color: #000;
+    color: #ffd700;
+    box-shadow: 0 0 10px 3px #ffd700;
+}
+
 #starting-screen {
     position: absolute;
     width: 100%;
@@ -453,6 +467,35 @@ input[type="range"]::-ms-thumb {
 #dialogue img {
     border-radius: 10px;
     height: 300px;
+}
+
+#inventory-shop {
+    z-index: 100;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100%;
+    width: 100%;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #e0e0e0;
+}
+
+#inventory-shop .inventory-shop-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+}
+
+#inventory-shop h2 {
+    color: #ffd700;
+    font-size: 3rem;
+    margin-bottom: 20px;
 }
 
 /* Large screens (1920px and above) */
