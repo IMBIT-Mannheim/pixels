@@ -494,7 +494,19 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		//Lädt die Mapdaten
 		const mapData = await (await fetch(mapFile)).json();
 		const layers = mapData.layers;
+		const INTERACTION_RADIUS = 170;
 		const gotoBoundaries = [];
+		const allBoundaries = [];
+		const npcBoundaries = [];
+		const boundaryLayer = layers.find(l => l.name === "boundaries");
+		if (boundaryLayer?.objects) {
+		  boundaryLayer.objects.forEach(o => {
+			npcBoundaries.push({
+			  key: o.name,
+			  pos: k.vec2(o.x * scaleFactor, o.y * scaleFactor),
+			});
+		  });
+		}
 		const gotoLayer = layers.find(l => l.name === "goto");
 		if (gotoLayer && gotoLayer.objects) {
 		gotoLayer.objects.forEach(o => {
@@ -504,24 +516,45 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			});
 		});
 		}
+		function capitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+
 		k.onUpdate(() => {
 			if (player.isInDialogue) return;
-			const p = player.worldPos();
-			let nearest = null, bestDist = Infinity;
-			const DISPLAY_RADIUS = 200;
-			for (const b of gotoBoundaries) {
-			  const d = p.dist(b.pos);
-			  if (d < DISPLAY_RADIUS && d < bestDist) {
-				bestDist = d;
-				nearest = b;
-			  }
-			}
-			if (nearest) {
-			  interactButton.textContent = nearest.key.charAt(0).toUpperCase() + nearest.key.slice(1);
-			  interactButton.style.display = 'block';
-			} else {
-			  interactButton.style.display = 'none';
-			}
+    const p = player.worldPos();
+    const R = INTERACTION_RADIUS;
+
+    // 1) GOTO‐zone boundaries? (highest priority)
+    let nearest = null;
+    let bestDist = Infinity;
+    for (const b of gotoBoundaries) {
+        const d = p.dist(b.pos);
+        if (d < R && d < bestDist) {
+            bestDist = d;
+            nearest = b;
+        }
+    }
+    if (nearest) {
+        interactButton.textContent =
+		interactButton.textContent =
+		nearest.key.charAt(0).toUpperCase() +
+		nearest.key.slice(1) +
+		" Tuer";
+        interactButton.style.display = 'block';
+        return;
+    }
+
+    // 2) NPC boundaries?
+    for (const b of npcBoundaries) {
+        const d = p.dist(b.pos);
+        if (d <= R) {
+            interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
+            interactButton.style.display = 'block';
+            return;
+        }
+    }
+
+    // 3) nothing nearby
+    interactButton.style.display = 'none';
 		  });
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
