@@ -189,6 +189,20 @@ body.game-active #dhbw_logo:hover {
     z-index: 100;
 }
 
+#show-inventory {
+    font-family: monogram, monospace;
+    position: absolute;
+    right: 2vh;
+    bottom: 10vh;
+    z-index: 101;
+}
+
+#show-inventory.active {
+    background-color: #000;
+    color: #ffd700;
+    box-shadow: 0 0 10px 3px #ffd700;
+}
+
 #starting-screen {
     position: absolute;
     width: 100%;
@@ -201,42 +215,106 @@ body.game-active #dhbw_logo:hover {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-}
-
-#character-container {
-    background-color: rosybrown;
-    border-radius: 5px;
-    padding: 1px;
-}
-
-#starting-screen {
     text-align: center;
     color: #ffd700;
 }
 
-.character {
+#character-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    display: inline-block;
-    border: 3px solid transparent;
-    padding: 10px;
-    margin: 1em;
-    cursor: pointer;
+    width: 100%;
+    margin: 20px 0;
+}
+
+#character-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px; /* Breite des sichtbaren Bereichs */
+    overflow: hidden; /* Versteckt die nicht sichtbaren Charaktere */
+    position: relative;
+}
+
+.character {
+    
+    transition: transform 0.5s;
+    text-align: center;
+    position: relative; /* Ändere von absolute zu relative */
+    display: none; /* Standardmäßig ausblenden */
     image-rendering: pixelated;
-    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .character img {
-    height: 200px;
+    width: 150px;
+    height: auto;
 }
 
-.character:hover {
-    transform: scale(1.1);
+.character.active {
+    display: block; /* Nur der aktive Charakter wird angezeigt */
+    transform: scale(1); /* Der aktive Charakter wird normal dargestellt */
 }
 
-.character.selected {
-    border-color: #ffd700;
-    box-shadow: 0 0 10px 3px #ffd700;
-    transform: scale(1.1);
+.carousel-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+    z-index: 10;
+}
+
+#prev-character{
+    margin-right: 15px;
+}
+
+#next-character{
+    margin-left: 15px;
+}
+
+#character-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active {
+    background-color: yellow; /* Gelber Punkt für den aktiven Charakter */
+}
+
+.carousel-button:hover {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+#previous-character, #next-char{
+    width: 100px;
+    height: 50px;
+    opacity: 0.5; /* Charaktere links und rechts sind ausgegraut */
+    transform: scale(5); /* Charaktere links und rechts sind kleiner */
+    transition: transform 0.5s, opacity 0.5s;
+    top: 50%;
+    image-rendering: pixelated;
+    /*transform: translateY(-50%);*/
+}
+
+#previous-character {
+    left: 0; /* Position links */
+}
+
+#next-char {
+    right: 0; /* Position rechts */
 }
 
 select, input {
@@ -389,6 +467,35 @@ input[type="range"]::-ms-thumb {
 #dialogue img {
     border-radius: 10px;
     height: 300px;
+}
+
+#inventory-shop {
+    z-index: 100;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100%;
+    width: 100%;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #e0e0e0;
+}
+
+#inventory-shop .inventory-shop-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
+}
+
+#inventory-shop h2 {
+    color: #ffd700;
+    font-size: 3rem;
+    margin-bottom: 20px;
 }
 
 /* Large screens (1920px and above) */

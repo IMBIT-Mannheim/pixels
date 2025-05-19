@@ -3,12 +3,17 @@ import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
+import { attachInventoryShopListeners } from "./inventoryshop.js";
+
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
 const interactButton = document.getElementById("interact-button");
-let character = "character-male";
+const inventory_shop = document.getElementById("inventory-shop");
+const showInventoryBtn = document.getElementById("show-inventory");
+
+let character = "male";
 let spawnpoint = "campus";
 let characterName;
 let dogName;
@@ -35,31 +40,6 @@ let konamiDebug = true; // Enable debug logging
 loadCureSprites();
 defineCureScene();
 
-k.loadSprite("character-male", "./sprites/character-male.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
-
-k.loadSprite("character-female", "./sprites/character-female.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
 
 k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	sliceX: 4,
@@ -71,6 +51,19 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 		"dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
 		"dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
 		"dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
+	},
+});
+
+k.loadSprite("character-male-paid", "./sprites/character-male-paid.png", {
+	sliceX: 3,
+	sliceY: 3,
+	anims: {
+		"idle-down": 0,
+		"idle-up": 3,
+		"idle-side": 6,
+		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
 	},
 });
 
@@ -156,11 +149,128 @@ k.scene("loading", () => {
 	const start_game = document.getElementById("start");
 	const music_volume_slider = document.getElementById("music-volume");
 	const sounds_volume = document.getElementById("sounds-volume");
-	const male_button = document.getElementById("male-button");
-	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
 	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
+
+	//Carousel
+	const characters = document.querySelectorAll(".character");
+	const prevButton = document.getElementById("prev-character");
+	const nextButton = document.getElementById("next-character");
+	// Array, das die Reihenfolge der Charaktere definiert
+	const characterOrder = [
+    "male",
+    "female",
+    "male_wb",
+    "male_mbrown",
+    "male_dbrown",
+    "male_dblonde",
+    "male_mblonde",
+    "female_dbrown",
+    "female_mbrown",
+    "female_lblonde",
+    "female_dblonde",
+    "female_mblonde"
+];
+
+	function createIndicators() {
+    const indicatorsContainer = document.getElementById("character-indicators");
+    indicatorsContainer.innerHTML = ""; // Vorherige Punkte entfernen
+
+    characterOrder.forEach((_, index) => {
+        const indicator = document.createElement("div");
+        indicator.classList.add("indicator");
+        if (index === currentIndex) {
+            indicator.classList.add("active"); // Aktiven Punkt hervorheben
+        }
+        indicatorsContainer.appendChild(indicator);
+    });
+}
+
+	// Funktion zum Aktualisieren der Punkte
+	function updateIndicators() {
+		const indicators = document.querySelectorAll(".indicator");
+		indicators.forEach((indicator, index) => {
+			if (index === currentIndex) {
+				indicator.classList.add("active");
+			} else {
+				indicator.classList.remove("active");
+			}
+		});
+	}
+
+	let currentIndex = characterOrder.indexOf("male"); // Standardmäßig wird der männliche Charakter angezeigt
+	// Funktion zum Aktualisieren der Anzeige
+	function updateCarousel() {
+		characters.forEach((characterElement) => {
+			if (characterElement.id === characterOrder[currentIndex]) {
+				characterElement.classList.add("active");
+				character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
+				console.log(`Set active character: ${character}`); // Debugging-Ausgabe
+			} else {
+				characterElement.classList.remove("active");
+			}
+		});
+
+		// Zeige den vorherigen Charakter
+		const previousIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+		const previousCharacter = characterOrder[previousIndex];
+		const previousCharacterElement = document.getElementById(previousCharacter);
+		const previousPlaceholder = document.getElementById("previous-character");
+		if (previousCharacterElement) {
+			previousPlaceholder.innerHTML = previousCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		// Zeige den nächsten Charakter
+		const nextIndex = (currentIndex + 1) % characterOrder.length;
+		const nextChar = characterOrder[nextIndex];
+		const nextCharacterElement = document.getElementById(nextChar);
+		const nextPlaceholder = document.getElementById("next-char");
+		if (nextCharacterElement) {
+			nextPlaceholder.innerHTML = nextCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		updateIndicators(); // Punkte aktualisieren
+	}
+
+	// Event-Listener für den "Vorheriger"-Button
+	prevButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Event-Listener für den "Nächster"-Button
+	nextButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex + 1) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
+	});
+
+	// Initiale Anzeige aktualisieren (male-button wird standardmäßig aktiv gesetzt)
+	createIndicators();
+	updateCarousel();
+
+	function setActiveCharacter(selectedCharacter) {
+		character = selectedCharacter; // Aktualisiere die globale Variable `character`
+		// Save the selected character to session state
+		sessionState.settings.character = character;
+		saveGame();
+
+		k.loadSprite(character, "./sprites/"+ character + ".png", {
+		sliceX: 3,
+		sliceY: 3,
+		anims: {
+			"idle-down": 0,
+			"idle-up": 3,
+			"idle-side": 6,
+			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+		},
+});
+	}
+
 
 	// Properly initialize session state
 	console.log("Initializing session state...");
@@ -172,34 +282,26 @@ k.scene("loading", () => {
 	// Use sessionState for settings, with cookies as fallback
 	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
-	const lastcharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
+	const lastCharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
 	const lastDogName = sessionState.settings.dogName || getCookie("dog_name") || "Bello";
+	const lastCharacter = sessionState.settings.character || "male"; // Default to "male" character
 
 	music_volume_slider.value = lastMusicVolume * 100;
 	sounds_volume.value = lastSoundEffectsVolume * 100;
-	character_name_input.value = lastcharacterName;
+	character_name_input.value = lastCharacterName;
 	dog_name_input.value = lastDogName;
+	character = lastCharacter; // Set the character based on session state
 
-	male_button.addEventListener("click", () => {
-		character = "character-male";
-		female_button.classList.remove("selected");
-		male_button.classList.add("selected");
-		game.focus();
-	});
-
-	female_button.addEventListener("click", () => {
-		character = "character-female";
-		male_button.classList.remove("selected");
-		female_button.classList.add("selected");
-		game.focus();
-	});
-
-	
+	// Update carousel to reflect the last selected character
+	currentIndex = characterOrder.indexOf(character);
+	if (currentIndex === -1) currentIndex = 0; // Fallback to the first character if not found
+	updateCarousel();
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
+		setActiveCharacter(character);
 		handleStart();
 	});
 
@@ -409,7 +511,7 @@ k.scene("loading", () => {
 		} else {
 			window.showDogInitialDialogue = true;
 		}
-		
+		attachInventoryShopListeners();
 		k.go(spawnpoint);
 	}
 });
@@ -429,6 +531,7 @@ function getSpawnPointNamesBySource(sourceMap) {
 function setupScene(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
 		let isFullMapView = false;  // Variable to track if in full map view
+		let isInventoryOpen = false;
 		const showDebugOverlay = false; // Set to true to enable debug overlay
 		// Store default spawn positions
 		let defaultPlayerSpawnPos = null;
@@ -1323,7 +1426,7 @@ k.onUpdate(() => {
 
 		//Bewegung des Spielers mit der Maus
 		k.onMouseDown((mouseBtn) => {
-			if (isFullMapView) return; // Disable player movement when in full map view
+			if (isFullMapView || isInventoryOpen) return; // Disable player movement when in full map view
 			if (mouseBtn !== "left" || player.isInDialogue || player.isFrozen) return;
 
 			const worldMousePos = k.toWorld(k.mousePos());
@@ -1333,7 +1436,7 @@ k.onUpdate(() => {
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			}
-			
+
 			// Calculate direction vector for smoother movement handling
 			const direction = worldMousePos.sub(player.pos).unit();
 			
@@ -1386,7 +1489,7 @@ k.onUpdate(() => {
 		// Optimized player movement handler
 		k.onUpdate(() => {
 			// Early returns for better performance
-			if (player.isInDialogue || isFullMapView || player.isFrozen) return;
+			if (player.isInDialogue || isFullMapView || player.isFrozen || isInventoryOpen) return;
 			
 			// Store last safe position if not currently colliding with boundary
 			if (!inBoundaryCollision) {
@@ -1526,31 +1629,86 @@ k.onUpdate(() => {
 		// Show full world map while holding down m key
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
+			showInventoryBtn.style.display = "none";
 			stopAnims();
 			world_map.style.display = "flex";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
 			isFullMapView = false;
+			showInventoryBtn.style.display = "flex";
 			world_map.style.display = "none";
 		});
+
+		let isIAlreadyPressed = false;
+
+		k.onKeyPress("i", () => {
+			isIAlreadyPressed = true;
+			toggleInventory();
+		});
+
+		k.onKeyRelease("i", () => {
+			isIAlreadyPressed = false;
+		});
+
+		document.getElementById("inventory-shop").addEventListener('click', function(event) {
+			// Use setTimeout with 0 delay to put this in the event queue
+			// This ensures it runs after the click event is fully processed
+			setTimeout(function() {
+				// Return focus to the game element
+				document.getElementById("game").focus();
+			}, 0);
+		});
+
+		function toggleInventory() {
+			if (!isInventoryOpen) {
+				// Show inventory
+				if (isFullMapView) {
+					// Close world map if it's open
+					isFullMapView = false;
+					world_map.style.display = "none";
+					showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				}
+				isInventoryOpen = true;
+				stopAnims();
+				showInventoryBtn.innerHTML = "Inventar/Shop verstecken (I)";
+				showInventoryBtn.classList.add("active");
+				inventory_shop.style.display = "flex";
+				// Hide world map button
+				showWorldMapBtn.style.display = "none";
+			} else {
+				// Hide inventory
+				isInventoryOpen = false;
+				showInventoryBtn.innerHTML = "Inventar/Shop anzeigen (I)";
+				showInventoryBtn.classList.remove("active");
+				inventory_shop.style.display = "none";
+				showWorldMapBtn.style.display = "flex";
+			}
+		}
 
 		showWorldMapBtn.addEventListener("click", () => {
 			if (!isFullMapView) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Weltkarte verstecken (M)";
+				showInventoryBtn.style.display = "none";
 				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				showInventoryBtn.style.display = "flex";
 				document.getElementById("game").focus();
 				world_map.style.display = "none";
 			}
 		});
 
+		showInventoryBtn.addEventListener("click", () => {
+			toggleInventory();
+			document.getElementById("game").focus();
+		});
+
 		k.onUpdate(() => {
-			if (!isFullMapView) {
+			if (!isFullMapView && !isInventoryOpen) {
 				// Follow the player only if not in full map view
 				k.camPos(player.worldPos().x, player.worldPos().y - 100);
 			}

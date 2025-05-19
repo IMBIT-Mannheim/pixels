@@ -451,8 +451,9 @@ export const dialogueData = {
       text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten.`,
       answers: [],
     },
+    {id: 20, title: "Cure", text: `Das Cure Team tritt regelmaessig mit einem selbst entwickelten Elektro-Rennwagen bei Wettbewerben an. Mehr Informationen findest du <a target="_blank" href="https://curemannheim.de/">auf der offiziellen Cure-Website.</a> `, answers: []},
     {
-      id: 20,
+      id: 21,
       title: "Cure",
       text: `Moechtest du das Cure-Minispiel ausprobieren? Je laenger du es schaffst, auf unserer Rennstrecke zu fahren ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du! Deal? `,
       answers: ["Ja, klar!", "Neee, lieber nicht"],
