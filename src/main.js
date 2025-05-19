@@ -518,44 +518,54 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		}
 		function capitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
 
-		k.onUpdate(() => {
-			if (player.isInDialogue) return;
-    const p = player.worldPos();
-    const R = INTERACTION_RADIUS;
+k.onUpdate(() => {
+	if (player.isInDialogue) return;
 
-    // 1) GOTO‐zone boundaries? (highest priority)
-    let nearest = null;
-    let bestDist = Infinity;
-    for (const b of gotoBoundaries) {
-        const d = p.dist(b.pos);
-        if (d < R && d < bestDist) {
-            bestDist = d;
-            nearest = b;
-        }
-    }
-    if (nearest) {
-        interactButton.textContent =
-		interactButton.textContent =
-		nearest.key.charAt(0).toUpperCase() +
-		nearest.key.slice(1) +
-		" Tuer";
-        interactButton.style.display = 'block';
-        return;
-    }
+	const p = player.worldPos();
+	const R = INTERACTION_RADIUS;
 
-    // 2) NPC boundaries?
-    for (const b of npcBoundaries) {
-        const d = p.dist(b.pos);
-        if (d <= R) {
-            interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
-            interactButton.style.display = 'block';
-            return;
-        }
-    }
+	let nearestGoto = null;
+	let nearestNpc = null;
+	let bestGotoDist = Infinity;
+	let bestNpcDist = Infinity;
 
-    // 3) nothing nearby
-    interactButton.style.display = 'none';
-		  });
+	// Find the nearest GOTO boundary
+	for (const b of gotoBoundaries) {
+		const d = p.dist(b.pos);
+		if (d < bestGotoDist) {
+			bestGotoDist = d;
+			nearestGoto = b;
+		}
+	}
+
+	// Find the nearest NPC or named boundary
+	for (const b of npcBoundaries) {
+		const d = p.dist(b.pos);
+		if (d < bestNpcDist) {
+			bestNpcDist = d;
+			nearestNpc = b;
+		}
+	}
+
+	// Determine which interaction to show
+	if (bestGotoDist < R || bestNpcDist < R) {
+		if (bestGotoDist < bestNpcDist) {
+			// Door is closer
+			if (nearestGoto?.key?.trim()?.length > 0) {
+				interactButton.textContent = capitalize(nearestGoto.key.trim()) + " Tuer";
+				interactButton.style.display = 'block';
+			} else {
+				interactButton.style.display = 'none';
+			}
+		} else {
+			// NPC or object is closer
+			interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
+			interactButton.style.display = 'block';
+		}
+	} else {
+		interactButton.style.display = 'none';
+	}
+});
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
 
