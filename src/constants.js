@@ -4,6 +4,7 @@ export let maps = [
   'unternehmensausstellung',
   'almeria',
   'campus',
+  'ksb',
 ]
 export const mapMusic = {
   'mensa': 'Mensa',
@@ -144,10 +145,10 @@ export const dialogueData = {
     text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
     answers: [
       '1) Die Bilanz eines Unternehmens zu erstellen',
-      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
+      '2) Staerken, Schwaechen, Chancen und Risiken eines Unternehmens zu analysieren',
       '3) Die Mitarbeiterzufriedenheit zu messen',
     ],
-    correctAnswer: 1, // = index of correct answer + 1
+    correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
     wrongText: 'Falsch! ',
   },
@@ -462,5 +463,55 @@ export const dialogueData = {
         "Schade, komm gerne vorbei, wenn du es dir anders ueberlegt hast.",
     },
   ],
-
+  companies_intro: [
+    {
+      id: 21,
+      title: "Guiding Geist",
+      text: `Willkommen auf der Deutschlandkarte der Unternehmensausstellung! Hier kannst du die Vielfalt unserer Dualen Partner entdecken.`,
+      answers: [],
+    },
+    {
+      id: 22,
+      title: "Guiding Geist",
+      text: `Jedes Unternehmen ist mit einer Flagge auf der Karte markiert. Reise dorthin, um mehr ueber sie zu erfahren und wichtige Kontakte fuer deine Zukunft zu knuepfen.`,
+      answers: [],
+    },
+    {
+      id: 23,
+      title: "Guiding Geist",
+      text: `Wenn du vor einer Flagge stehst, druecke "L", um das Unternehmensprofil zu betreten und mehr zu erfahren.`,
+      answers: [],
+    },
+    {
+      id: 24,
+      title: "Guiding Geist",
+      text: `Erkunde ganz Deutschland – von globalen Konzernen bis zu innovativen Mittelstaendlern – alle freuen sich darauf, dir spannende Einblicke in ihre Welt zu geben!`,
+      answers: [],
+    }
+  ],
+  companies_flag_ksb_intro: [
+    {
+      id: 25,
+      title: "KSB Mitarbeiterin",
+      text: `Hallo und herzlich willkommen bei der KSB SE & Co. KGaA!`,
+      answers: [],
+    },
+    {
+      id: 26,
+      title: "KSB Mitarbeiterin",
+      text: `Wir sind einer der weltweit fuehrenden Anbieter von Pumpen, Armaturen und dazugehoerigen Services. Unsere Produkte kommen in der Wasser-, Abwasser-, Energie- und Industriebranche zum Einsatz.`,
+      answers: [],
+    },
+    {
+      id: 27,
+      title: "KSB Mitarbeiterin",
+      text: `Interessierst du dich dafuer, wie wir weltweit dafuer sorgen, dass Fluessigkeiten sicher und effizient bewegt werden?
+      Wenn ja, druecke einfach "L", um mehr ueber uns und deine Moeglichkeiten im dualen Studium bei KSB zu erfahren.`,
+      answers: ["Klingt spannend!", "Vielleicht spaeter."],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: "Sehr schoen, druecke einfach 'L' an der Flagge, um einzutreten und mehr zu erfahren.",
+      wrongText:
+        "Kein Problem, du kannst jederzeit zurueckkommen und die Flagge erneut ansprechen.",
+    },
+  ],
 };
