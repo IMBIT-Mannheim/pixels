@@ -1097,6 +1097,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 					k.body({ isStatic: true }),
 					k.pos(boundary.x, boundary.y),
 					k.rotate(boundary.rotation),
+					console.log(sessionState.progress.answeredDialogues),
 					boundary.name,
 				  ]);
 			  

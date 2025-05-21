@@ -12,7 +12,7 @@ export const sessionState = {
         introWatched: false,
     },
     progress: {
-        answeredDialogues: [],
+        answeredDialogues: [144, 145], //Dialogues 144 & 145 aren't quizzes and give no points
         score: 0,                 // Points from dialogues
         scoreInMinigame: 0,       // Last played score from minigame
         unlockedMaps: [],
