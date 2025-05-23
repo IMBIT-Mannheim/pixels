@@ -239,7 +239,7 @@ export const dialogueData = {
    sbgirl: [
     {
       id: 145,
-      title: 'Prof. Dr. Schmidt',
+      title: 'Prof. Meier',
       text: `Willkommen bei der Studierendenberatung! Ich bin Professor Schmidt und leite das Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren?`,
       answers: [
         '1) Vorteile des dualen Studiums ',
@@ -273,15 +273,24 @@ export const dialogueData = {
   sbgirl2: [
     {
       id: 144,
-      title: 'Bauer',
-      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Schmidt und leite das Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren?`,
+      title: 'Prof. Bauer',
+      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Bauer und bin im Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren? `,
       answers: [
-        '1) test',
-        '2) test ',
+        '1) Studienberatung & Orientierung',
+        '2) Events & Campus kennenlernen',
       ],
       correctAnswer: 1,
-      correctText: `D`,
-      wrongText: `test`,
+      correctText: `Noch unsicher, welcher Studiengang zu dir passt? Unsere Studienberatung hilft dir: 
+    - Persoenliche Beratung 
+    - Online-Tests zur Selbsteinschaetzung (OSA, MathX3 usw.) 
+    - Hilfreiche Tools zur Studienwahl 
+    Alle Infos zur Orientierung findest du hier 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/studienwahl-beratung">Studienberatung DHBW</a> Kontakt: studienberatung.ma@dhbw.de`, 
+      wrongText: `Du willst die DHBW Mannheim live erleben? 
+        - Infoveranstaltungen auf dem Campus oder digital 
+        - Teilnahme an Messen in deiner Region 
+        - Campusbesuche & Erstsemester-Welcome 
+      Aktuelle Termine und Events findest du hier 👉 <a target="_blank" href="https://events.mannheim.dhbw.de/event?event_filter%5BsearchTerm%5D=&event_filter%5BstartDate%5D=&event_filter%5BendDate%5D=&event_filter%5BtargetGroups%5D%5B%5D=9&submitFilter=common.search">DHBW Events</a> 
+      Wir freuen uns auf dich! `,
     }
   ],
   //Mensa
