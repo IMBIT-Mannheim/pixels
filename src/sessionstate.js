@@ -27,6 +27,10 @@ export const sessionState = {
         sessionStart: Date.now(),
         lastSave: null,
     },
+    inventory: {
+        purchasedItems: [],
+        activeCharacter: null,
+    }
 };
 
 // Sets a top-level key in the session state object
