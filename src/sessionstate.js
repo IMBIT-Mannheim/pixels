@@ -65,7 +65,6 @@ export function deserializeSessionState(jsonString) {
 // Saves the session state to localStorage
 // Saves the session state to localStorage
 export function saveGame() {
-    console.log(5 / 0);
     try {
         const data = serializeSessionState();
         localStorage.setItem("gameSave", data);
@@ -83,7 +82,6 @@ export function saveGame() {
 // Loads the session state from localStorage
 // Loads the session state from localStorage
 export function loadGame() {
-    console.log("trying to load gamsstate");
     try {
         const data = localStorage.getItem("gameSave");
         if (data) {
