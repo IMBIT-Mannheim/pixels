@@ -14,15 +14,6 @@ const SHOP_ITEMS = [
     }
 ];
 
-// Initialize the inventory in sessionState if it doesn't exist yet
-if (!sessionState.inventory) {
-    sessionState.inventory = {
-        purchasedItems: [],
-        activeCharacter: sessionState.settings.character
-    };
-    saveGame();
-}
-
 // Main function to initialize the inventory and shop UI
 export function initInventoryShop() {
     const inventoryShop = document.getElementById("inventory-shop");
@@ -97,6 +88,18 @@ export function initInventoryShop() {
     inventoryItemsContainer.style.maxHeight = "70vh";
     inventorySection.appendChild(inventoryItemsContainer);
 
+
+    const removeButton = document.createElement("div");
+    removeButton.innerText = "Return to default character";
+    removeButton.id = "remove-items-button"
+    removeButton.className = "button-no-hover";
+    removeButton.style.marginBottom = "25px";
+    removeButton.addEventListener("click", takeOffItem)
+    inventoryItemsContainer.appendChild(removeButton);
+
+    if (sessionState.inventory.activeCharacter == null) {
+        removeButton.style.display = "none";
+    }
     // Add default character to inventory
     /*
     const defaultMaleCharacter = {
@@ -386,14 +389,56 @@ function purchaseItem(item) {
     // No notification/alert
 }
 
+function takeOffItem() {
+    sessionState.inventory.activeCharacter = undefined;
+    saveGame();
+
+    document.getElementById("remove-items-button").style.display = "none";
+
+    // Get inventory container
+    const inventoryShop = document.getElementById("inventory-shop");
+    const inventoryShopContainer = inventoryShop.querySelector(".inventory-shop-container");
+    const contentContainer = inventoryShopContainer.querySelector(".inventory-shop-content");
+    const inventorySection = contentContainer.querySelector(".inventory-section");
+    const inventoryItemsContainer = inventorySection.querySelector("div:last-child");
+
+    // Remove active class from all items
+    const inventoryItems = inventoryItemsContainer.querySelectorAll(".inventory-item");
+    inventoryItems.forEach(item => {
+        item.style.border = "none";
+        item.style.boxShadow = "none";
+
+        // Remove "Aktiv" label if it exists
+        const activeLabel = item.querySelector("span");
+        if (activeLabel && activeLabel.textContent === "Aktiv") {
+            item.removeChild(activeLabel);
+
+            // Add "Auswaehlen" button back
+            const useButton = document.createElement("button");
+            useButton.className = "button";
+            useButton.textContent = "Auswaehlen";
+            useButton.style.marginLeft = "10px";
+
+            const itemId = item.dataset.itemId;
+            useButton.addEventListener("click", () => {
+                selectCharacter(itemId);
+            });
+
+            item.appendChild(useButton);
+        }
+    });
+}
+
 // Function to select a character
 function selectCharacter(characterId) {
     // Change active character
     sessionState.inventory.activeCharacter = characterId;
-    sessionState.settings.character = characterId;
+    //sessionState.settings.character = characterId;
     
     // Save changes
     saveGame();
+
+    document.getElementById("remove-items-button").style.display = "block";
     
     // Get inventory container
     const inventoryShop = document.getElementById("inventory-shop");

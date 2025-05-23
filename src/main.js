@@ -5,6 +5,12 @@ import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 import { attachInventoryShopListeners } from "./inventoryshop.js";
 
+// Properly initialize session state
+console.log("Initializing session state...");
+ensureSessionId(); // Make sure we have a session ID first
+console.log("Session ID:", sessionState.sessionId);
+loadGame(); // Then load saved data
+refreshScoreUI();
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
@@ -272,12 +278,7 @@ k.scene("loading", () => {
 	}
 
 
-	// Properly initialize session state
-	console.log("Initializing session state...");
-	ensureSessionId(); // Make sure we have a session ID first
-	console.log("Session ID:", sessionState.sessionId);
-	loadGame(); // Then load saved data
-	refreshScoreUI();
+
 	
 	// Use sessionState for settings, with cookies as fallback
 	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
