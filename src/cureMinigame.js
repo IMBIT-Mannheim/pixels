@@ -485,11 +485,15 @@ export function defineCureScene() {
         k.onUpdate(() => {
             if (isGameOver) return;
             const directionVector = k.vec2(0, 0);
-            if (k.isKeyDown("left") || k.isKeyDown("a")) {
+            let moveDirection = "none";
+            if(k.isMouseDown()) {
+                if (Math.abs(k.mousePos().x - player.pos.x) > 50) moveDirection = k.mousePos().x > (player.pos.x) ? "right" : "left";
+            }
+            if (k.isKeyDown("left") || k.isKeyDown("a") || moveDirection === "left") {
                 player.direction = "left";
                 directionVector.x = -1;
             }
-            if (k.isKeyDown("right") || k.isKeyDown("d")) {
+            if (k.isKeyDown("right") || k.isKeyDown("d") || moveDirection === "right") {
                 player.direction = "right";
                 directionVector.x = 1;
             }
