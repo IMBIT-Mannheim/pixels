@@ -90,7 +90,6 @@ export function initInventoryShop() {
     inventorySection.appendChild(inventoryItemsContainer);
 
 
-    console.log("Zeile ausgeführt");
 
     if(!document.getElementById("remove-items-button")) {
         const removeButton = document.createElement("div");
