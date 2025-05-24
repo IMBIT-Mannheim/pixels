@@ -694,8 +694,10 @@ k.onUpdate(() => {
 		k.onUpdate(() => {
 			const correctSprite = sessionState.inventory.activeCharacter || character
 			if (correctSprite != currentCharacterSprite) {
-				player.use(k.sprite(correctSprite, { anim: "idle-down" }))
+				const flipX = player.flipX;
+				player.use(k.sprite(correctSprite, { anim: player.getCurAnim().name }))
 				currentCharacterSprite = correctSprite;
+				player.flipX = flipX;
 			}
 		})
 
