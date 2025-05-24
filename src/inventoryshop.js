@@ -506,7 +506,7 @@ function selectCharacter(characterId) {
     notification.style.borderRadius = "5px";
     notification.style.zIndex = "1000";
     notification.style.fontSize = "1.2rem";
-    notification.textContent = "Charakter geaendert! Wechsle den Raum um die Aenderungen zu sehen.";
+    notification.textContent = "Charakter geaendert!";
     
     // Remove existing notifications
     const existingNotification = inventoryShopContainer.querySelector(".character-change-notification");
