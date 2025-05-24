@@ -218,13 +218,13 @@ function renderShopItem(item, container) {
     
     // Disable button if not enough score
     if (sessionState.progress.score < item.price) {
-        buyButton.disabled = true;
         buyButton.style.opacity = "0.5";
         buyButton.style.cursor = "not-allowed";
     }
     
     buyButton.addEventListener("click", () => {
-        purchaseItem(item);
+        if (sessionState.progress.score <= item.price) purchaseItem(item);
+        document.getElementById("game").focus();
     });
     
     itemElement.appendChild(buyButton);
@@ -506,7 +506,7 @@ function selectCharacter(characterId) {
     notification.style.borderRadius = "5px";
     notification.style.zIndex = "1000";
     notification.style.fontSize = "1.2rem";
-    notification.textContent = "Charakter geaendert! Wechsle den Raum um die Aenderungen zu sehen.";
+    notification.textContent = "Charakter geaendert!";
     
     // Remove existing notifications
     const existingNotification = inventoryShopContainer.querySelector(".character-change-notification");

@@ -672,10 +672,10 @@ k.onUpdate(() => {
 });
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
-
+		let currentCharacterSprite = sessionState.inventory.activeCharacter || character
 		//Erstellt den Spieler
 		const player = k.make([
-			k.sprite(character, { anim: "idle-down" }),
+			k.sprite(currentCharacterSprite, { anim: "idle-down" }),
 			k.area({ shape: new k.Rect(k.vec2(0, 10), 14, 10) }),
 			k.body(),
 			k.anchor("center"),
@@ -691,6 +691,13 @@ k.onUpdate(() => {
 			},
 			"player",
 		]);
+		k.onUpdate(() => {
+			const correctSprite = sessionState.inventory.activeCharacter || character
+			if (correctSprite != currentCharacterSprite) {
+				player.use(k.sprite(correctSprite, { anim: "idle-down" }))
+				currentCharacterSprite = correctSprite;
+			}
+		})
 
 		//Erstellt den Hund
 		const dog = k.make([
