@@ -1,6 +1,7 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
+import { quizFinished, makeReplayPrompt } from "./utils.js";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
 import { attachInventoryShopListeners } from "./inventoryshop.js";
@@ -1221,10 +1222,50 @@ k.onUpdate(() => {
 												);
 												return;
 											}
-											dialogue.display(
-												dialogueData[boundaryObj.name],
-												() => (showWorldMapBtn.style.display = "flex", game.focus())
-											);
+											// ------------------------------------------------------------
+											// Neuer Quiz-Wiederholungs-Flow
+											// ------------------------------------------------------------
+											const npcKey    = boundaryObj.name;           // z. B. "girl2" (= Emma)
+											let  displayData = dialogueData[npcKey];      // Standard-Dialog
+
+											// ► Hat der Spieler ALLE Fragen dieser Figur schon beantwortet?
+											if (quizFinished(npcKey)) {
+
+												// 1) Einmaligen Wiederseh-Prompt bauen
+												displayData = makeReplayPrompt(npcKey);
+
+												// 2) „Ja / Nein“ auswerten
+												dialogue.setQuestionButtonClickListener(choiceIdx => {
+													dialogue._close_or_next();                 // Prompt schließen
+													dialogue.setQuestionButtonClickListener(null);
+
+													if (choiceIdx === 1) {                     // „Ja“ gewählt
+														// 1) Alte Dialog-Queue sicher leeren
+															dialogue._remainingDialogues = [];
+
+															// 2) Kleines Delay, damit _questionAnswer() komplett abschließt
+															setTimeout(() => {
+																showWorldMapBtn.style.display = "none";
+
+																const quizOnly = dialogueData[npcKey]
+																				.filter(d => d.answers?.length);   // nur Fragen
+
+																dialogue.display(quizOnly, () => {
+																	showWorldMapBtn.style.display = "flex";
+																	game.focus();
+																});
+															}, 50);   // 1 Frame (~16 ms) reicht – 50 ms ist konservativ
+														};
+													}
+													// Bei „Nein“ erledigt _close_or_next() alles Notwendige.
+												);
+											}
+
+											// ► GENAU EIN Display-Aufruf pro Interaktion
+											dialogue.display(displayData, () => {
+												showWorldMapBtn.style.display = "flex";
+												game.focus();
+											});
 										}
 									});
 								}
