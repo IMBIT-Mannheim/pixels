@@ -218,13 +218,13 @@ function renderShopItem(item, container) {
     
     // Disable button if not enough score
     if (sessionState.progress.score < item.price) {
-        buyButton.disabled = true;
         buyButton.style.opacity = "0.5";
         buyButton.style.cursor = "not-allowed";
     }
     
     buyButton.addEventListener("click", () => {
-        purchaseItem(item);
+        if (sessionState.progress.score <= item.price) purchaseItem(item);
+        document.getElementById("game").focus();
     });
     
     itemElement.appendChild(buyButton);

@@ -673,9 +673,10 @@ k.onUpdate(() => {
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
 
+
 		//Erstellt den Spieler
 		const player = k.make([
-			k.sprite(character, { anim: "idle-down" }),
+			k.sprite(sessionState.inventory.activeCharacter || character, { anim: "idle-down" }),
 			k.area({ shape: new k.Rect(k.vec2(0, 10), 14, 10) }),
 			k.body(),
 			k.anchor("center"),
