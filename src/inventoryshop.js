@@ -86,20 +86,26 @@ export function initInventoryShop() {
     inventoryItemsContainer.style.gap = "15px";
     inventoryItemsContainer.style.overflowY = "auto";
     inventoryItemsContainer.style.maxHeight = "70vh";
+    inventoryItemsContainer.id = "inventory-items-container";
     inventorySection.appendChild(inventoryItemsContainer);
 
 
-    const removeButton = document.createElement("div");
-    removeButton.innerText = "Return to default character";
-    removeButton.id = "remove-items-button"
-    removeButton.className = "button-no-hover";
-    removeButton.style.marginBottom = "25px";
-    removeButton.addEventListener("click", takeOffItem)
-    inventoryItemsContainer.appendChild(removeButton);
+    console.log("Zeile ausgeführt");
 
-    if (sessionState.inventory.activeCharacter == null) {
-        removeButton.style.display = "none";
+    if(!document.getElementById("remove-items-button")) {
+        const removeButton = document.createElement("div");
+        removeButton.innerText = "Return to default character";
+        removeButton.id = "remove-items-button"
+        removeButton.className = "button-no-hover";
+        removeButton.style.marginBottom = "25px";
+        removeButton.addEventListener("click", takeOffItem)
+        document.getElementById("inventory-items-container").appendChild(removeButton);
+
+        if (sessionState.inventory.activeCharacter == null) {
+            removeButton.style.display = "none";
+        }
     }
+
     // Add default character to inventory
     /*
     const defaultMaleCharacter = {
@@ -437,7 +443,19 @@ function selectCharacter(characterId) {
     
     // Save changes
     saveGame();
+    if(!document.getElementById("remove-items-button")) {
+        const removeButton = document.createElement("div");
+        removeButton.innerText = "Return to default character";
+        removeButton.id = "remove-items-button"
+        removeButton.className = "button-no-hover";
+        removeButton.style.marginBottom = "25px";
+        removeButton.addEventListener("click", takeOffItem)
+        document.getElementById("inventory-items-container").prepend(removeButton);
 
+        if (sessionState.inventory.activeCharacter == null) {
+            removeButton.style.display = "none";
+        }
+    }
     document.getElementById("remove-items-button").style.display = "block";
     
     // Get inventory container
