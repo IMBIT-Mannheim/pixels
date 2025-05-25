@@ -32,7 +32,6 @@ export function loadAvatarSprites() {
     k.loadSprite("character-female-lblonde", "./sprites/avatars/female_lblonde.png", baseAnims);
     k.loadSprite("character-female-mblonde", "./sprites/avatars/female_mblonde.png", baseAnims);
     k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
-    k.loadSprite("character-dog", "./sprites/avatars/dog-spritesheet.png", baseAnims);
 }
 
 // Shop items configuration
@@ -141,14 +140,6 @@ const SHOP_ITEMS = [
         type: "character",
         image: "./sprites/avatars/female_mbrown.png"
     },
-    {
-        id: "character-dog",
-        name: "Dog Companion",
-        description: "Cute dog companion",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/dog-spritesheet.png"
-    }
 ];
 
 
