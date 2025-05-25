@@ -279,7 +279,7 @@ function renderShopItem(item, container) {
     }
 
     buyButton.addEventListener("click", () => {
-        if (sessionState.progress.score <= item.price) purchaseItem(item);
+        if (sessionState.progress.score >= item.price) purchaseItem(item);
         document.getElementById("game").focus();
     });
 
