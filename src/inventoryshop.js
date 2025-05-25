@@ -61,6 +61,14 @@ const SHOP_ITEMS = [
         price: 1,
         type: "character",
         image: "./sprites/avatars/steel_girl_shop.png"
+   },
+   {
+        id: "ghost",
+        name: "Ghost",
+        description: "Unlock the Ghost character",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/ghost.png"
    }
 ];
 
@@ -213,7 +221,7 @@ export function initInventoryShop() {
     scoreDisplay.style.borderRadius = "5px";
     scoreDisplay.style.border = "2px solid #ffd700";
     scoreDisplay.style.fontSize = "3rem";
-    scoreDisplay.textContent = `Score: ${sessionState.progress.score}`;
+    scoreDisplay.textContent = `Coins: ${sessionState.progress.score}`;
     inventoryShopContainer.appendChild(scoreDisplay);
 }
 
@@ -283,7 +291,7 @@ function renderShopItem(item, container) {
 
     // Price
     const itemPrice = document.createElement("span");
-    itemPrice.textContent = `${item.price} Score`;
+    itemPrice.textContent = `${item.price} Coins`;
     itemPrice.style.display = "block";
     itemPrice.style.marginTop = "5px";
     itemPrice.style.fontSize = "1rem";
@@ -307,7 +315,7 @@ function renderShopItem(item, container) {
     buyButton.addEventListener("click", () => {
         if (sessionState.progress.score >= item.price) {
             purchaseItem(item);
-            document.getElementById("inventory-score-display").textContent = `Score: ${sessionState.progress.score}`;
+            document.getElementById("inventory-score-display").textContent = `Coins: ${sessionState.progress.score}`;
         }
         document.getElementById("game").focus();
     });

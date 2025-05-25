@@ -549,10 +549,10 @@ export function defineCureScene() {
             if (music) {
                 music.stop();
             }
-            
+
             // Clear the background music reference
             window.currentBgm = null;
-            
+
             // Reset game state
             obstacles = [];
             decorations = [];
