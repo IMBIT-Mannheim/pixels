@@ -34,6 +34,7 @@ export function loadAvatarSprites() {
     k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
     k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
     k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
+    k.loadSprite("ghost", "./sprites/avatars/ghost_shop.png", baseAnims);
 }
 
 // Shop items configuration
