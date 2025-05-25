@@ -32,6 +32,8 @@ export function loadAvatarSprites() {
     k.loadSprite("character-female-lblonde", "./sprites/avatars/female_lblonde.png", baseAnims);
     k.loadSprite("character-female-mblonde", "./sprites/avatars/female_mblonde.png", baseAnims);
     k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
+    k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
+    k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
 }
 
 // Shop items configuration
@@ -44,102 +46,22 @@ const SHOP_ITEMS = [
         type: "character",
         image: "./sprites/avatars/character-male-paid.png"
     },
-    {
-        id: "character-male",
-        name: "Male Character",
-        description: "Standard male character skin",
+   {
+        id: "steel-boy-shop",
+        name: "Steel Boy",
+        description: "Unlock the Steel Boy character",
         price: 1,
         type: "character",
-        image: "./sprites/avatars/male.png"
-    },
-    {
-        id: "character-female",
-        name: "Female Character",
-        description: "Standard female character skin",
+        image: "./sprites/avatars/steel_boy_shop.png"
+   },
+   {
+        id: "steel-girl-shop",
+        name: "Steel Girl",
+        description: "Unlock the Steel Girl character",
         price: 1,
         type: "character",
-        image: "./sprites/avatars/female.png"
-    },
-    {
-        id: "character-male-dblonde",
-        name: "Male Character - Dark Blonde Hair",
-        description: "Male character with dark blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/male_dblonde.png"
-    },
-    {
-        id: "character-male-dbrown",
-        name: "Male Character - Dark Brown Hair",
-        description: "Male character with dark brown hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/male_dbrown.png"
-    },
-    {
-        id: "character-male-mblonde",
-        name: "Male Character - Medium Blonde Hair",
-        description: "Male character with medium blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/male_mblonde.png"
-    },
-    {
-        id: "character-male-mbrown",
-        name: "Male Character - Medium Brown Hair",
-        description: "Male character with medium brown hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/male_mbrown.png"
-    },
-    {
-        id: "character-male-wb",
-        name: "Male Character - White Blonde Hair",
-        description: "Male character with white blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/male_wb.png"
-    },
-    {
-        id: "character-female-dblonde",
-        name: "Female Character - Dark Blonde Hair",
-        description: "Female character with dark blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/female_dblonde.png"
-    },
-    {
-        id: "character-female-dbrown",
-        name: "Female Character - Dark Brown Hair",
-        description: "Female character with dark brown hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/female_dbrown.png"
-    },
-    {
-        id: "character-female-lblonde",
-        name: "Female Character - Light Blonde Hair",
-        description: "Female character with light blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/female_lblonde.png"
-    },
-    {
-        id: "character-female-mblonde",
-        name: "Female Character - Medium Blonde Hair",
-        description: "Female character with medium blonde hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/female_mblonde.png"
-    },
-    {
-        id: "character-female-mbrown",
-        name: "Female Character - Medium Brown Hair",
-        description: "Female character with medium brown hair",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/female_mbrown.png"
-    },
+        image: "./sprites/avatars/steel_girl_shop.png"
+   }
 ];
 
 
