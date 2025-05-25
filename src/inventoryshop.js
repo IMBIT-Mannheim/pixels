@@ -203,15 +203,16 @@ export function initInventoryShop() {
     // Current score display
     const scoreDisplay = document.createElement("div");
     scoreDisplay.className = "score-display";
+    scoreDisplay.id = "inventory-score-display";
     scoreDisplay.style.position = "absolute";
     scoreDisplay.style.top = "20px";
-    scoreDisplay.style.right = "20px";
+    scoreDisplay.style.right = "50px";
     scoreDisplay.style.backgroundColor = "#2d2929";
     scoreDisplay.style.color = "#ffd700";
     scoreDisplay.style.padding = "10px 15px";
     scoreDisplay.style.borderRadius = "5px";
     scoreDisplay.style.border = "2px solid #ffd700";
-    scoreDisplay.style.fontSize = "1.5rem";
+    scoreDisplay.style.fontSize = "3rem";
     scoreDisplay.textContent = `Score: ${sessionState.progress.score}`;
     inventoryShopContainer.appendChild(scoreDisplay);
 }
@@ -226,17 +227,42 @@ function renderShopItem(item, container) {
     itemElement.style.borderRadius = "5px";
     itemElement.style.alignItems = "center";
 
-    // Item image
+    // Original frame size from sprite sheet
+    const originalFrameWidth = 17;
+    const originalFrameHeight = 33;
+
+// Scale factor
+    const scale = 1.75;
+    const scaledFrameWidth = originalFrameWidth * scale;
+    const scaledFrameHeight = originalFrameHeight * scale;
+
+// Create wrapper (the visible frame)
+    const imageWrapper = document.createElement("div");
+    imageWrapper.style.width = `${scaledFrameWidth}px`;
+    imageWrapper.style.height = `${scaledFrameHeight}px`;
+    imageWrapper.style.overflow = "hidden";
+    imageWrapper.style.marginRight = "15px";
+    imageWrapper.style.borderRadius = "3px";
+    imageWrapper.style.display = "inline-block";
+
+// Create the full image
     const itemImage = document.createElement("img");
     itemImage.src = item.image;
     itemImage.alt = item.name;
-    itemImage.style.width = "60px";
-    itemImage.style.height = "60px";
-    itemImage.style.marginRight = "15px";
-    itemImage.style.border = "1px solid #ffd700";
-    itemImage.style.borderRadius = "3px";
+
+// Scale the image up (entire sprite sheet)
+    itemImage.style.width = `${51 * scale}px`; // 153px
+    itemImage.style.height = `${98 * scale}px`; // 294px
     itemImage.style.imageRendering = "pixelated";
-    itemElement.appendChild(itemImage);
+    itemImage.style.position = "relative";
+
+// Offset for top-left sprite (col 0, row 0)
+    itemImage.style.left = `0px`;
+    itemImage.style.top = `0px`;
+
+// Append
+    imageWrapper.appendChild(itemImage);
+    itemElement.appendChild(imageWrapper);
 
     // Item details
     const itemDetails = document.createElement("div");
@@ -279,7 +305,10 @@ function renderShopItem(item, container) {
     }
 
     buyButton.addEventListener("click", () => {
-        if (sessionState.progress.score >= item.price) purchaseItem(item);
+        if (sessionState.progress.score >= item.price) {
+            purchaseItem(item);
+            document.getElementById("inventory-score-display").textContent = `Score: ${sessionState.progress.score}`;
+        }
         document.getElementById("game").focus();
     });
 
@@ -304,18 +333,42 @@ function renderInventoryItem(item, container) {
         itemElement.style.border = "2px solid #ffd700";
         itemElement.style.boxShadow = "0 0 10px #ffd700";
     }
+    // Original frame size from sprite sheet
+    const originalFrameWidth = 17;
+    const originalFrameHeight = 33;
 
-    // Item image
+// Scale factor
+    const scale = 1.75;
+    const scaledFrameWidth = originalFrameWidth * scale;
+    const scaledFrameHeight = originalFrameHeight * scale;
+
+// Create wrapper (the visible frame)
+    const imageWrapper = document.createElement("div");
+    imageWrapper.style.width = `${scaledFrameWidth}px`;
+    imageWrapper.style.height = `${scaledFrameHeight}px`;
+    imageWrapper.style.overflow = "hidden";
+    imageWrapper.style.marginRight = "15px";
+    imageWrapper.style.borderRadius = "3px";
+    imageWrapper.style.display = "inline-block";
+
+// Create the full image
     const itemImage = document.createElement("img");
     itemImage.src = item.image;
     itemImage.alt = item.name;
-    itemImage.style.width = "60px";
-    itemImage.style.height = "60px";
-    itemImage.style.marginRight = "15px";
-    itemImage.style.border = "1px solid #ffd700";
-    itemImage.style.borderRadius = "3px";
+
+// Scale the image up (entire sprite sheet)
+    itemImage.style.width = `${51 * scale}px`; // 153px
+    itemImage.style.height = `${98 * scale}px`; // 294px
     itemImage.style.imageRendering = "pixelated";
-    itemElement.appendChild(itemImage);
+    itemImage.style.position = "relative";
+
+// Offset for top-left sprite (col 0, row 0)
+    itemImage.style.left = `0px`;
+    itemImage.style.top = `0px`;
+
+// Append
+    imageWrapper.appendChild(itemImage);
+    itemElement.appendChild(imageWrapper);
 
     // Item details
     const itemDetails = document.createElement("div");
