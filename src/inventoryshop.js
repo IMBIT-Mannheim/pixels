@@ -34,7 +34,7 @@ export function loadAvatarSprites() {
     k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
     k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
     k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
-    k.loadSprite("ghost", "./sprites/avatars/ghost_shop.png", baseAnims);
+    // k.loadSprite("ghost", "./sprites/avatars/ghost_shop.png", baseAnims);
 }
 
 // Shop items configuration
@@ -62,15 +62,15 @@ const SHOP_ITEMS = [
         price: 1,
         type: "character",
         image: "./sprites/avatars/steel_girl_shop.png"
-   },
-   {
-        id: "ghost",
-        name: "Ghost",
-        description: "Unlock the Ghost character",
-        price: 1,
-        type: "character",
-        image: "./sprites/avatars/ghost.png"
    }
+//    , {
+//         id: "ghost",
+//         name: "Ghost",
+//         description: "Unlock the Ghost character",
+//         price: 1,
+//         type: "character",
+//         image: "./sprites/avatars/ghost.png"
+//    }
 ];
 
 
