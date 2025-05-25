@@ -73,6 +73,8 @@ k.loadSprite("character-male-paid", "./sprites/character-male-paid.png", {
 	},
 });
 
+
+
 for (let i = 0; i < maps.length; i++) {
 	const map = maps[i];
 	let button = document.createElement('button');
@@ -139,11 +141,11 @@ function updateMusicVolume(volume) {
 		// Only update volume if music is playing and volume > 0
 		window.currentBgm.volume(volume);
 	}
-	
+
 	// Update session state
 	sessionState.settings.musicVolume = volume;
 	saveGame();
-	
+
 	console.log("Music volume updated to:", volume);
 	return volume;
 }
@@ -279,7 +281,7 @@ k.scene("loading", () => {
 
 
 
-	
+
 	// Use sessionState for settings, with cookies as fallback
 	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
 	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
@@ -309,41 +311,41 @@ k.scene("loading", () => {
 
 	music_volume_slider.addEventListener("input", () => {
 		let music_volume = music_volume_slider.value / 100;
-		
+
 		// Ensure volume is exactly 0 when slider is at minimum
 		if (music_volume_slider.value === 0) {
 			music_volume = 0;
 		}
-	
+
 		// Use the global function to update all music volumes
 		updateMusicVolume(music_volume);
-		
+
 		game.focus();
 	});
-	
+
 	sounds_volume.addEventListener("input", () => {
 		sound_effects_volume = sounds_volume.value / 100;
-		
+
 		// Ensure volume is exactly 0 when slider is at minimum
 		if (sounds_volume.value <= 1) {
 			sound_effects_volume = 0;
 		}
-		
+
 		// Update sessionState with new sound effects volume
 		sessionState.settings.soundEffectsVolume = sound_effects_volume;
 		saveGame();
-		
+
 		game.focus();
 	});
-	
+
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
 	});
-	
+
 	function handleStart() {
 		if (isVideoPlaying) return; // Prevent starting multiple times
-	
+
 		// Check from sessionState instead of cookie
 		if (sessionState.settings.introWatched) {
 			// Intro already watched, start game directly
@@ -353,7 +355,7 @@ k.scene("loading", () => {
 			showVideoScreen();
 		}
 	}
-	
+
 
 	function showVideoScreen() {
 		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
@@ -420,14 +422,14 @@ k.scene("loading", () => {
 		skipButton.addEventListener("click", () => {
 			document.body.removeChild(videoScreen);
 			isVideoPlaying = false; // Reset playing state
-		
+
 			// 🛠️ Set in sessionState instead of cookie
 			sessionState.settings.introWatched = true;
 			saveGame();
-		
+
 			startGame(); // Start the game
 		});
-		
+
 
 		// Füge den Text und das Video zum Video-Container hinzu
 		const videoContainer = document.createElement("div");
@@ -447,14 +449,14 @@ k.scene("loading", () => {
 		video.addEventListener("ended", () => {
 			document.body.removeChild(videoScreen);
 			isVideoPlaying = false;
-		
+
 			sessionState.settings.introWatched = true;
 			saveGame();
-		
+
 			startGame();
 		});
-		
-		
+
+
 	}
 
 	function startGame() {
@@ -468,7 +470,7 @@ k.scene("loading", () => {
 		music_volume = updateMusicVolume(music_volume);
 
 		dialogueData.dogInitial.title = dogName;
-		
+
 		// Update both cookies and sessionState
 		setCookie("spawnpoint", spawnpoint, 365);
 		setCookie("music_volume", music_volume, 365);
@@ -478,7 +480,7 @@ k.scene("loading", () => {
 
 		// Ensure we have a session ID
 		ensureSessionId();
-		
+
 		// Update session state with all current settings - music volume already set by updateMusicVolume
 		sessionState.settings.spawnpoint = spawnpoint;
 		sessionState.settings.soundEffectsVolume = sound_effects_volume;
@@ -491,12 +493,12 @@ k.scene("loading", () => {
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
-		
+
 		// Add game-active class to body for CSS fallback
 		document.body.classList.add('game-active');
-		
+
 		game.focus();
-		
+
 		// Check if dog intro has been done before
 		const dogIntroDone = getCookie("dog_intro_done");
 		if (!dogIntroDone) {
@@ -506,7 +508,7 @@ k.scene("loading", () => {
 			dogIntroActive = false;
 			window.showDogIntro = false;
 		}
-		
+
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
 		} else {
@@ -522,7 +524,7 @@ function getSpawnPointNamesBySource(sourceMap) {
 	if (!sourceMap) {
 		return { player: "player", dog: "dog" }; // Default spawnpoints
 	}
-	
+
 	return {
 		player: `player-${sourceMap}`,
 		dog: `dog-${sourceMap}`
@@ -545,7 +547,7 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		} else {
 			console.log("Tooltip not shown yet"); // Debug log
 		}
-		
+
 		// Set random time for tooltip (between 2-5 minutes)
 		if (!homeKeyTooltipShown && homeKeyTooltipTime === 0) {
 			// For debugging/testing - short time of 20-30 seconds
@@ -717,7 +719,7 @@ k.onUpdate(() => {
 
 		//Erstellt den Spielername-Tag
 		const playerNameTag = k.make([
-			k.text(characterName.toUpperCase(), { 
+			k.text(characterName.toUpperCase(), {
 				size: 16,
 				font: "monospace",
 				styles: {
@@ -749,7 +751,7 @@ k.onUpdate(() => {
 
 		if (dogIntroActive) {
 			player.isFrozen = true;
-		
+
 			// Hund außerhalb spawnen
 			dog.pos = k.vec2(k.width() / 2 / scaleFactor, k.height() / scaleFactor + 50);
 
@@ -766,13 +768,13 @@ k.onUpdate(() => {
 		dog.onUpdate(() => {
 			if (dogIntroActive) {
 				if (dog.isWaiting) return; // Dog is still waiting, do nothing
-		
+
 				const distance = dog.pos.dist(player.pos);
-		
+
 				if (distance > dogIntroStopDistance) {
 					const direction = player.pos.sub(dog.pos).unit();
 					dog.move(direction.scale(dogIntroSpeed));
-		
+
 					// Dog walking animation
 					if (Math.abs(direction.x) > Math.abs(direction.y)) {
 						dog.play("dog-walk-side");
@@ -786,12 +788,12 @@ k.onUpdate(() => {
 					// Dog has reached player
 					dog.move(k.vec2(0));
 					dogIntroActive = false;
-					setCookie("dog_intro_done", true, 365); 
+					setCookie("dog_intro_done", true, 365);
 					window.showDogIntro = false;
 
 					dogHasReachedPlayer = true;
 					dog.speed = dogFollowSpeed; // Set normal speed
-					
+
 					const dogIntroDialogue = JSON.parse(JSON.stringify(dialogueData["dogInitial"])); // Tiefe Kopie
 
 					// Ersetze {dogName} im Titel und Texten
@@ -805,7 +807,7 @@ k.onUpdate(() => {
 						player.isFrozen = false; // Spieler wieder freigeben
 					});
 
-		
+
 					// Dog idle animation
 					if (dog.pos.x < player.pos.x) {
 						dog.flipX = false;
@@ -814,7 +816,7 @@ k.onUpdate(() => {
 						dog.flipX = true;
 						dog.play("dog-idle-side");
 					}
-		
+
 					// Player idle animation towards dog
 					const directionToDog = dog.pos.sub(player.pos);
 					if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
@@ -836,29 +838,29 @@ k.onUpdate(() => {
 							player.direction = "up";
 						}
 					}
-		
+
 					player.isFrozen = false; // Unfreeze player now
 				}
-		
+
 				return; // VERY IMPORTANT: stop update here!
 			}
-		
+
 			// Normal "follow the player" code after intro
 			const distance = dog.pos.dist(player.pos);
 			const followDistance = 130;
 			const maxDistance = 1200;
 			let speed = dog.speed;
-		
+
 			if (distance > maxDistance + 150) {
 				dog.pos = player.pos.clone();
 			} else if (distance > maxDistance) {
 				speed = 300;
 			}
-		
+
 			if (distance > followDistance) {
 				const direction = player.pos.sub(dog.pos).unit();
 				dog.move(direction.scale(speed));
-		
+
 				// Dog walking animation
 				if (Math.abs(direction.x) > Math.abs(direction.y)) {
 					if (direction.x < 0) {
@@ -880,15 +882,15 @@ k.onUpdate(() => {
 				if (dog.curAnim() !== "dog-idle-side") dog.play("dog-idle-side");
 			}
 		});
-		
+
 
 		function finishDogIntro() {
 			// Hund stehen lassen
 			dog.move(k.vec2(0));
-		
+
 			// Spieler freigeben
 			player.isFrozen = false;
-		
+
 			// Hund Idle-Animation passend einstellen
 			if (dog.pos.x < player.pos.x) {
 				dog.flipX = false;
@@ -897,7 +899,7 @@ k.onUpdate(() => {
 				dog.flipX = true;
 				dog.play("dog-idle-side");
 			}
-		
+
 			// Spieler Idle-Animation passend einstellen
 			const directionToDog = dog.pos.sub(player.pos);
 			if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
@@ -919,31 +921,31 @@ k.onUpdate(() => {
 					player.direction = "up";
 				}
 			}
-		
+
 			// Optional: Hier könnten wir auch gleich den ersten Dialog starten!
 		}
 
 		// Add foreground objects if they exist for this map
 		// Find foreground group and layers
-		const foregroundGroup = layers.find(layer => 
+		const foregroundGroup = layers.find(layer =>
 			layer.name === "ForegroundObjects" && layer.layers);
 
 			// If the foreground group exists and at least one of the foreground layers exists
 		if (foregroundGroup) {
 			// Check if the required foreground layers exist
-			const hasForegroundLayers = foregroundGroup.layers.some(layer => 
+			const hasForegroundLayers = foregroundGroup.layers.some(layer =>
 				layer.name === "ForegroundObjects01" || layer.name === "ForegroundObjects02");
-			
+
 			if (hasForegroundLayers) {
 				// Safely check if we have the sprite loaded
 				try {
 					// Try to safely access assets
 					const hasSprite = (
-						k.assets && 
-						k.assets.sprites && 
+						k.assets &&
+						k.assets.sprites &&
 						k.assets.sprites[`${sceneName}-ForegroundObjects`]
 					) || false;
-					
+
 					// Alternative check if direct access didn't work
 					const canLoadSprite = (function() {
 						try {
@@ -954,12 +956,12 @@ k.onUpdate(() => {
 							return false;
 						}
 					})();
-					
+
 					if (hasSprite || canLoadSprite) {
 						// Add the foreground objects sprite with a higher z-index than player
 						k.add([
-							k.sprite(`${sceneName}-ForegroundObjects`), 
-							k.pos(0), 
+							k.sprite(`${sceneName}-ForegroundObjects`),
+							k.pos(0),
 							k.scale(scaleFactor),
 							k.z(20) // Higher z-index than player (9) so it renders above
 						]);
@@ -983,36 +985,36 @@ k.onUpdate(() => {
 		k.onCollide("player", "boundary", () => {
 			inBoundaryCollision = true;
 		});
-		
+
 		// Reset flag when collision ends
 		player.onCollideEnd("boundary", () => {
 			inBoundaryCollision = false;
 			boundaryCollisionTimer = 0;
 			lastSoundTime = 0;
 		});
-		
+
 		// Single update handler for all collision-related logic
 		// This is much more efficient than multiple handlers
 		k.onUpdate(() => {
 			// Skip processing if player is in dialogue
 			if (player.isInDialogue) return;
-			
+
 			// Track safe positions for boundary handling
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			} else {
 				// Handle sound
 				boundaryCollisionTimer += k.dt();
-				
+
 				// Play sound at intervals
-				if (boundaryCollisionTimer >= 0.5 && 
+				if (boundaryCollisionTimer >= 0.5 &&
 					(boundaryCollisionTimer - lastSoundTime >= 1.0 || lastSoundTime === 0)) {
 					k.play("boundary", {
 						volume: sound_effects_volume,
 					});
 					lastSoundTime = boundaryCollisionTimer;
 				}
-				
+
 				// Simple collision resolution - only if significant movement detected
 				const movementDist = player.pos.dist(lastSafePosition);
 				if (movementDist > 8) { // Increased threshold to avoid jittery movement
@@ -1048,7 +1050,7 @@ k.onUpdate(() => {
 						exclamation: null, // Reference to exclamation mark if needed
 						interactionPrompt: null, // Reference to interaction prompt if needed
 					};
-					
+
 					allBoundaries.push(boundaryObj);
 
 					// Initial creation is handled later in the culling logic
@@ -1058,11 +1060,11 @@ k.onUpdate(() => {
 				k.onUpdate(() => {
 					// Skip culling if player is in dialogue
 					if (player.isInDialogue) return;
-					
-					
+
+
 					// Get player position - need to use world position for proper comparison
 					const playerPos = player.worldPos();
-					
+
 					// Process each boundary
 					for (const boundaryObj of allBoundaries) {
 						// Calculate boundary center position in world space
@@ -1070,13 +1072,13 @@ k.onUpdate(() => {
 							boundaryObj.pos.x * scaleFactor,
 							boundaryObj.pos.y * scaleFactor
 						);
-						
+
 						// Calculate distance from player to boundary center
 						const distance = playerPos.dist(boundaryWorldPos);
-						
+
 						// Check if boundary should be visible (within culling radius)
 						const shouldBeVisible = distance <= CULLING_RADIUS;
-						
+
 						// If visibility status changed, add or remove the boundary
 						if (shouldBeVisible !== boundaryObj.isVisible) {
 							if (shouldBeVisible) {
@@ -1088,9 +1090,9 @@ k.onUpdate(() => {
 									k.rotate(boundaryObj.rotation),
 									boundaryObj.name,
 								]);
-								
+
 								boundaryObj.gameObj = newObj;
-								
+
 								// If this boundary has a name (interactive), create the interaction elements
 								if (boundaryObj.name !== "boundary") {
 									let bounceOffset = 0;
@@ -1119,10 +1121,10 @@ k.onUpdate(() => {
 										k.opacity(0),
 										"interactionPrompt"
 									]);
-									
+
 									// Add text on top of the background
 									boundaryObj.promptText = k.add([
-										k.text("Press T to interact", { 
+										k.text("Press T to interact", {
 											size: 24, // Larger text size for better visibility
 											font: "monospace",
 											styles: {
@@ -1141,7 +1143,7 @@ k.onUpdate(() => {
 									const exclamationUpdateEvent = k.onUpdate("exclamation", (e) => {
 										// Only process if this is the right exclamation mark
 										if (e !== boundaryObj.exclamation) return;
-										
+
 										bounceOffset += bounceSpeed;
 										if (bounceOffset > 0.1 || bounceOffset < -0.1) {
 											bounceSpeed *= -1;
@@ -1154,13 +1156,13 @@ k.onUpdate(() => {
 											debugOverlay.updateDebug(
 											  `In range of: ${boundaryObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`
 											);
-										  
+
 											if (!isInProximity) {
 											  isInProximity = true;
 											  promptTimer = 0;
 											}
 											promptTimer += k.dt();
-										  
+
 											if (promptTimer >= PROMPT_DELAY) {
 											  // If this boundary is a "goto" (scene-transition) object…
 											  if (gotoBoundaries.some(b => b.key === boundaryObj.name)) {
@@ -1186,7 +1188,7 @@ k.onUpdate(() => {
 											world_map.style.display = "none";
 										  }
 									});
-									
+
 									// Store event ID for cleanup
 									boundaryObj.exclamationUpdateEvent = exclamationUpdateEvent;
 
@@ -1236,30 +1238,30 @@ k.onUpdate(() => {
 									k.destroy(boundaryObj.gameObj);
 									boundaryObj.gameObj = null;
 								}
-								
+
 								// Clean up interaction elements if they exist
 								if (boundaryObj.exclamation) {
 									k.destroy(boundaryObj.exclamation);
 									boundaryObj.exclamation = null;
 								}
-								
+
 								if (boundaryObj.interactionPrompt) {
 									k.destroy(boundaryObj.interactionPrompt);
 									boundaryObj.interactionPrompt = null;
 								}
-								
+
 								if (boundaryObj.promptText) {
 									k.destroy(boundaryObj.promptText);
 									boundaryObj.promptText = null;
 								}
 							}
-							
+
 							// Update visibility flag
 							boundaryObj.isVisible = shouldBeVisible;
 						}
 					}
 				});
-				
+
 				continue;
 			}
 
@@ -1268,7 +1270,7 @@ k.onUpdate(() => {
 				const tileSize = 16; // Tile size in pixels
 				const mapWidth = layer.width;
 				const mapHeight = layer.height;
-				
+
 				// Convert the 1D array to a 2D array for easier processing
 				const collisionData = [];
 				for (let y = 0; y < mapHeight; y++) {
@@ -1293,7 +1295,7 @@ k.onUpdate(() => {
 								gameObj: null,
 								isVisible: false
 							};
-							
+
 							allCollisionTiles.push(tileObj);
 						}
 					}
@@ -1303,18 +1305,18 @@ k.onUpdate(() => {
 				k.onUpdate(() => {
 					// Skip if player is in dialogue
 					if (player.isInDialogue) return;
-					
+
 					// Get player position for distance calculations
 					const playerPos = player.worldPos();
-					
+
 					// Process each collision tile
 					for (const tileObj of allCollisionTiles) {
 						// Calculate distance from player to tile
 						const distance = playerPos.dist(tileObj.pos);
-						
+
 						// Check if tile should be visible
 						const shouldBeVisible = distance <= COLLISION_CULLING_RADIUS;
-						
+
 						// If visibility changed, add or remove the tile
 						if (shouldBeVisible !== tileObj.isVisible) {
 							if (shouldBeVisible) {
@@ -1334,13 +1336,13 @@ k.onUpdate(() => {
 									tileObj.gameObj = null;
 								}
 							}
-							
+
 							// Update visibility flag
 							tileObj.isVisible = shouldBeVisible;
 						}
 					}
 				});
-				
+
 				continue;
 			}
 
@@ -1353,12 +1355,12 @@ k.onUpdate(() => {
 					k.rotate(boundary.rotation),
 					boundary.name,
 				  ]);
-			  
+
 				  if (boundary.name) {
 					player.onCollide(boundary.name, () => {
 						  // pass along the scene we're coming from
 					  k.go(boundary.name, { from: sceneName });
-			  
+
 					  if (walkingSound) {
 						walkingSound.stop();
 						walkingSound = null;
@@ -1375,13 +1377,13 @@ k.onUpdate(() => {
 			if (layer.name === "spawnpoints") {
 				// Get appropriate spawnpoint names based on source map
 				const { player: playerSpawnName, dog: dogSpawnName } = getSpawnPointNamesBySource(sceneData.from);
-				
+
 				// Store specific and default spawn points
 				let specificPlayerSpawn = null;
 				let specificDogSpawn = null;
 				let defaultPlayerSpawn = null;
 				let defaultDogSpawn = null;
-				
+
 				// First, find all possible spawn points
 				for (const entity of layer.objects) {
 					if (entity.name === playerSpawnName) {
@@ -1407,11 +1409,11 @@ k.onUpdate(() => {
 						);
 					}
 				}
-				
+
 				// Use specific spawn points if available, otherwise fall back to defaults
 				const playerSpawn = specificPlayerSpawn || defaultPlayerSpawn;
 				const dogSpawn = specificDogSpawn || defaultDogSpawn;
-				
+
 				// Position player
 				if (playerSpawn) {
 					player.pos = k.vec2(
@@ -1421,7 +1423,7 @@ k.onUpdate(() => {
 					k.add(player);
 					k.add(playerNameTag);
 				}
-				
+
 				// Position dog
 				if (dogSpawn) {
 					dog.pos = k.vec2(
@@ -1441,7 +1443,7 @@ k.onUpdate(() => {
 
 			const worldMousePos = k.toWorld(k.mousePos());
 			const currentSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
-			
+
 			// Store player's position before mouse movement
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
@@ -1449,7 +1451,7 @@ k.onUpdate(() => {
 
 			// Calculate direction vector for smoother movement handling
 			const direction = worldMousePos.sub(player.pos).unit();
-			
+
 			// Use moveTo with the calculated direction for better control
 			player.moveTo(worldMousePos, currentSpeed);
 
@@ -1464,7 +1466,7 @@ k.onUpdate(() => {
 					player.play("walk-side");
 				}
 				player.direction = "right";
-			} 
+			}
 			else if (mouseAngle >= 45 && mouseAngle <= 135) {
 				// Moving down
 				if (player.curAnim() !== "walk-down") {
@@ -1492,7 +1494,7 @@ k.onUpdate(() => {
 		//Player movement with keyboard
 		const diagonalFactor = 1 / Math.sqrt(2);
 		let walkingSound = false;
-		
+
 		// Keep track of last non-colliding position for both keyboard and mouse movement
 		let lastSafePosition = player.pos.clone();
 
@@ -1500,18 +1502,18 @@ k.onUpdate(() => {
 		k.onUpdate(() => {
 			// Early returns for better performance
 			if (player.isInDialogue || isFullMapView || player.isFrozen || isInventoryOpen) return;
-			
+
 			// Store last safe position if not currently colliding with boundary
 			if (!inBoundaryCollision) {
 				lastSafePosition = player.pos.clone();
 			}
 
 			// Handle walking sound with a simplified check
-			const isMoving = k.isKeyDown("left") || k.isKeyDown("right") || 
-				k.isKeyDown("up") || k.isKeyDown("down") || 
-				k.isKeyDown("a") || k.isKeyDown("d") || 
+			const isMoving = k.isKeyDown("left") || k.isKeyDown("right") ||
+				k.isKeyDown("up") || k.isKeyDown("down") ||
+				k.isKeyDown("a") || k.isKeyDown("d") ||
 				k.isKeyDown("w") || k.isKeyDown("s");
-				
+
 			if (isMoving) {
 				if (!walkingSound) {
 					walkingSound = k.play("footstep", { loop: true, volume: sound_effects_volume });
@@ -1523,11 +1525,11 @@ k.onUpdate(() => {
 
 			// Only process movement if actually moving
 			if (!isMoving) return;
-			
+
 			// Create movement vector - optimized to avoid redundant checks
 			const directionVector = k.vec2(0, 0);
 			let animationChanged = false;
-			
+
 			// Vertical movement takes priority for diagonal movement
 			if (k.isKeyDown("up") || k.isKeyDown("w")) {
 				directionVector.y = -1;
@@ -1544,7 +1546,7 @@ k.onUpdate(() => {
 				player.direction = "down";
 				animationChanged = true;
 			}
-			
+
 			// Horizontal movement
 			if (k.isKeyDown("left") || k.isKeyDown("a")) {
 				directionVector.x = -1;
@@ -1568,9 +1570,9 @@ k.onUpdate(() => {
 
 			// Apply movement
 			const moveSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
-			const finalSpeed = directionVector.x && directionVector.y ? 
+			const finalSpeed = directionVector.x && directionVector.y ?
 				moveSpeed * diagonalFactor : moveSpeed;
-			
+
 			player.move(directionVector.scale(finalSpeed));
 		});
 
@@ -1617,10 +1619,10 @@ k.onUpdate(() => {
 			if (homeKeyTooltipShown || player.isInDialogue || player.isFrozen || isFullMapView) {
 				return;
 			}
-			
+
 			// Increment gameplay timer
 			gameplayTimer += k.dt();
-			
+
 			// Log progress occasionally for debugging
 			if (Math.floor(gameplayTimer) % 10 === 0 && Math.floor(gameplayTimer) !== 0 && !debugTooltip) {
 				console.log("Gameplay timer:", Math.floor(gameplayTimer), "/ Target:", homeKeyTooltipTime);
@@ -1628,7 +1630,7 @@ k.onUpdate(() => {
 			} else if (Math.floor(gameplayTimer) % 10 !== 0) {
 				debugTooltip = false;
 			}
-			
+
 			// Check if it's time to show the tooltip
 			if (gameplayTimer >= homeKeyTooltipTime) {
 				console.log("Time to show tooltip!");
@@ -1826,29 +1828,29 @@ k.onUpdate(() => {
 		// Return to spawn points when "h" key is pressed
 		k.onKeyPress("h", () => {
 			if (player.isInDialogue || player.isFrozen) return;
-			
+
 			// If already on campus map, just return to spawn point
 			if (sceneName === "campus" && defaultPlayerSpawnPos && defaultDogSpawnPos) {
 				// Teleport player to default spawn
 				player.pos = defaultPlayerSpawnPos.clone();
-				
+
 				// Teleport dog to default spawn
 				dog.pos = defaultDogSpawnPos.clone();
-				
+
 				// Play a sound effect for feedback
 				k.play("boundary", {
 					volume: sound_effects_volume,
 				});
-				
+
 				// Reset animations to idle based on direction
 				stopAnims();
 				stopDogAnims();
-				
+
 				// Reset any boundary collision state
 				inBoundaryCollision = false;
 				boundaryCollisionTimer = 0;
 				lastSoundTime = 0;
-				
+
 				// Create retro-style background for text
 				const bgBox = k.add([
 					k.rect(340, 48, { radius: 0 }), // Rectangular box with no rounded corners for retro look
@@ -1860,11 +1862,11 @@ k.onUpdate(() => {
 					k.lifespan(1.6, { fade: 0.6 }),
 					k.z(99)
 				]);
-				
+
 				// Retro pixel-style text
 				k.add([
-					k.text("* RETURNED TO CAMPUS *", { 
-						size: 22, 
+					k.text("* RETURNED TO CAMPUS *", {
+						size: 22,
 						font: "monospace", // Monospace for more pixelated look
 						styles: {
 							fill: k.Color.fromHex("#ffffff"),
@@ -1883,7 +1885,7 @@ k.onUpdate(() => {
 					walkingSound.stop();
 					walkingSound = null;
 				}
-				
+
 				// Create retro-style background for transition message
 				const transitionBox = k.add([
 					k.rect(400, 60, { radius: 0 }), // Rectangular box with no rounded corners
@@ -1896,11 +1898,11 @@ k.onUpdate(() => {
 					k.lifespan(1.1, { fade: 0.5 }),
 					k.z(99)
 				]);
-				
+
 				// Retro style teleport message
 				k.add([
-					k.text("* TELEPORTING TO CAMPUS *", { 
-						size: 22, 
+					k.text("* TELEPORTING TO CAMPUS *", {
+						size: 22,
 						font: "monospace", // Monospace for more pixelated look
 						styles: {
 							fill: k.Color.fromHex("#ffffff"),
@@ -1914,7 +1916,7 @@ k.onUpdate(() => {
 					k.opacity(1),
 					k.lifespan(1, { fade: 0.5 }),
 				]);
-				
+
 				// Brief pause and then go to campus
 				k.wait(0.5, () => {
 					k.go("campus", { from: sceneName });
@@ -1925,15 +1927,15 @@ k.onUpdate(() => {
 		// Function to show "Return Home" tooltip in retro style
 		function showHomeKeyTooltip() {
 			if (homeKeyTooltipShown) return;
-			
+
 			console.log("Showing home key tooltip!"); // Debug log
 			homeKeyTooltipShown = true;
-			
+
 			// Save to session state
 			sessionState.tooltips = sessionState.tooltips || {};
 			sessionState.tooltips.homeKeyShown = true;
 			saveGame();
-			
+
 			// Background box for tooltip
 			const tooltipBox = k.add([
 				k.rect(440, 100, { radius: 0 }), // Rectangular box for retro style
@@ -1945,11 +1947,11 @@ k.onUpdate(() => {
 				k.opacity(0.95),
 				k.z(150),
 			]);
-			
+
 			// Header text
 			const tooltipHeader = k.add([
-				k.text("NEW ABILITY UNLOCKED!", { 
-					size: 24, 
+				k.text("NEW ABILITY UNLOCKED!", {
+					size: 24,
 					font: "monospace",
 					styles: {
 						fill: k.Color.fromHex("#ffffff"),
@@ -1962,11 +1964,11 @@ k.onUpdate(() => {
 				k.opacity(1),
 				k.z(151),
 			]);
-			
+
 			// Instruction text
 			const tooltipText = k.add([
-				k.text("Press H key to return to campus", { 
-					size: 20, 
+				k.text("Press H key to return to campus", {
+					size: 20,
 					font: "monospace",
 					styles: {
 						fill: k.Color.fromHex("#ffff00"), // Yellow text for emphasis
@@ -1979,11 +1981,11 @@ k.onUpdate(() => {
 				k.opacity(1),
 				k.z(151),
 			]);
-			
+
 			// Create a continue prompt
 			const continuePrompt = k.add([
-				k.text("Press any key to continue", { 
-					size: 16, 
+				k.text("Press any key to continue", {
+					size: 16,
 					font: "monospace",
 					styles: {
 						fill: k.Color.fromHex("#aaaaaa"),
@@ -1995,7 +1997,7 @@ k.onUpdate(() => {
 				k.opacity(1),
 				k.z(151),
 			]);
-			
+
 			// Make continue text blink
 			let blinkTimer = 0;
 			const blinkInterval = k.onUpdate(() => {
@@ -2005,11 +2007,11 @@ k.onUpdate(() => {
 					blinkTimer = 0;
 				}
 			});
-			
+
 			// Pause the game while tooltip is showing
 			const playerWasFrozen = player.isFrozen;
 			player.isFrozen = true;
-			
+
 			// Listen for any key to dismiss
 			const keyHandler = k.onKeyPress(() => {
 				tooltipBox.destroy();
@@ -2028,7 +2030,7 @@ k.onUpdate(() => {
 			// Create audio context
 			const AudioContext = window.AudioContext || window.webkitAudioContext;
 			const audioCtx = new AudioContext();
-			
+
 			// Notes for the Super Mario Bros theme (simplified)
 			const notes = [
 			  { note: 'E5', duration: 0.15 },
@@ -2043,13 +2045,13 @@ k.onUpdate(() => {
 			  { note: 'rest', duration: 0.4 },
 			  { note: 'G4', duration: 0.2 }
 			];
-			
+
 			// Frequency mapping
 			const frequencies = {
 			  'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
 			  'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
 			};
-			
+
 			// Play each note sequentially
 			let timeOffset = 0;
 			notes.forEach(note => {
@@ -2057,21 +2059,21 @@ k.onUpdate(() => {
 				// Create oscillator for each note
 				const oscillator = audioCtx.createOscillator();
 				const gainNode = audioCtx.createGain();
-				
+
 				oscillator.connect(gainNode);
 				gainNode.connect(audioCtx.destination);
-				
+
 				// Set waveform and frequency
 				oscillator.type = 'square'; // Square wave for that 8-bit sound
 				oscillator.frequency.value = frequencies[note.note];
-				
+
 				// Set volume
 				gainNode.gain.value = volume;
-				
+
 				// Schedule note start and stop
 				oscillator.start(audioCtx.currentTime + timeOffset);
 				oscillator.stop(audioCtx.currentTime + timeOffset + note.duration);
-				
+
 				// Add slight decay for more natural sound
 				gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + timeOffset + note.duration);
 			  }
@@ -2085,7 +2087,7 @@ k.onUpdate(() => {
 		// Global function to trigger the retro easter egg
 		window.triggerRetroEasterEgg = function() {
 		  console.log("🎮 Triggering retro easter egg! 🎮");
-		  
+
 		  // Play retro sound
 		  try {
 			const retroSound = k.play("retro-sound", {
@@ -2097,11 +2099,11 @@ k.onUpdate(() => {
 			// Try fallback 8-bit melody
 			play8BitMelody(0.5);
 		  }
-		  
+
 		  // Get screen dimensions
 		  const width = window.innerWidth;
 		  const height = window.innerHeight;
-		  
+
 		  // Create retro visual effect with primitive shapes
 		  try {
 			// Create overlay
@@ -2119,7 +2121,7 @@ k.onUpdate(() => {
 				}
 			  }
 			]);
-			
+
 			// Add scanlines
 			for (let i = 0; i < height; i += 4) {
 			  k.add([
@@ -2131,7 +2133,7 @@ k.onUpdate(() => {
 				"retro-scanline"
 			  ]);
 			}
-			
+
 			// Add RGB shift text effect
 			const rgbShiftR = k.add([
 			  k.text("RETRO MODE", { size: 32, font: "sink" }),
@@ -2142,7 +2144,7 @@ k.onUpdate(() => {
 			  k.z(1002),
 			  "retro-text"
 			]);
-			
+
 			const rgbShiftG = k.add([
 			  k.text("RETRO MODE", { size: 32, font: "sink" }),
 			  k.pos(width / 2, 100),
@@ -2152,7 +2154,7 @@ k.onUpdate(() => {
 			  k.z(1002),
 			  "retro-text"
 			]);
-			
+
 			const rgbShiftB = k.add([
 			  k.text("RETRO MODE", { size: 32, font: "sink" }),
 			  k.pos(width / 2 + 2, 100 + 2),
@@ -2162,7 +2164,7 @@ k.onUpdate(() => {
 			  k.z(1002),
 			  "retro-text"
 			]);
-			
+
 			// Create some pixelated objects that move around
 			for (let i = 0; i < 20; i++) {
 			  const pixelSize = 4 + Math.floor(Math.random() * 8);
@@ -2177,22 +2179,22 @@ k.onUpdate(() => {
 				"retro-pixel"
 			  ]);
 			}
-			
+
 			// Increase player speed during the easter egg
 			let originalSpeed = null;
 			let originalSprintSpeed = null;
 			const player = k.get("player")[0];
 			if (player) {
 				console.log("Enhancing player with easter egg effects - Original speed:", player.speed);
-				
+
 				// Store original values
 				originalSpeed = player.speed;
 				originalSprintSpeed = player.sprintSpeed;
-				
+
 				// Set significantly faster speeds - regular and sprint
 				player.speed = 400; // Much faster than normal (typically around 200-250)
 				player.sprintSpeed = 600; // Even faster sprint speed
-				
+
 				// Add a speed indicator text
 				const speedBoostText = k.add([
 					k.text("SPEED BOOST ACTIVE", { size: 20, font: "sink" }),
@@ -2203,7 +2205,7 @@ k.onUpdate(() => {
 					k.z(1002),
 					"retro-speed-text"
 				]);
-				
+
 				// Add a slight visual effect to the player
 				const playerInterval = setInterval(() => {
 					if (player) {
@@ -2212,41 +2214,41 @@ k.onUpdate(() => {
 						player.pos.y += Math.random() * 4 - 2;
 					}
 				}, 300);
-				
+
 				// Clean up the interval when the easter egg ends
 				k.onDestroy("retro-text", () => {
 					clearInterval(playerInterval);
 				});
-				
+
 				console.log("Speed boosted to:", player.speed, "Sprint speed boosted to:", player.sprintSpeed);
 			} else {
 				console.log("Player not found - cannot apply speed boost");
 			}
-			
+
 			// Remove all effects after a minute
 			k.wait(60, () => {
 			  console.log("Removing retro effects...");
-			  
+
 			  // Restore player speed
 			  if (player) {
 				if (originalSpeed !== null) {
 					player.speed = originalSpeed;
 					console.log("Restored player speed to", originalSpeed);
 				}
-				
+
 				if (originalSprintSpeed !== null) {
 					player.sprintSpeed = originalSprintSpeed;
 					console.log("Restored player sprint speed to", originalSprintSpeed);
 				}
 			  }
-			  
+
 			  k.destroyAll("retro-effect");
 			  k.destroyAll("retro-scanline");
 			  k.destroyAll("retro-text");
 			  k.destroyAll("retro-pixel");
 			  k.destroyAll("retro-speed-text");
 			});
-			
+
 		  } catch (e) {
 			console.error("Error creating visual effects:", e);
 		  }
@@ -2260,7 +2262,7 @@ k.onUpdate(() => {
 			if (konamiDebug) {
 			  console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
 			}
-			
+
 			// If the full sequence is entered, trigger the easter egg
 			if (konamiIndex === konamiCode.length) {
 			  console.log("🎮 KONAMI CODE ACTIVATED! 🎮");

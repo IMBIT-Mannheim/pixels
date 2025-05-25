@@ -10,7 +10,111 @@ const SHOP_ITEMS = [
         description: "Unlock an exclusive male character skin",
         price: 1,
         type: "character",
-        image: "./sprites/character-male-paid.png"
+        image: "./sprites/avatars/character-male-paid.png"
+    },
+    {
+        id: "character-male",
+        name: "Male Character",
+        description: "Standard male character skin",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male.png"
+    },
+    {
+        id: "character-female",
+        name: "Female Character",
+        description: "Standard female character skin",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female.png"
+    },
+    {
+        id: "character-male-dblonde",
+        name: "Male Character - Dark Blonde Hair",
+        description: "Male character with dark blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male_dblonde.png"
+    },
+    {
+        id: "character-male-dbrown",
+        name: "Male Character - Dark Brown Hair",
+        description: "Male character with dark brown hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male_dbrown.png"
+    },
+    {
+        id: "character-male-mblonde",
+        name: "Male Character - Medium Blonde Hair",
+        description: "Male character with medium blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male_mblonde.png"
+    },
+    {
+        id: "character-male-mbrown",
+        name: "Male Character - Medium Brown Hair",
+        description: "Male character with medium brown hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male_mbrown.png"
+    },
+    {
+        id: "character-male-wb",
+        name: "Male Character - White Blonde Hair",
+        description: "Male character with white blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/male_wb.png"
+    },
+    {
+        id: "character-female-dblonde",
+        name: "Female Character - Dark Blonde Hair",
+        description: "Female character with dark blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female_dblonde.png"
+    },
+    {
+        id: "character-female-dbrown",
+        name: "Female Character - Dark Brown Hair",
+        description: "Female character with dark brown hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female_dbrown.png"
+    },
+    {
+        id: "character-female-lblonde",
+        name: "Female Character - Light Blonde Hair",
+        description: "Female character with light blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female_lblonde.png"
+    },
+    {
+        id: "character-female-mblonde",
+        name: "Female Character - Medium Blonde Hair",
+        description: "Female character with medium blonde hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female_mblonde.png"
+    },
+    {
+        id: "character-female-mbrown",
+        name: "Female Character - Medium Brown Hair",
+        description: "Female character with medium brown hair",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/female_mbrown.png"
+    },
+    {
+        id: "character-dog",
+        name: "Dog Companion",
+        description: "Cute dog companion",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/dog-spritesheet.png"
     }
 ];
 
@@ -114,7 +218,7 @@ export function initInventoryShop() {
         type: "character",
         image: "./sprites/character-male.png"
     };
-    
+
     const defaultFemaleCharacter = {
         id: "character-female",
         name: "Female Character",
@@ -122,9 +226,9 @@ export function initInventoryShop() {
         type: "character",
         image: "./sprites/character-female.png"
     };
-    
+
     // Add the appropriate default character(s)
-    if (sessionState.settings.character === "character-male" || 
+    if (sessionState.settings.character === "character-male" ||
         sessionState.settings.character === "character-male-paid") {
         renderInventoryItem(defaultMaleCharacter, inventoryItemsContainer);
     } else {
@@ -190,7 +294,7 @@ function renderShopItem(item, container) {
     // Item details
     const itemDetails = document.createElement("div");
     itemDetails.style.flex = "1";
-    
+
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
     itemName.style.margin = "0 0 5px 0";
@@ -212,7 +316,7 @@ function renderShopItem(item, container) {
     itemPrice.style.fontSize = "1rem";
     itemPrice.style.color = "#ffd700";
     itemDetails.appendChild(itemPrice);
-    
+
     itemElement.appendChild(itemDetails);
 
     // Buy button
@@ -220,18 +324,18 @@ function renderShopItem(item, container) {
     buyButton.className = "button";
     buyButton.textContent = "Kaufen";
     buyButton.style.marginLeft = "10px";
-    
+
     // Disable button if not enough score
     if (sessionState.progress.score < item.price) {
         buyButton.style.opacity = "0.5";
         buyButton.style.cursor = "not-allowed";
     }
-    
+
     buyButton.addEventListener("click", () => {
         if (sessionState.progress.score <= item.price) purchaseItem(item);
         document.getElementById("game").focus();
     });
-    
+
     itemElement.appendChild(buyButton);
     container.appendChild(itemElement);
 }
@@ -269,7 +373,7 @@ function renderInventoryItem(item, container) {
     // Item details
     const itemDetails = document.createElement("div");
     itemDetails.style.flex = "1";
-    
+
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
     itemName.style.margin = "0 0 5px 0";
@@ -282,7 +386,7 @@ function renderInventoryItem(item, container) {
     itemDescription.style.fontSize = "0.9rem";
     itemDescription.style.color = "#e0e0e0";
     itemDetails.appendChild(itemDescription);
-    
+
     itemElement.appendChild(itemDetails);
 
     // Use button (only for characters)
@@ -291,11 +395,11 @@ function renderInventoryItem(item, container) {
         useButton.className = "button";
         useButton.textContent = "Auswaehlen";
         useButton.style.marginLeft = "10px";
-        
+
         useButton.addEventListener("click", () => {
             selectCharacter(item.id);
         });
-        
+
         itemElement.appendChild(useButton);
     } else if (sessionState.inventory.activeCharacter === item.id) {
         const activeLabel = document.createElement("span");
@@ -305,7 +409,7 @@ function renderInventoryItem(item, container) {
         activeLabel.style.fontWeight = "bold";
         itemElement.appendChild(activeLabel);
     }
-    
+
     container.appendChild(itemElement);
 }
 
@@ -319,32 +423,32 @@ function purchaseItem(item) {
 
     // Deduct price from score
     sessionState.progress.score -= item.price;
-    
+
     // Add item to inventory
     if (!sessionState.inventory.purchasedItems.includes(item.id)) {
         sessionState.inventory.purchasedItems.push(item.id);
     }
-    
+
     // Save changes
     saveGame();
-    
+
     // Update UI
     refreshScoreUI();
-    
+
     // Reset containers
     const inventoryShop = document.getElementById("inventory-shop");
     const inventoryShopContainer = inventoryShop.querySelector(".inventory-shop-container");
     const contentContainer = inventoryShopContainer.querySelector(".inventory-shop-content");
-    
+
     // Get inventory section to reuse
     const inventorySection = contentContainer.querySelector(".inventory-section");
     const inventoryItemsContainer = inventorySection.querySelector("div:last-child");
-    
+
     // Clear inventory items container
     while (inventoryItemsContainer.firstChild) {
         inventoryItemsContainer.removeChild(inventoryItemsContainer.firstChild);
     }
-    
+
     // Define default characters
     const defaultMaleCharacter = {
         id: "character-male",
@@ -353,7 +457,7 @@ function purchaseItem(item) {
         type: "character",
         image: "./sprites/character-male.png"
     };
-    
+
     const defaultFemaleCharacter = {
         id: "character-female",
         name: "Female Character",
@@ -361,15 +465,15 @@ function purchaseItem(item) {
         type: "character",
         image: "./sprites/character-female.png"
     };
-    
+
     // Add the appropriate default character
-    if (sessionState.settings.character === "character-male" || 
+    if (sessionState.settings.character === "character-male" ||
         sessionState.settings.character === "character-male-paid") {
         renderInventoryItem(defaultMaleCharacter, inventoryItemsContainer);
     } else {
         renderInventoryItem(defaultFemaleCharacter, inventoryItemsContainer);
     }
-    
+
     // Add purchased items to inventory including the new one
     sessionState.inventory.purchasedItems.forEach(itemId => {
         const item = SHOP_ITEMS.find(shopItem => shopItem.id === itemId);
@@ -377,20 +481,20 @@ function purchaseItem(item) {
             renderInventoryItem(item, inventoryItemsContainer);
         }
     });
-    
+
     // Remove the purchased item from shop
     const shopItemsContainer = contentContainer.querySelector(".shop-section > div:last-child");
     while (shopItemsContainer.firstChild) {
         shopItemsContainer.removeChild(shopItemsContainer.firstChild);
     }
-    
+
     // Re-add shop items that haven't been purchased
     SHOP_ITEMS.forEach(shopItem => {
         if (!sessionState.inventory.purchasedItems.includes(shopItem.id)) {
             renderShopItem(shopItem, shopItemsContainer);
         }
     });
-    
+
     // No notification/alert
 }
 
@@ -439,7 +543,7 @@ function selectCharacter(characterId) {
     // Change active character
     sessionState.inventory.activeCharacter = characterId;
     //sessionState.settings.character = characterId;
-    
+
     // Save changes
     saveGame();
     if(!document.getElementById("remove-items-button")) {
@@ -456,51 +560,51 @@ function selectCharacter(characterId) {
         }
     }
     document.getElementById("remove-items-button").style.display = "block";
-    
+
     // Get inventory container
     const inventoryShop = document.getElementById("inventory-shop");
     const inventoryShopContainer = inventoryShop.querySelector(".inventory-shop-container");
     const contentContainer = inventoryShopContainer.querySelector(".inventory-shop-content");
     const inventorySection = contentContainer.querySelector(".inventory-section");
     const inventoryItemsContainer = inventorySection.querySelector("div:last-child");
-    
+
     // Remove active class from all items
     const inventoryItems = inventoryItemsContainer.querySelectorAll(".inventory-item");
     inventoryItems.forEach(item => {
         item.style.border = "none";
         item.style.boxShadow = "none";
-        
+
         // Remove "Aktiv" label if it exists
         const activeLabel = item.querySelector("span");
         if (activeLabel && activeLabel.textContent === "Aktiv") {
             item.removeChild(activeLabel);
-            
+
             // Add "Auswaehlen" button back
             const useButton = document.createElement("button");
             useButton.className = "button";
             useButton.textContent = "Auswaehlen";
             useButton.style.marginLeft = "10px";
-            
+
             const itemId = item.dataset.itemId;
             useButton.addEventListener("click", () => {
                 selectCharacter(itemId);
             });
-            
+
             item.appendChild(useButton);
         }
     });
-    
+
     // Add active class to selected item
     const selectedItem = Array.from(inventoryItems).find(item => item.dataset.itemId === characterId);
     if (selectedItem) {
         selectedItem.style.border = "2px solid #ffd700";
         selectedItem.style.boxShadow = "0 0 10px #ffd700";
-        
+
         // Replace "Auswaehlen" button with "Aktiv" label
         const useButton = selectedItem.querySelector("button");
         if (useButton) {
             selectedItem.removeChild(useButton);
-            
+
             const activeLabel = document.createElement("span");
             activeLabel.textContent = "Aktiv";
             activeLabel.style.marginLeft = "10px";
@@ -509,7 +613,7 @@ function selectCharacter(characterId) {
             selectedItem.appendChild(activeLabel);
         }
     }
-    
+
     // Add notification about character changing on room change
     const notification = document.createElement("div");
     notification.className = "character-change-notification";
@@ -524,23 +628,23 @@ function selectCharacter(characterId) {
     notification.style.zIndex = "1000";
     notification.style.fontSize = "1.2rem";
     notification.textContent = "Charakter geaendert!";
-    
+
     // Remove existing notifications
     const existingNotification = inventoryShopContainer.querySelector(".character-change-notification");
     if (existingNotification) {
         inventoryShopContainer.removeChild(existingNotification);
     }
-    
+
     // Add the notification
     inventoryShopContainer.appendChild(notification);
-    
+
     // Remove the notification after 3 seconds
     setTimeout(() => {
         if (inventoryShopContainer.contains(notification)) {
             inventoryShopContainer.removeChild(notification);
         }
     }, 3000);
-    
+
     // We won't attempt to update the character immediately
     // Character will update when player moves to a new room
     // This approach is safer and prevents crashes
@@ -549,7 +653,7 @@ function selectCharacter(characterId) {
 // Initialize when the module is imported
 export function attachInventoryShopListeners() {
     const inventory_shop = document.getElementById("inventory-shop");
-    
+
     // Initialize the shop when it's displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -561,6 +665,6 @@ export function attachInventoryShopListeners() {
             }
         });
     });
-    
+
     observer.observe(inventory_shop, { attributes: true });
-} 
+}
