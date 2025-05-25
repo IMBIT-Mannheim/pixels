@@ -2,6 +2,39 @@ import { k } from "./kaboomCtx.js";
 import { sessionState, saveGame } from "./sessionstate.js";
 import { refreshScoreUI } from "./utils.js";
 
+// Function to load all avatar sprites with animations
+export function loadAvatarSprites() {
+    // Base animations configuration
+    const baseAnims = {
+        sliceX: 3,
+        sliceY: 3,
+        anims: {
+            "idle-down": 0,
+            "idle-up": 3,
+            "idle-side": 6,
+            "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+            "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+            "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+        }
+    };
+
+    // Load all avatar sprites
+    k.loadSprite("character-male-paid", "./sprites/avatars/character-male-paid.png", baseAnims);
+    k.loadSprite("character-male", "./sprites/avatars/male.png", baseAnims);
+    k.loadSprite("character-female", "./sprites/avatars/female.png", baseAnims);
+    k.loadSprite("character-male-dblonde", "./sprites/avatars/male_dblonde.png", baseAnims);
+    k.loadSprite("character-male-dbrown", "./sprites/avatars/male_dbrown.png", baseAnims);
+    k.loadSprite("character-male-mblonde", "./sprites/avatars/male_mblonde.png", baseAnims);
+    k.loadSprite("character-male-mbrown", "./sprites/avatars/male_mbrown.png", baseAnims);
+    k.loadSprite("character-male-wb", "./sprites/avatars/male_wb.png", baseAnims);
+    k.loadSprite("character-female-dblonde", "./sprites/avatars/female_dblonde.png", baseAnims);
+    k.loadSprite("character-female-dbrown", "./sprites/avatars/female_dbrown.png", baseAnims);
+    k.loadSprite("character-female-lblonde", "./sprites/avatars/female_lblonde.png", baseAnims);
+    k.loadSprite("character-female-mblonde", "./sprites/avatars/female_mblonde.png", baseAnims);
+    k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
+    k.loadSprite("character-dog", "./sprites/avatars/dog-spritesheet.png", baseAnims);
+}
+
 // Shop items configuration
 const SHOP_ITEMS = [
     {
@@ -117,6 +150,7 @@ const SHOP_ITEMS = [
         image: "./sprites/avatars/dog-spritesheet.png"
     }
 ];
+
 
 // Main function to initialize the inventory and shop UI
 export function initInventoryShop() {

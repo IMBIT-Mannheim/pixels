@@ -3,7 +3,7 @@ import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
-import { attachInventoryShopListeners } from "./inventoryshop.js";
+import { attachInventoryShopListeners, loadAvatarSprites } from "./inventoryshop.js";
 
 // Properly initialize session state
 console.log("Initializing session state...");
@@ -60,19 +60,7 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	},
 });
 
-k.loadSprite("character-male-paid", "./sprites/character-male-paid.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
-
+loadAvatarSprites();
 
 
 for (let i = 0; i < maps.length; i++) {
@@ -265,7 +253,7 @@ k.scene("loading", () => {
 		sessionState.settings.character = character;
 		saveGame();
 
-		k.loadSprite(character, "./sprites/"+ character + ".png", {
+		k.loadSprite(character, "./sprites/avatars/"+ character + ".png", {
 		sliceX: 3,
 		sliceY: 3,
 		anims: {
