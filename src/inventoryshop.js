@@ -2,6 +2,40 @@ import { k } from "./kaboomCtx.js";
 import { sessionState, saveGame } from "./sessionstate.js";
 import { refreshScoreUI } from "./utils.js";
 
+// Function to load all avatar sprites with animations
+export function loadAvatarSprites() {
+    // Base animations configuration
+    const baseAnims = {
+        sliceX: 3,
+        sliceY: 3,
+        anims: {
+            "idle-down": 0,
+            "idle-up": 3,
+            "idle-side": 6,
+            "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+            "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+            "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+        }
+    };
+
+    // Load all avatar sprites
+    k.loadSprite("character-male-paid", "./sprites/avatars/character-male-paid.png", baseAnims);
+    k.loadSprite("character-male", "./sprites/avatars/male.png", baseAnims);
+    k.loadSprite("character-female", "./sprites/avatars/female.png", baseAnims);
+    k.loadSprite("character-male-dblonde", "./sprites/avatars/male_dblonde.png", baseAnims);
+    k.loadSprite("character-male-dbrown", "./sprites/avatars/male_dbrown.png", baseAnims);
+    k.loadSprite("character-male-mblonde", "./sprites/avatars/male_mblonde.png", baseAnims);
+    k.loadSprite("character-male-mbrown", "./sprites/avatars/male_mbrown.png", baseAnims);
+    k.loadSprite("character-male-wb", "./sprites/avatars/male_wb.png", baseAnims);
+    k.loadSprite("character-female-dblonde", "./sprites/avatars/female_dblonde.png", baseAnims);
+    k.loadSprite("character-female-dbrown", "./sprites/avatars/female_dbrown.png", baseAnims);
+    k.loadSprite("character-female-lblonde", "./sprites/avatars/female_lblonde.png", baseAnims);
+    k.loadSprite("character-female-mblonde", "./sprites/avatars/female_mblonde.png", baseAnims);
+    k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
+    k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
+    k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
+}
+
 // Shop items configuration
 const SHOP_ITEMS = [
     {
@@ -10,9 +44,26 @@ const SHOP_ITEMS = [
         description: "Unlock an exclusive male character skin",
         price: 1,
         type: "character",
-        image: "./sprites/character-male-paid.png"
-    }
+        image: "./sprites/avatars/character-male-paid.png"
+    },
+   {
+        id: "steel-boy-shop",
+        name: "Steel Boy",
+        description: "Unlock the Steel Boy character",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/steel_boy_shop.png"
+   },
+   {
+        id: "steel-girl-shop",
+        name: "Steel Girl",
+        description: "Unlock the Steel Girl character",
+        price: 1,
+        type: "character",
+        image: "./sprites/avatars/steel_girl_shop.png"
+   }
 ];
+
 
 // Main function to initialize the inventory and shop UI
 export function initInventoryShop() {
@@ -114,7 +165,7 @@ export function initInventoryShop() {
         type: "character",
         image: "./sprites/character-male.png"
     };
-    
+
     const defaultFemaleCharacter = {
         id: "character-female",
         name: "Female Character",
@@ -122,9 +173,9 @@ export function initInventoryShop() {
         type: "character",
         image: "./sprites/character-female.png"
     };
-    
+
     // Add the appropriate default character(s)
-    if (sessionState.settings.character === "character-male" || 
+    if (sessionState.settings.character === "character-male" ||
         sessionState.settings.character === "character-male-paid") {
         renderInventoryItem(defaultMaleCharacter, inventoryItemsContainer);
     } else {
@@ -190,7 +241,7 @@ function renderShopItem(item, container) {
     // Item details
     const itemDetails = document.createElement("div");
     itemDetails.style.flex = "1";
-    
+
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
     itemName.style.margin = "0 0 5px 0";
@@ -212,7 +263,7 @@ function renderShopItem(item, container) {
     itemPrice.style.fontSize = "1rem";
     itemPrice.style.color = "#ffd700";
     itemDetails.appendChild(itemPrice);
-    
+
     itemElement.appendChild(itemDetails);
 
     // Buy button
@@ -220,18 +271,18 @@ function renderShopItem(item, container) {
     buyButton.className = "button";
     buyButton.textContent = "Kaufen";
     buyButton.style.marginLeft = "10px";
-    
+
     // Disable button if not enough score
     if (sessionState.progress.score < item.price) {
         buyButton.style.opacity = "0.5";
         buyButton.style.cursor = "not-allowed";
     }
-    
+
     buyButton.addEventListener("click", () => {
         if (sessionState.progress.score <= item.price) purchaseItem(item);
         document.getElementById("game").focus();
     });
-    
+
     itemElement.appendChild(buyButton);
     container.appendChild(itemElement);
 }
@@ -269,7 +320,7 @@ function renderInventoryItem(item, container) {
     // Item details
     const itemDetails = document.createElement("div");
     itemDetails.style.flex = "1";
-    
+
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
     itemName.style.margin = "0 0 5px 0";
@@ -282,7 +333,7 @@ function renderInventoryItem(item, container) {
     itemDescription.style.fontSize = "0.9rem";
     itemDescription.style.color = "#e0e0e0";
     itemDetails.appendChild(itemDescription);
-    
+
     itemElement.appendChild(itemDetails);
 
     // Use button (only for characters)
@@ -291,11 +342,11 @@ function renderInventoryItem(item, container) {
         useButton.className = "button";
         useButton.textContent = "Auswaehlen";
         useButton.style.marginLeft = "10px";
-        
+
         useButton.addEventListener("click", () => {
             selectCharacter(item.id);
         });
-        
+
         itemElement.appendChild(useButton);
     } else if (sessionState.inventory.activeCharacter === item.id) {
         const activeLabel = document.createElement("span");
@@ -305,7 +356,7 @@ function renderInventoryItem(item, container) {
         activeLabel.style.fontWeight = "bold";
         itemElement.appendChild(activeLabel);
     }
-    
+
     container.appendChild(itemElement);
 }
 
@@ -319,32 +370,32 @@ function purchaseItem(item) {
 
     // Deduct price from score
     sessionState.progress.score -= item.price;
-    
+
     // Add item to inventory
     if (!sessionState.inventory.purchasedItems.includes(item.id)) {
         sessionState.inventory.purchasedItems.push(item.id);
     }
-    
+
     // Save changes
     saveGame();
-    
+
     // Update UI
     refreshScoreUI();
-    
+
     // Reset containers
     const inventoryShop = document.getElementById("inventory-shop");
     const inventoryShopContainer = inventoryShop.querySelector(".inventory-shop-container");
     const contentContainer = inventoryShopContainer.querySelector(".inventory-shop-content");
-    
+
     // Get inventory section to reuse
     const inventorySection = contentContainer.querySelector(".inventory-section");
     const inventoryItemsContainer = inventorySection.querySelector("div:last-child");
-    
+
     // Clear inventory items container
     while (inventoryItemsContainer.firstChild) {
         inventoryItemsContainer.removeChild(inventoryItemsContainer.firstChild);
     }
-    
+
     // Define default characters
     const defaultMaleCharacter = {
         id: "character-male",
@@ -353,7 +404,7 @@ function purchaseItem(item) {
         type: "character",
         image: "./sprites/character-male.png"
     };
-    
+
     const defaultFemaleCharacter = {
         id: "character-female",
         name: "Female Character",
@@ -361,15 +412,15 @@ function purchaseItem(item) {
         type: "character",
         image: "./sprites/character-female.png"
     };
-    
+
     // Add the appropriate default character
-    if (sessionState.settings.character === "character-male" || 
+    if (sessionState.settings.character === "character-male" ||
         sessionState.settings.character === "character-male-paid") {
         renderInventoryItem(defaultMaleCharacter, inventoryItemsContainer);
     } else {
         renderInventoryItem(defaultFemaleCharacter, inventoryItemsContainer);
     }
-    
+
     // Add purchased items to inventory including the new one
     sessionState.inventory.purchasedItems.forEach(itemId => {
         const item = SHOP_ITEMS.find(shopItem => shopItem.id === itemId);
@@ -377,20 +428,20 @@ function purchaseItem(item) {
             renderInventoryItem(item, inventoryItemsContainer);
         }
     });
-    
+
     // Remove the purchased item from shop
     const shopItemsContainer = contentContainer.querySelector(".shop-section > div:last-child");
     while (shopItemsContainer.firstChild) {
         shopItemsContainer.removeChild(shopItemsContainer.firstChild);
     }
-    
+
     // Re-add shop items that haven't been purchased
     SHOP_ITEMS.forEach(shopItem => {
         if (!sessionState.inventory.purchasedItems.includes(shopItem.id)) {
             renderShopItem(shopItem, shopItemsContainer);
         }
     });
-    
+
     // No notification/alert
 }
 
@@ -439,7 +490,7 @@ function selectCharacter(characterId) {
     // Change active character
     sessionState.inventory.activeCharacter = characterId;
     //sessionState.settings.character = characterId;
-    
+
     // Save changes
     saveGame();
     if(!document.getElementById("remove-items-button")) {
@@ -456,51 +507,51 @@ function selectCharacter(characterId) {
         }
     }
     document.getElementById("remove-items-button").style.display = "block";
-    
+
     // Get inventory container
     const inventoryShop = document.getElementById("inventory-shop");
     const inventoryShopContainer = inventoryShop.querySelector(".inventory-shop-container");
     const contentContainer = inventoryShopContainer.querySelector(".inventory-shop-content");
     const inventorySection = contentContainer.querySelector(".inventory-section");
     const inventoryItemsContainer = inventorySection.querySelector("div:last-child");
-    
+
     // Remove active class from all items
     const inventoryItems = inventoryItemsContainer.querySelectorAll(".inventory-item");
     inventoryItems.forEach(item => {
         item.style.border = "none";
         item.style.boxShadow = "none";
-        
+
         // Remove "Aktiv" label if it exists
         const activeLabel = item.querySelector("span");
         if (activeLabel && activeLabel.textContent === "Aktiv") {
             item.removeChild(activeLabel);
-            
+
             // Add "Auswaehlen" button back
             const useButton = document.createElement("button");
             useButton.className = "button";
             useButton.textContent = "Auswaehlen";
             useButton.style.marginLeft = "10px";
-            
+
             const itemId = item.dataset.itemId;
             useButton.addEventListener("click", () => {
                 selectCharacter(itemId);
             });
-            
+
             item.appendChild(useButton);
         }
     });
-    
+
     // Add active class to selected item
     const selectedItem = Array.from(inventoryItems).find(item => item.dataset.itemId === characterId);
     if (selectedItem) {
         selectedItem.style.border = "2px solid #ffd700";
         selectedItem.style.boxShadow = "0 0 10px #ffd700";
-        
+
         // Replace "Auswaehlen" button with "Aktiv" label
         const useButton = selectedItem.querySelector("button");
         if (useButton) {
             selectedItem.removeChild(useButton);
-            
+
             const activeLabel = document.createElement("span");
             activeLabel.textContent = "Aktiv";
             activeLabel.style.marginLeft = "10px";
@@ -509,7 +560,7 @@ function selectCharacter(characterId) {
             selectedItem.appendChild(activeLabel);
         }
     }
-    
+
     // Add notification about character changing on room change
     const notification = document.createElement("div");
     notification.className = "character-change-notification";
@@ -524,23 +575,23 @@ function selectCharacter(characterId) {
     notification.style.zIndex = "1000";
     notification.style.fontSize = "1.2rem";
     notification.textContent = "Charakter geaendert!";
-    
+
     // Remove existing notifications
     const existingNotification = inventoryShopContainer.querySelector(".character-change-notification");
     if (existingNotification) {
         inventoryShopContainer.removeChild(existingNotification);
     }
-    
+
     // Add the notification
     inventoryShopContainer.appendChild(notification);
-    
+
     // Remove the notification after 3 seconds
     setTimeout(() => {
         if (inventoryShopContainer.contains(notification)) {
             inventoryShopContainer.removeChild(notification);
         }
     }, 3000);
-    
+
     // We won't attempt to update the character immediately
     // Character will update when player moves to a new room
     // This approach is safer and prevents crashes
@@ -549,7 +600,7 @@ function selectCharacter(characterId) {
 // Initialize when the module is imported
 export function attachInventoryShopListeners() {
     const inventory_shop = document.getElementById("inventory-shop");
-    
+
     // Initialize the shop when it's displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -561,6 +612,6 @@ export function attachInventoryShopListeners() {
             }
         });
     });
-    
+
     observer.observe(inventory_shop, { attributes: true });
-} 
+}
