@@ -1,6 +1,7 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic, getAvailableMaps, getAllMaps, regularMaps, companyMaps, allMaps } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
+import { quizFinished, makeReplayPrompt } from "./utils.js";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, initializeSecureScoring } from "./sessionstate.js";
 import { attachInventoryShopListeners, loadAvatarSprites } from "./inventoryshop.js";

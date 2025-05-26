@@ -226,8 +226,15 @@ class Dialogue {
     
             this._typingEffect(this._currentDialogue.correctText);
         } else {
-            this._remainingDialogues = [];
-            this._typingEffect(this._currentDialogue.wrongText);
+            // Falsche Antwort: dieselbe Frage erneut an den Anfang hängen
+        const retry = Object.assign({}, this._currentDialogue);
+        this._remainingDialogues.unshift(retry);
+        // Fehlermeldung + Hinweis auf neuen Versuch
+        this._typingEffect(this._currentDialogue.wrongText + ' Versuche es noch mal. ')
+        .then(() => {
+        // Close-Button zu „Neuer Versuch“ umbenennen
+        closeBtn.innerHTML = 'Neuer Versuch';
+        });
         }
         this._currentDialogue.correctAnswer = 0;
     }
