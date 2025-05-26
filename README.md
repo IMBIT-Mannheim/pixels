@@ -233,10 +233,6 @@ The game features several key locations, each with unique content and interactio
 
 Contributions are welcome! Please follow the feature development workflow outlined above and submit a Pull Request.
 
-## 📜 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🌟 Welcome to IMBIT-PIXELS
 
 This repository serves as a foundation for our small learning game.
