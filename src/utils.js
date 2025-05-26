@@ -1,4 +1,5 @@
 import { sessionState, saveGame } from "./sessionstate.js";
+import { dialogueData } from "./constants.js";
 
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
@@ -171,17 +172,20 @@ class Dialogue {
         dialogueUI.style.display = "block";
         await this._typingEffect(this._currentDialogue.text);
 
-        for (let index = 0; index < this._currentDialogue.answers.length; index++) {
-            const button = document.createElement("button");
-            button.classList.add("button");
-            button.classList.add("question-btn");
+        // answers kann fehlen → leeres Array verwenden
+        const answers = Array.isArray(this._currentDialogue.answers)
+                        ? this._currentDialogue.answers
+                        : [];
 
-            button.innerHTML = this._currentDialogue.answers[index];
-            button.addEventListener("click", () => {
-                this._questionAnswer(index + 1);
-            });
-            dialogueContainer.appendChild(button);
-        }
+ answers.forEach((txt, idx) => {
+     const button = document.createElement("button");
+     button.classList.add("button", "question-btn");
+     button.innerHTML = txt;
+     button.addEventListener("click", () => {
+         this._questionAnswer(idx + 1);
+     });
+     dialogueContainer.appendChild(button);
+ });
     }
 
     increaseScore(amount) {
@@ -196,6 +200,10 @@ class Dialogue {
     
 
     _questionAnswer(number) {
+        if (!Array.isArray(this._currentDialogue?.answers) || !this._currentDialogue.answers.length) {
+            return;                      // Dialog hat gar keine Quizfragen
+        }
+        
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
         }
@@ -217,8 +225,15 @@ class Dialogue {
     
             this._typingEffect(this._currentDialogue.correctText);
         } else {
-            this._remainingDialogues = [];
-            this._typingEffect(this._currentDialogue.wrongText);
+            // Falsche Antwort: dieselbe Frage erneut an den Anfang hängen
+        const retry = Object.assign({}, this._currentDialogue);
+        this._remainingDialogues.unshift(retry);
+        // Fehlermeldung + Hinweis auf neuen Versuch
+        this._typingEffect(this._currentDialogue.wrongText + ' Versuche es noch mal. ')
+        .then(() => {
+        // Close-Button zu „Neuer Versuch“ umbenennen
+        closeBtn.innerHTML = 'Neuer Versuch';
+        });
         }
         this._currentDialogue.correctAnswer = 0;
     }
@@ -270,4 +285,50 @@ export function refreshScoreUI() {
     if (scoreUI) {
         scoreUI.innerHTML = sessionState.progress.score;
     }
+}
+
+/* ---------- Quiz-Status & Wiederholungs-Prompt ---------- */
+
+/**
+ * true ⇒ Spieler hat bereits jede Quizfrage dieser Figur gelöst
+ */
+export function quizFinished(npcKey) {
+        // Rohdaten holen (kann Array, Objekt oder undefined sein)
+        const raw = dialogueData[npcKey];
+
+        // In ein Array umwandeln, damit wir sicher .filter() benutzen können
+        const ds = Array.isArray(raw) ? raw
+                : raw ? [raw]           // einzelnes Objekt ⇒ Array mit 1 Element
+                : [];                   // undefined ⇒ leeres Array
+    
+        // alle echten Quizfragen (mit answers[]) heraussuchen
+        const quizIds = ds
+            .filter(d => Array.isArray(d.answers) && d.answers.length)
+            .map(d => d.id);
+    
+        // Hat die Figur überhaupt Quizfragen?
+        if (quizIds.length === 0) return false;
+    
+        // true ⇢ jede Frage dieser Figur wurde schon richtig beantwortet
+        return quizIds.every(id =>
+            sessionState.progress.answeredDialogues.includes(id)
+        );
+    }
+
+/**
+ * Liefert einen Ein-Satz-Dialog zum erneuten Durchspielen
+ */
+export function makeReplayPrompt(npcKey) {
+    const speaker = dialogueData[npcKey][0].title;
+    return [{
+        id: `revisit_${npcKey}`,
+        title: speaker,
+        text: 'Schoen dich wiederzusehen! Meine Fragen hast du bereits richtig ' +
+              'beantwortet. Moechtest du sie trotzdem nochmal durchgehen? ' +
+              'Neue Punkte bekommst du dafuer allerdings nicht ;). ',
+        answers: ['Ja', 'Nein'],
+        correctAnswer: 0,   // unterdrückt Scoring
+        correctText: '',
+        wrongText: ''
+    }];
 }

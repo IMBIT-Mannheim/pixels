@@ -60,7 +60,7 @@ export const dialogueData = {
   //Klassenzimmer
   factone: {
     title: '5 Fakten ueber Mannheim',
-    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Straßennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
+    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Strassennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
     answers: [
     ],
   },
@@ -88,151 +88,241 @@ export const dialogueData = {
     answers: [
     ],
   },
-  bwlopa: [{
-    id: 16,
-    title: 'Prof. Magnolica',
-    text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP? `,
-    answers: [
-      '1) Die Inflation eines Landes',
-      '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes',
-      '3) Die Arbeitslosenquote',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 15,
-    title: 'Prof. Magnolica',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) VWL',
-      '2) BWL',
-      '3) DWL',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft. ',
-    wrongText: 'Falsch! ',
-  },],
-  bwlGuy: [{
-    id: 14,
-    title: 'Prof. Burnett',
-    text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchfuehrung? `,
-    answers: [
-      '1) Aktiva = Passiva',
-      '2) Einnahmen = Ausgaben',
-      '3) Soll = Gewinn',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  }, {
-    id: 13,
-    title: 'Prof. Burnett',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) Grundlagen der Rechnungslegung',
-      '2) Statistik',
-      '3) Marketing',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
-    wrongText: 'Falsch! ',
-  },],
-  bwlgirl: [{
-    id: 12,
-    title: 'Prof. Eibe',
-    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
-    answers: [
-      '1) Die Bilanz eines Unternehmens zu erstellen',
-      '2) Staerken, Schwaechen, Chancen und Risiken eines Unternehmens zu analysieren',
-      '3) Die Mitarbeiterzufriedenheit zu messen',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 11,
-    title: 'Prof. Eibe',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) BWL',
-      '2) VWL',
-      '3) Unternehmensfuehrung',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Sehr gut! Du denkst strategisch. ',
-    wrongText: 'Falsch! ',
-  },],
-  itgirl1: [{
-    id: 10,
-    title: 'Prof. Birk',
-    text: `Gruess dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
-    answers: [
-      '1) Daten speichern',
-      '2) Text ausgeben',
-      '3) Schleifen ausfuehren',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 9,
-    title: 'Prof. Birk',
-    text: `Bonusfrage: „Welches Fach koennte ich wohl unterrichten?" `,
-    answers: [
-      '1) Programmierung',
-      '2) Cryptographie',
-      '3) Datasecurity',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Du hast den Dreh raus.“',
-    wrongText: 'Falsch! ',
-  },],
-  itgirl2: [{
-    id: 8,
-    title: 'Prof. Lind',
-    text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: \n Welches der folgenden ist keine Speicherart?“`,
-    answers: [
-      '1) RAM',
-      '2) CPU',
-      '3) HDD',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 7,
-    title: 'Prof. Lind',
-    text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
-    answers: [
-      '1) Grundlegende Konzepte der IT',
-      '2) Computerwissenschaft',
-      '3) Netzwerke',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },],
-  itguy: {
-    id: 6,
-    title: 'Prof. Eich',
-    text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS?“`,
-    answers: [
-      '1) Basis Instandhaltungssysteme',
-      '2) Betriebliche Informationssysteme',
-      '3) Bedingte Informationssperre',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
+  bwlopa: [
+    // 1) Vorstellung Prof. Magnolica
+    {
+      id: 0,
+      title: 'Prof. Magnolica',
+      text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. `,
+      answers: [],       // Intro ohne Buttons
+      correctAnswer: 0,  // deaktiviert Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Magnolica
+    {
+      id: 16,
+      title: 'Prof. Magnolica',
+      text: `Was beschreibt das BIP? `,
+      answers: [
+        '1) Die Inflation eines Landes',
+        '2) Mass fuer die gesamte Wirtschaftsleistung eines Landes in einem bestimmten Zeitraum',
+        '3) Die Arbeitslosenquote',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Magnolica
+    {
+      id: 15,
+      title: 'Prof. Magnolica',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) VWL',
+        '2) BWL',
+        '3) DWL',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  bwlGuy: [
+    // 1) Vorstellung Prof. Burnett
+    {
+      id: 0,
+      title: 'Prof. Burnett',
+      text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. `,
+      answers: [],       // Intro ohne Antwort-Buttons
+      correctAnswer: 0,  // deaktiviert Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Burnett
+    {
+      id: 14,
+      title: 'Prof. Burnett',
+      text: `Was ist die Grundgleichung der doppelten Buchfuehrung? `,
+      answers: [
+        '1) Aktiva = Passiva',
+        '2) Einnahmen = Ausgaben',
+        '3) Soll = Gewinn',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Burnett
+    {
+      id: 13,
+      title: 'Prof. Burnett',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) Grundlagen der Rechnungslegung',
+        '2) Statistik',
+        '3) Marketing',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  bwlgirl: [
+    // 1) Vorstellung von Prof. Eibe
+    {
+      id: 0,
+      title: 'Prof. Eibe',
+      text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. `,
+      answers: [],       // Intro ohne Antwort-Buttons
+      correctAnswer: 0,  // deaktiviert die Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Eibe
+    {
+      id: 12,
+      title: 'Prof. Eibe',
+      text: `Was beschreibt eine SWOT-Analyse? `,
+      answers: [
+        '1) Geschaeftsrisiken',
+        '2) Finanzbuchhaltung',
+        '3) Softwareentwicklung',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Eibe
+    {
+      id: 11,
+      title: 'Prof. Eibe',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) BWL',
+        '2) VWL',
+        '3) Unternehmensfuehrung',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Sehr gut! Du denkst strategisch. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itgirl1: [
+    // 1) Vorstellung von Prof. Birk
+    {
+      id: 0,
+      title: 'Prof. Birk',
+      text: `Gruess dich, schoen dich kennenzulernen! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof Birk
+    {
+      id: 10,
+      title: 'Prof. Birk',
+      text: `Was macht die Funktion print() in Python? `,
+      answers: [
+        '1) Daten speichern',
+        '2) Text ausgeben',
+        '3) Schleifen ausfuehren',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Birk
+    {
+      id: 9,
+      title: 'Prof. Birk',
+      text: `Bonusfrage: Welches Fach koennte ich wohl unterrichten? `,
+      answers: [
+        '1) Programmierung',
+        '2) Cryptographie',
+        '3) Datasecurity',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Du scheinst ein echter Code-Kenner zu sein! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itgirl2: [
+    // 1) Vorstellung von Prof. Lind
+    {
+      id: 0,
+      title: 'Prof. Lind',
+      text: `Willkommen in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Lidnd
+    {
+      id: 8,
+      title: 'Prof. Lind',
+      text: `Welches der folgenden ist keine Speicherart? `,
+      answers: [
+        '1) RAM',
+        '2) CPU',
+        '3) HDD',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Lind
+    {
+      id: 7,
+      title: 'Prof. Lind',
+      text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
+      answers: [
+        '1) Grundlegende Konzepte der IT',
+        '2) Computerwissenschaft',
+        '3) Netzwerke',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Vielleicht sehen wir uns ja bald hier! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itguy: [
+    // 1) Vorstellung von Prof. Eich
+    {
+      id: 0,
+      title: 'Prof. Eich',
+      text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Quizfrage von Prof. Eich
+    {
+      id: 6,
+      title: 'Prof. Eich',
+      text: `Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS? `,
+      answers: [
+        '1) Basis Instandhaltungssysteme',
+        '2) Betriebliche Informationssysteme',
+        '3) Bedingte Informationssperre',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
   tipsRoboter: {
     title: 'Bob',
-    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
+    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und Beratungsangebote</a>`,
 
     answers: [
     ],
@@ -337,41 +427,53 @@ export const dialogueData = {
     answers: [
     ],
   },
-  //Campus
   girl: {
     title: 'Mentorin',
     text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studentenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
     answers: [
     ],
   },
-  girl2: [{
-    id:23,
-    title: 'Event Manager Emma',
-    text: `Hey ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben - Partys, Lesungen, Filmabende und mehr. Weisst du schon welche Events auf dich warten? Zeig mir was du weisst! \n Was gibt es zu Beginn jeden Studienjahres?`,
-    answers: [
-      '1) Gesundheitspruefung',
-      '2) eine Grosse Opening-Party',
-      '3) Kostenloses Essen in der Mensa',
-      '4) Gutscheine fuer das Fehlen in Vorlesungen',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Sehr gut! ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id:22,
-    title: 'Event Manager Emma',
-    text: `Wie viele Personen waren bei der letzten Opening-Party 2024? `,
-    answers: [
-      '1) 300',
-      '2) 1000',
-      '3) 3000',
-      '4) 4000',
-    ],
-    correctAnswer: 4, // = index of correct answer + 1
-    correctText: 'Du bist ein Event-Experte! Freu dich auf coole Abende und viele neue Freunde auf dem Campus. ',
-    wrongText: 'Falsch! ',
-  },
+  girl2: [
+    // 1) Vorstellung von girl2
+    {
+      id: 0,
+      title: 'Event Manager Emma',
+      text: `Hey, ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben – Partys, Lesungen, Filmabende und mehr. `,
+      answers: [],       // keine Antwort-Buttons bei der Intro
+      correctAnswer: 0,  // deaktiviert die Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von girl2
+    {
+      id: 23,
+      title: 'Event Manager Emma',
+      text: `Was gibt es zu Beginn jeden Studienjahres? `,
+      answers: [
+        '1) Gesundheitspruefung',
+        '2) grosse Opening-Party',
+        '3) kostenloses Essen in der Mensa',
+        '4) Gutscheine fuer das Fehlen in Vorlesungen',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Sehr gut! ',
+      wrongText: 'Leider falsch.',
+    },
+    // 3) Zweite Quizfrage von girl2
+    {
+      id: 22,
+      title: 'Event Manager Emma',
+      text: `Wie viele Personen waren bei der letzten Opening-Party 2024? `,
+      answers: [
+        '1) 300',
+        '2) 1000',
+        '3) 3000',
+        '4) 4000',
+      ],
+      correctAnswer: 4, // = index of correct answer + 1
+      correctText: 'Du bist ein Event-Experte! Freu dich auf coole Abende und viele neue Freunde auf dem Campus. ',
+      wrongText: 'Falsch! ',
+    },
   ],
   girl3: [{
     id:21,
@@ -393,7 +495,7 @@ export const dialogueData = {
     text: `Was ist ein besonderer Vorteil des Studentenausweises im RNV-Gebiet? `,
     answers: [
       '1) Kostenloser Eintritt in Museen',
-      '2) Kostenloser oePNV zu bestimmten Zeiten',
+      '2) Kostenloser OEPNV zu bestimmten Zeiten',
       '3) Ermaessigte Fluege ins Ausland',
       '4) Kostenlose Fahrraeder',
     ],
@@ -416,10 +518,22 @@ export const dialogueData = {
     wrongText: 'Falsch! ',
   },
 ],
-  guy1: [{
-    id:18,
+guy1: [
+  // 1) Vorstellung von guy1
+  {
+    id: 0,
     title: 'Sportler Sam',
-    text: `Hi, ich bin Sam! Auf dem Campus haben wir nicht nur Buecher, sondern auch jede Menge Sportangebote. Mal sehen, ob du fit bist – nicht nur koerperlich, sondern auch im Kopf! \n Welche Sportmoeglichkeit bietet die DHBW Mannheim mit der SportsCard?`,
+    text: `Hi, ich bin Sam! Auf dem Campus haben wir nicht nur Buecher, sondern auch jede Menge Sportangebote. Mal sehen, ob du fit bist – nicht nur koerperlich, sondern auch im Kopf! `,
+    answers: [],       // Intro ohne Antwort-Buttons
+    correctAnswer: 0,  // Quiz deaktiviert
+    correctText: '',
+    wrongText: '',
+  },
+  // 2) Erste Quizfrage von guy1
+  {
+    id: 18,
+    title: 'Sportler Sam',
+    text: `Welche Sportmoeglichkeit bietet die DHBW Mannheim mit der SportsCard? `,
     answers: [
       '1) Kostenlose Nutzung des Fitnessstudios auf dem Campus',
       '2) Teilnahmemoeglichkeit an ueber 50 verschiedenen Sportarten',
@@ -428,12 +542,13 @@ export const dialogueData = {
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! ',
-    wrongText: 'Falsch! ',
+    wrongText: 'Leider falsch. ',
   },
+  // 3) Zweite Quizfrage von guy1
   {
-    id:17,
+    id: 17,
     title: 'Sportler Sam',
-    text: `Was ist das beliebteste Ziel fuer Outdoor-Exkursionen?`,
+    text: `Was ist das beliebteste Ziel fuer Outdoor-Exkursionen? `,
     answers: [
       '1) Luisenpark',
       '2) Heidelberger Schloss',
@@ -442,8 +557,9 @@ export const dialogueData = {
     ],
     correctAnswer: 3, // = index of correct answer + 1
     correctText: 'Gut gemacht! Jetzt weisst du, wie du dich fit halten kannst – egal, ob beim Basketball, Yoga oder einer Exkursion. ',
-    wrongText: 'Falsch! ',
-  },],
+    wrongText: 'Leider falsch. ',
+  },
+],
   sportscar: [
     {
       id: 19,
