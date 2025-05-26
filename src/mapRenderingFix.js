@@ -39,8 +39,8 @@ let loadingScreen = {
 
 // Initialize map rendering fixes
 export function initMapRendering(mapSprite, mapData = null) {
-    console.log("Initializing map rendering fixes for:", mapSprite);
-    console.log("Map data received:", mapData);
+    // console.log("Initializing map rendering fixes for:", mapSprite);
+    // console.log("Map data received:", mapData);
     
     // Note: setPixelDensity doesn't exist in this Kaboom version, so we'll skip it
     // k.setPixelDensity(1);
@@ -49,47 +49,47 @@ export function initMapRendering(mapSprite, mapData = null) {
     if (mapData && mapData.width && mapData.height) {
         currentMapBounds.width = mapData.width * scaleFactor;
         currentMapBounds.height = mapData.height * scaleFactor;
-        console.log("Using mapData dimensions:", mapData.width, "x", mapData.height);
+        // console.log("Using mapData dimensions:", mapData.width, "x", mapData.height);
     } else {
         // Fallback: estimate from sprite if available
         try {
             const sprite = k.getSprite(mapSprite);
-            console.log("Sprite info:", sprite);
+            // console.log("Sprite info:", sprite);
             
             if (sprite && sprite.width && sprite.height) {
                 currentMapBounds.width = sprite.width * scaleFactor;
                 currentMapBounds.height = sprite.height * scaleFactor;
-                console.log("Using sprite dimensions:", sprite.width, "x", sprite.height);
+                // console.log("Using sprite dimensions:", sprite.width, "x", sprite.height);
             } else {
                 // Special handling for KSB map and other large maps
                 if (mapSprite.includes('ksb')) {
                     currentMapBounds.width = 3200 * scaleFactor; // Larger dimensions for KSB
                     currentMapBounds.height = 2400 * scaleFactor;
-                    console.log("Using KSB-specific dimensions");
+                    // console.log("Using KSB-specific dimensions");
                 } else {
                     // Default fallback dimensions
                     currentMapBounds.width = 2000 * scaleFactor;
                     currentMapBounds.height = 1500 * scaleFactor;
-                    console.log("Using default fallback dimensions");
+                    // console.log("Using default fallback dimensions");
                 }
             }
         } catch (error) {
-            console.warn("Could not get sprite dimensions, using fallback:", error);
+            // console.warn("Could not get sprite dimensions, using fallback:", error);
             // Special handling for KSB map
             if (mapSprite.includes('ksb')) {
                 currentMapBounds.width = 3200 * scaleFactor;
                 currentMapBounds.height = 2400 * scaleFactor;
-                console.log("Using KSB-specific fallback dimensions");
+                // console.log("Using KSB-specific fallback dimensions");
             } else {
                 currentMapBounds.width = 2000 * scaleFactor;
                 currentMapBounds.height = 1500 * scaleFactor;
-                console.log("Using default fallback dimensions");
+                // console.log("Using default fallback dimensions");
             }
         }
     }
     
     currentMapBounds.initialized = true;
-    console.log("Final map bounds set to:", currentMapBounds);
+    // console.log("Final map bounds set to:", currentMapBounds);
     
     // Apply rendering fixes
     applyRenderingFixes();
@@ -179,16 +179,16 @@ function setupCameraConstraints() {
     const validMinY = Math.min(minY, currentMapBounds.height / 2);
     const validMaxY = Math.max(maxY, currentMapBounds.height / 2);
     
-    console.log("Camera constraints with buffer:", { 
-        minX: validMinX, 
-        maxX: validMaxX, 
-        minY: validMinY, 
-        maxY: validMaxY,
-        mapWidth: currentMapBounds.width,
-        mapHeight: currentMapBounds.height,
-        screenWidth,
-        screenHeight
-    });
+    // console.log("Camera constraints with buffer:", { 
+    //     minX: validMinX, 
+    //     maxX: validMaxX, 
+    //     minY: validMinY, 
+    //     maxY: validMaxY,
+    //     mapWidth: currentMapBounds.width,
+    //     mapHeight: currentMapBounds.height,
+    //     screenWidth,
+    //     screenHeight
+    // });
     
     // Store bounds for monitoring
     window.cameraBounds = { 
@@ -266,13 +266,13 @@ export function fixSpriteRendering(sprite) {
 
 // Force reload a map sprite with pixel-perfect settings
 export function reloadMapSprite(mapName) {
-    console.log("Reloading map sprite with pixel-perfect settings:", mapName);
+    // console.log("Reloading map sprite with pixel-perfect settings:", mapName);
     
     try {
         // Remove existing sprite from cache if it exists
         if (k.assets && k.assets.sprites && k.assets.sprites[mapName]) {
             delete k.assets.sprites[mapName];
-            console.log("Removed existing sprite from cache:", mapName);
+            // console.log("Removed existing sprite from cache:", mapName);
         }
         
         // Create a new image element with pixel-perfect settings
@@ -283,7 +283,7 @@ export function reloadMapSprite(mapName) {
         
         // Load the sprite with explicit pixel-perfect settings
         img.onload = () => {
-            console.log("Image loaded, creating pixel-perfect sprite:", mapName);
+            // console.log("Image loaded, creating pixel-perfect sprite:", mapName);
             
             // Force canvas context to use pixel-perfect rendering
             const canvas = k.canvas;
@@ -307,7 +307,7 @@ export function reloadMapSprite(mapName) {
                 );
                 
                 mapObjects.forEach(mapObj => {
-                    console.log("Updating map object with new sprite");
+                    // console.log("Updating map object with new sprite");
                     mapObj.smooth = false;
                     
                     // Force the object to re-render
@@ -371,7 +371,7 @@ export function resetCameraToSafePosition(player = null) {
     k.camPos(targetX, targetY);
     k.camScale(1, 1); // Reset zoom
     
-    console.log("Camera reset to safe position:", targetX, targetY);
+    // console.log("Camera reset to safe position:", targetX, targetY);
 }
 
 // Handle window resize to update camera bounds
@@ -394,12 +394,12 @@ export function cleanupMapRendering() {
         delete window.cameraBounds;
     }
     
-    console.log("Map rendering cleanup completed");
+    // console.log("Map rendering cleanup completed");
 }
 
 // Emergency fix for rendering issues
 export function emergencyRenderingFix() {
-    console.log("Applying emergency rendering fix...");
+    // console.log("Applying emergency rendering fix...");
     
     // Reset camera
     k.camPos(k.width() / 2, k.height() / 2);
@@ -431,7 +431,7 @@ export function emergencyRenderingFix() {
 
 // Specific fix for KSB map rendering issues
 export function fixKSBMapRendering() {
-    console.log("Applying KSB-specific rendering fix...");
+    // console.log("Applying KSB-specific rendering fix...");
     
     // Step 1: Reload the KSB sprite with pixel-perfect settings
     reloadMapSprite("companies/ksb");
@@ -448,7 +448,7 @@ export function fixKSBMapRendering() {
     if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-            console.log("Applying aggressive canvas fixes for KSB map...");
+            // console.log("Applying aggressive canvas fixes for KSB map...");
             
             // Force pixel-perfect rendering
             ctx.imageSmoothingEnabled = false;
@@ -521,9 +521,8 @@ export function fixKSBMapRendering() {
         });
     });
     
-    console.log("KSB fix applied - camera positioned at:", k.camPos());
-    console.log("Canvas dimensions:", canvas ? `${canvas.width}x${canvas.height}` : "Canvas not found");
-    console.log("Map bounds:", currentMapBounds);
+    // console.log("Canvas dimensions:", canvas ? `${canvas.width}x${canvas.height}` : "Canvas not found");
+    // console.log("Map bounds:", currentMapBounds);
 }
 
 // Force tiled rendering for specific maps that are known to be large
@@ -540,13 +539,13 @@ export function shouldUseTiledRendering(mapSprite) {
     );
     
     if (shouldForce) {
-        console.log(`Map ${mapSprite} is in forced tiling list`);
+        // console.log(`Map ${mapSprite} is in forced tiling list`);
         return true;
     }
     
     // Check if it's any company map
     if (mapSprite.includes('companies/')) {
-        console.log(`Map ${mapSprite} is a company map, forcing tiled rendering`);
+        // console.log(`Map ${mapSprite} is a company map, forcing tiled rendering`);
         return true;
     }
     
@@ -555,7 +554,7 @@ export function shouldUseTiledRendering(mapSprite) {
 
 // Create a tiled map system for large maps that exceed Kaboom's texture limits
 export function createTiledMap(mapSprite, mapData = null) {
-    console.log("Creating tiled map system for:", mapSprite);
+    // console.log("Creating tiled map system for:", mapSprite);
     
     // Check if this map should be forced to use tiling
     const forceTiling = shouldUseTiledRendering(mapSprite);
@@ -573,7 +572,7 @@ export function createTiledMap(mapSprite, mapData = null) {
         if (img.complete && img.naturalWidth > 0) {
             mapWidth = img.naturalWidth;
             mapHeight = img.naturalHeight;
-            console.log("Got actual image dimensions:", mapWidth, "x", mapHeight);
+            // console.log("Got actual image dimensions:", mapWidth, "x", mapHeight);
         }
     } catch (error) {
         console.log("Could not get actual image dimensions, using fallback");
@@ -584,38 +583,38 @@ export function createTiledMap(mapSprite, mapData = null) {
         if (mapData && mapData.width && mapData.height) {
             mapWidth = mapData.width;
             mapHeight = mapData.height;
-            console.log("Got dimensions from mapData:", mapWidth, "x", mapHeight);
+            // console.log("Got dimensions from mapData:", mapWidth, "x", mapHeight);
         } else {
             // Fallback based on known map sizes - be more aggressive for company maps
             if (mapSprite.includes('ksb') || mapSprite.includes('companies/ksb')) {
                 mapWidth = 3200;
                 mapHeight = 2400;
                 needsTiling = true; // Force tiling for KSB
-                console.log("Using KSB-specific dimensions (forced tiling):", mapWidth, "x", mapHeight);
+                // console.log("Using KSB-specific dimensions (forced tiling):", mapWidth, "x", mapHeight);
             } else if (mapSprite.includes('companies/')) {
                 // Assume other company maps are also large
                 mapWidth = 2500;
                 mapHeight = 2000;
                 needsTiling = true; // Force tiling for company maps
-                console.log("Using company map dimensions (forced tiling):", mapWidth, "x", mapHeight);
+                // console.log("Using company map dimensions (forced tiling):", mapWidth, "x", mapHeight);
             } else {
                 // Default dimensions for regular maps
                 mapWidth = 2000;
                 mapHeight = 1500;
-                console.log("Using default dimensions:", mapWidth, "x", mapHeight);
+                // console.log("Using default dimensions:", mapWidth, "x", mapHeight);
             }
         }
     }
     
-    console.log("Final map dimensions:", mapWidth, "x", mapHeight);
-    console.log("Texture size limit:", RENDERING_CONFIG.maxTextureSize);
-    console.log("Force tiling:", needsTiling);
+    // console.log("Final map dimensions:", mapWidth, "x", mapHeight);
+    // console.log("Texture size limit:", RENDERING_CONFIG.maxTextureSize);
+    // console.log("Force tiling:", needsTiling);
     
     // Check if map exceeds texture limits OR if we've forced tiling
     const exceedsLimits = mapWidth > RENDERING_CONFIG.maxTextureSize || mapHeight > RENDERING_CONFIG.maxTextureSize;
     
     if (!exceedsLimits && !needsTiling) {
-        console.log("Map is within texture limits and no forced tiling, using normal rendering");
+        // console.log("Map is within texture limits and no forced tiling, using normal rendering");
         return null; // Use normal rendering
     }
     
@@ -629,7 +628,7 @@ export function createTiledMap(mapSprite, mapData = null) {
     const tilesX = Math.ceil(mapWidth / RENDERING_CONFIG.maxTextureSize);
     const tilesY = Math.ceil(mapHeight / RENDERING_CONFIG.maxTextureSize);
     
-    console.log("Tile grid:", tilesX, "x", tilesY, "tiles");
+    // console.log("Tile grid:", tilesX, "x", tilesY, "tiles");
     
     // Create tile information
     const tiles = [];
@@ -650,7 +649,7 @@ export function createTiledMap(mapSprite, mapData = null) {
                 loaded: false
             });
             
-            console.log(`Tile ${y * tilesX + x}: ${tileWidth}x${tileHeight} at (${tileX}, ${tileY})`);
+            // console.log(`Tile ${y * tilesX + x}: ${tileWidth}x${tileHeight} at (${tileX}, ${tileY})`);
         }
     }
     
@@ -665,7 +664,7 @@ export function createTiledMap(mapSprite, mapData = null) {
         tilesY
     };
     
-    console.log("Tiled map info created:", tiledMapInfo);
+    // console.log("Tiled map info created:", tiledMapInfo);
     return tiledMapInfo;
 }
 
@@ -673,7 +672,7 @@ export function createTiledMap(mapSprite, mapData = null) {
 export function loadMapTiles(mapSprite) {
     if (!tiledMapInfo.isActive) return Promise.resolve();
     
-    console.log("Loading map tiles for:", mapSprite);
+    // console.log("Loading map tiles for:", mapSprite);
     
     // Create loading screen
     createLoadingScreen();
@@ -685,8 +684,8 @@ export function loadMapTiles(mapSprite) {
         fullMapImage.crossOrigin = "anonymous";
         
         fullMapImage.onload = () => {
-            console.log("Full map image loaded, creating tiles...");
-            console.log("Image dimensions:", fullMapImage.width, "x", fullMapImage.height);
+            // console.log("Full map image loaded, creating tiles...");
+            // console.log("Image dimensions:", fullMapImage.width, "x", fullMapImage.height);
             
             updateLoadingProgress(1, tiledMapInfo.tiles.length + 1, "CREATING MAP TILES...");
             
@@ -714,7 +713,7 @@ export function loadMapTiles(mapSprite) {
                 // Process tiles with a small delay to allow UI updates
                 const processTile = (index) => {
                     if (index >= totalTiles) {
-                        console.log("All tiles loaded successfully");
+                        // console.log("All tiles loaded successfully");
                         updateLoadingProgress(totalTiles + 1, totalTiles + 1, "TILES READY!");
                         
                         // Small delay before resolving to show completion
@@ -757,7 +756,7 @@ export function loadMapTiles(mapSprite) {
                         tile.spriteName = tileName;
                         tilesLoaded++;
                         
-                        console.log(`Loaded tile ${index + 1}/${totalTiles}: ${tile.width}x${tile.height} at (${tile.x}, ${tile.y})`);
+                        // console.log(`Loaded tile ${index + 1}/${totalTiles}: ${tile.width}x${tile.height} at (${tile.x}, ${tile.y})`);
                         
                         // Process next tile with a small delay for smooth animation
                         setTimeout(() => processTile(index + 1), 50);
@@ -787,7 +786,7 @@ export function loadMapTiles(mapSprite) {
         };
         
         const imagePath = `./maps/${mapSprite}.png`;
-        console.log("Loading image from:", imagePath);
+        // console.log("Loading image from:", imagePath);
         fullMapImage.src = imagePath;
     });
 }
@@ -796,7 +795,7 @@ export function loadMapTiles(mapSprite) {
 export function createTileGameObjects() {
     if (!tiledMapInfo.isActive) return [];
     
-    console.log("Creating tile game objects...");
+    // console.log("Creating tile game objects...");
     
     const tileObjects = [];
     
@@ -819,14 +818,14 @@ export function createTileGameObjects() {
         }
     });
     
-    console.log(`Created ${tileObjects.length} tile game objects`);
+    // console.log(`Created ${tileObjects.length} tile game objects`);
     return tileObjects;
 }
 
 // Clean up tiled map system
 export function cleanupTiledMap() {
     if (tiledMapInfo.isActive) {
-        console.log("Cleaning up tiled map system");
+        // console.log("Cleaning up tiled map system");
         
         // Destroy all tile game objects
         k.destroyAll("map-tile");
@@ -844,7 +843,7 @@ export function cleanupTiledMap() {
 export function createLoadingScreen() {
     if (loadingScreen.isActive) return;
     
-    console.log("Creating loading screen for tile loading...");
+    // console.log("Creating loading screen for tile loading...");
     
     const screenWidth = k.width();
     const screenHeight = k.height();
@@ -932,7 +931,7 @@ export function createLoadingScreen() {
     });
     
     loadingScreen.isActive = true;
-    console.log("Loading screen created");
+    // console.log("Loading screen created");
 }
 
 // Update loading progress
@@ -958,14 +957,14 @@ export function updateLoadingProgress(current, total, message = null) {
         loadingScreen.loadingText.text = message;
     }
     
-    console.log(`Loading progress: ${current}/${total} (${percentage}%)`);
+    // console.log(`Loading progress: ${current}/${total} (${percentage}%)`);
 }
 
 // Remove loading screen
 export function removeLoadingScreen() {
     if (!loadingScreen.isActive) return;
     
-    console.log("Removing loading screen...");
+    // console.log("Removing loading screen...");
     
     // Destroy all loading screen elements
     k.destroyAll("loading-screen");
@@ -980,5 +979,5 @@ export function removeLoadingScreen() {
         isActive: false
     };
     
-    console.log("Loading screen removed");
+    // console.log("Loading screen removed");
 } 

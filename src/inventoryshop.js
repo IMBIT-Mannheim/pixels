@@ -439,7 +439,7 @@ async function purchaseItem(item) {
     // Verify the purchase was successful (score was actually decreased)
     if (newScore === originalScore) {
         // Purchase failed - score wasn't decreased
-        console.error("Failed to decrease score for purchase");
+        // console.error("Failed to decrease score for purchase");
         return;
     }
 

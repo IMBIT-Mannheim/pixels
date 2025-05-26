@@ -10,7 +10,7 @@ let isCompanyPromptActive = false; // Flag to coordinate with main interaction s
 
 // Initialize company locations from map data
 export function initCompanyFlags(mapData) {
-    console.log("Initializing company flags with map data:", mapData.name);
+    // console.log("Initializing company flags with map data:", mapData.name);
     
     // Reset locations and cleanup
     companyLocations = [];
@@ -19,17 +19,17 @@ export function initCompanyFlags(mapData) {
     // Find the flags layer
     const flagsLayer = mapData.layers.find(layer => layer.name === "flags");
     if (!flagsLayer?.objects) {
-        console.log("No flags layer found in map:", mapData.name);
+        // console.log("No flags layer found in map:", mapData.name);
         return;
     }
 
-    console.log("Found flags layer with", flagsLayer.objects.length, "objects");
+    // console.log("Found flags layer with", flagsLayer.objects.length, "objects");
 
     // Store the positions and names
     companyLocations = flagsLayer.objects
         .filter(obj => obj.name && obj.name.trim().length > 0)
         .map(obj => {
-            console.log("Adding company location:", obj.name, "at", obj.x, obj.y);
+            // console.log("Adding company location:", obj.name, "at", obj.x, obj.y);
             return {
                 name: obj.name,
                 x: obj.x * scaleFactor,
@@ -38,7 +38,7 @@ export function initCompanyFlags(mapData) {
             };
         });
 
-    console.log("Initialized", companyLocations.length, "company locations");
+    // console.log("Initialized", companyLocations.length, "company locations");
 }
 
 // Clean up current prompt and handlers
@@ -340,12 +340,12 @@ export function checkFlagProximity(player) {
         if (!currentSpaceHandler) {
             currentSpaceHandler = k.onKeyPress("space", () => {
                 if (player.isInDialogue || player.isFrozen) {
-                    console.log("Player in dialogue or frozen, ignoring space press");
+                    // console.log("Player in dialogue or frozen, ignoring space press");
                     return;
                 }
 
                 if (isAvailable) {
-                    console.log("Space pressed near available company:", nearest.name, "- navigating directly");
+                    // console.log("Space pressed near available company:", nearest.name, "- navigating directly");
                     
                     // Clean up current prompt
                     cleanupCurrentPrompt();
@@ -353,7 +353,7 @@ export function checkFlagProximity(player) {
                     // Navigate directly to company map
                     k.go(nearest.companyMap);
                 } else {
-                    console.log("Space pressed near unavailable company:", nearest.name, "- showing work in progress alert");
+                    // console.log("Space pressed near unavailable company:", nearest.name, "- showing work in progress alert");
                     
                     // Clean up current prompt
                     cleanupCurrentPrompt();
@@ -389,7 +389,7 @@ export function getCompanyInteractionStatus() {
 
 // Cleanup function
 export function cleanupFlags() {
-    console.log("Cleaning up company locations");
+    // .log("Cleaning up company locations");
     cleanupCurrentPrompt();
     companyLocations = [];
     k.destroyAll("company-prompt");

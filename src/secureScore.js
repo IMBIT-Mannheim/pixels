@@ -98,7 +98,7 @@ export async function validateSecureScore(secureScoreObj, sessionId, answeredDia
         
         // If hash validation fails but score is reasonable, allow it (less strict mode)
         if (scoreIsReasonable && score <= (answeredDialogues.length * 2 + 1000)) {
-            console.log("Hash validation failed but score seems reasonable - allowing it (less strict mode)");
+            // console.log("Hash validation failed but score seems reasonable - allowing it (less strict mode)");
             return true;
         }
         
@@ -204,7 +204,7 @@ export function isScoreReasonable(score, answeredDialogues) {
 
 // Migration function to convert old scores to secure scores
 export async function migrateToSecureScore(oldScore, sessionId, answeredDialogues, onTamperingDetected = null) {
-    console.log("Migrating old score to secure score system");
+    // console.log("Migrating old score to secure score system");
     
     // Validate that the old score is reasonable
     if (!isScoreReasonable(oldScore, answeredDialogues)) {
@@ -226,15 +226,15 @@ export async function debugScoreIntegrity(secureScoreObj, sessionId, answeredDia
     console.group("🔒 Score Integrity Check");
     
     if (!secureScoreObj) {
-        console.log("❌ No secure score object found");
+        // console.log("❌ No secure score object found");
         console.groupEnd();
         return false;
     }
     
-    console.log("📊 Score:", secureScoreObj.score);
-    console.log("⏰ Timestamp:", new Date(secureScoreObj.timestamp).toLocaleString());
-    console.log("🔑 Hash:", secureScoreObj.hash.slice(0, 16) + "...");
-    console.log("📝 Answered Dialogues:", answeredDialogues.length);
+    // console.log("📊 Score:", secureScoreObj.score);
+    // console.log("⏰ Timestamp:", new Date(secureScoreObj.timestamp).toLocaleString());
+    // console.log("🔑 Hash:", secureScoreObj.hash.slice(0, 16) + "...");
+    // console.log("📝 Answered Dialogues:", answeredDialogues.length);
     
     const isValid = await validateSecureScore(secureScoreObj, sessionId, answeredDialogues);
     console.log(isValid ? "✅ Score is valid" : "❌ Score validation failed");

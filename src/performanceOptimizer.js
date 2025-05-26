@@ -36,7 +36,7 @@ const performanceState = {
 
 // Initialize performance-optimized map loading
 export function initializePerformanceOptimizedMaps() {
-    console.log("🚀 Initializing performance-optimized map system...");
+    // console.log("🚀 Initializing performance-optimized map system...");
     
     // Load only essential maps immediately (campus)
     loadEssentialMaps();
@@ -45,12 +45,12 @@ export function initializePerformanceOptimizedMaps() {
     setupViewportCulling();
     
     // DON'T start background loading automatically - wait for game to start
-    console.log("✅ Performance optimization system initialized - background loading will start after game begins");
+    // console.log("✅ Performance optimization system initialized - background loading will start after game begins");
 }
 
 // Load only essential maps for immediate gameplay
 function loadEssentialMaps() {
-    console.log("📦 Loading essential maps...");
+    // console.log("📦 Loading essential maps...");
     
     const essentialMaps = PERFORMANCE_CONFIG.PRIORITY_MAPS;
     
@@ -59,7 +59,7 @@ function loadEssentialMaps() {
         performanceState.loadedMaps.add(mapName);
     }
     
-    console.log(`✅ Loaded ${essentialMaps.length} essential maps`);
+    // console.log(`✅ Loaded ${essentialMaps.length} essential maps`);
 }
 
 // Start background loading (call this after the game actually starts)
@@ -69,7 +69,7 @@ export function startBackgroundLoading() {
         return;
     }
     
-    console.log("🔄 Starting background map loading after game start...");
+    // console.log("🔄 Starting background map loading after game start...");
     
     // Start background loading after a delay to let the game settle
     setTimeout(() => {
@@ -81,7 +81,7 @@ export function startBackgroundLoading() {
 function startBackgroundMapLoadingInternal() {
     if (performanceState.isBackgroundLoading) return;
     
-    console.log("🔄 Starting background map loading...");
+    // console.log("🔄 Starting background map loading...");
     performanceState.isBackgroundLoading = true;
     
     const allMaps = getAllMaps();
@@ -97,14 +97,14 @@ function startBackgroundMapLoadingInternal() {
 // Process the map loading queue with delays to prevent blocking
 function processMapLoadQueue() {
     if (performanceState.mapLoadQueue.length === 0) {
-        console.log("✅ Background map loading completed");
+        // console.log("✅ Background map loading completed");
         performanceState.isBackgroundLoading = false;
         return;
     }
     
     const mapName = performanceState.mapLoadQueue.shift();
     
-    console.log(`🔄 Background loading: ${mapName} (${performanceState.mapLoadQueue.length} remaining)`);
+    // console.log(`🔄 Background loading: ${mapName} (${performanceState.mapLoadQueue.length} remaining)`);
     
     // Load map assets
     loadMapAssets(mapName, false); // false = low priority
@@ -208,7 +208,7 @@ function loadMapMusic(mapName) {
 
 // Setup viewport culling system
 function setupViewportCulling() {
-    console.log("🎯 Setting up viewport culling system...");
+    // console.log("🎯 Setting up viewport culling system...");
     
     // Initialize viewport object tracking
     performanceState.viewportObjects.set('boundaries', []);
@@ -275,7 +275,7 @@ function cullBoundaries(playerPos) {
     }
     
     if (visibleCount > 0 || culledCount > 0) {
-        console.log(`🎯 Boundaries: +${visibleCount} visible, -${culledCount} culled`);
+        // console.log(`🎯 Boundaries: +${visibleCount} visible, -${culledCount} culled`);
     }
 }
 
@@ -306,9 +306,48 @@ function cullDecorations(playerPos) {
 
 // Check if a map should be preloaded based on player proximity
 export function checkMapPreloading(currentMapName, playerPos) {
-    // This would be called when player approaches map boundaries
-    // Implementation depends on how map transitions work
-    console.log(`🔍 Checking preload for nearby maps from ${currentMapName}`);
+    // Skip if background loading is still active
+    if (performanceState.isBackgroundLoading) {
+        return;
+    }
+    
+    // Define map adjacency relationships
+    const mapAdjacency = {
+        'campus': ['mensa', 'almeria', 'klassenzimmer', 'unternehmensausstellung'],
+        'mensa': ['campus'],
+        'almeria': ['campus'],
+        'klassenzimmer': ['campus'],
+        'unternehmensausstellung': ['campus', 'companies/ksb'],
+        'companies/ksb': ['unternehmensausstellung'],
+    };
+    
+    const adjacentMaps = mapAdjacency[currentMapName] || [];
+    
+    // Check if player is near map boundaries (simplified approach)
+    // In a real implementation, you'd check actual map boundaries
+    const mapBoundaryDistance = PERFORMANCE_CONFIG.PRELOAD_DISTANCE;
+    
+    for (const adjacentMap of adjacentMaps) {
+        // Only preload if not already loaded and not currently loading
+        if (!performanceState.loadedMaps.has(adjacentMap) && 
+            !performanceState.loadingMaps.has(adjacentMap)) {
+            
+            // Add to loading set to prevent duplicate loading
+            performanceState.loadingMaps.add(adjacentMap);
+            
+            console.log(`🔄 Preloading adjacent map: ${adjacentMap} from ${currentMapName}`);
+            
+            // Load the adjacent map with low priority
+            loadMapAssets(adjacentMap, false);
+            performanceState.loadedMaps.add(adjacentMap);
+            
+            // Remove from loading set
+            performanceState.loadingMaps.delete(adjacentMap);
+            
+            // Only preload one map at a time to avoid performance impact
+            break;
+        }
+    }
 }
 
 // Get performance statistics
@@ -342,7 +381,7 @@ export function forceLoadMap(mapName) {
         return Promise.resolve();
     }
     
-    console.log(`⚡ Force loading map: ${mapName}`);
+    // console.log(`⚡ Force loading map: ${mapName}`);
     
     return new Promise((resolve) => {
         loadMapAssets(mapName, true);
@@ -362,11 +401,63 @@ export function forceLoadMap(mapName) {
 export function cleanupMapResources(mapName) {
     console.log(`🧹 Cleaning up resources for map: ${mapName}`);
     
-    // This could include:
-    // - Destroying non-essential objects
-    // - Clearing cached data
-    // - Reducing memory usage
-    
-    // For now, just log the cleanup
-    console.log(`✅ Cleanup completed for ${mapName}`);
+    try {
+        // Update current map state
+        performanceState.currentMap = null;
+        
+        // Clear viewport object tracking for the current map
+        performanceState.viewportObjects.clear();
+        performanceState.viewportObjects.set('boundaries', []);
+        performanceState.viewportObjects.set('collisions', []);
+        performanceState.viewportObjects.set('decorations', []);
+        performanceState.viewportObjects.set('npcs', []);
+        
+        // Stop any map-specific background music
+        try {
+            const bgmSound = k.get(`bgm_${mapName}`);
+            if (bgmSound && bgmSound.length > 0) {
+                bgmSound.forEach(sound => {
+                    if (sound.stop) sound.stop();
+                });
+            }
+        } catch (error) {
+            // Silently handle music cleanup errors
+        }
+        
+        // Clean up map-specific cached data
+        // Note: We keep the map loaded in memory for quick re-entry
+        // but clean up runtime objects and state
+        
+        // Reset culling timers
+        performanceState.lastCullingUpdate = 0;
+        performanceState.frameStartTime = 0;
+        
+        // Force garbage collection hint (if available)
+        if (window.gc && typeof window.gc === 'function') {
+            // Only available in development/debug environments
+            setTimeout(() => {
+                try {
+                    window.gc();
+                } catch (e) {
+                    // Silently fail if gc is not available
+                }
+            }, 100);
+        }
+        
+        console.log(`✅ Cleanup completed for ${mapName}`);
+        
+    } catch (error) {
+        console.warn(`⚠️ Error during cleanup for ${mapName}:`, error);
+    }
+}
+
+// Set the current map (call this when entering a new scene)
+export function setCurrentMap(mapName) {
+    performanceState.currentMap = mapName;
+    console.log(`📍 Current map set to: ${mapName}`);
+}
+
+// Get the current map
+export function getCurrentMap() {
+    return performanceState.currentMap;
 } 

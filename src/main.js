@@ -1,7 +1,6 @@
 import { dialogueData, maps, music, scaleFactor, mapMusic, getAvailableMaps, getAllMaps, regularMaps, companyMaps, allMaps } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
-import { quizFinished, makeReplayPrompt } from "./utils.js";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, initializeSecureScoring } from "./sessionstate.js";
 import { attachInventoryShopListeners, loadAvatarSprites } from "./inventoryshop.js";
@@ -9,7 +8,7 @@ import { initCompanyFlags, checkFlagProximity, cleanupFlags, getCompanyInteracti
 import { initMapRendering, fixSpriteRendering, resetCameraToSafePosition, handleWindowResize, cleanupMapRendering, emergencyRenderingFix, fixKSBMapRendering, reloadMapSprite, createTiledMap, loadMapTiles, createTileGameObjects, cleanupTiledMap, createLoadingScreen, updateLoadingProgress, removeLoadingScreen, shouldUseTiledRendering } from "./mapRenderingFix";
 import { initGotoAreaDisplay, updateGotoAreaDisplay, cleanupGotoLabels, getGotoAreaInfo, debugShowAllGotoLabels, debugHideAllGotoLabels } from "./gotoAreaDisplay";
 import { dialogueData as ksbDialogueData } from "./dialogues/ksb.js";
-import { initializePerformanceOptimizedMaps, forceLoadMap, logPerformanceStats, cleanupMapResources, startBackgroundLoading } from "./performanceOptimizer.js";
+import { initializePerformanceOptimizedMaps, forceLoadMap, logPerformanceStats, cleanupMapResources, startBackgroundLoading, checkMapPreloading, setCurrentMap } from "./performanceOptimizer.js";
 
 // Properly initialize session state
 console.log("Initializing session state...");
@@ -573,6 +572,9 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
 		console.log(`Setting up scene: ${sceneName}`);
 		
+		// Set current map for performance tracking
+		setCurrentMap(sceneName);
+		
 		// Log performance stats when entering a scene
 		if (sceneName !== "loading") {
 			logPerformanceStats();
@@ -774,22 +776,22 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
 		
 		// Check if this map needs tiled rendering due to size limitations
-		console.log("=== TILED MAP DETECTION ===");
-		console.log("Checking if map needs tiled rendering:", mapSprite);
-		console.log("Scene name:", sceneName);
-		console.log("Map data available:", !!mapData);
+		// console.log("=== TILED MAP DETECTION ===");
+		// console.log("Checking if map needs tiled rendering:", mapSprite);
+		// console.log("Scene name:", sceneName);
+		// console.log("Map data available:", !!mapData);
 		
 		// Check if this map should use tiled rendering
 		const shouldUseTiling = shouldUseTiledRendering(mapSprite);
-		console.log("Should use tiled rendering (forced):", shouldUseTiling);
+		// console.log("Should use tiled rendering (forced):", shouldUseTiling);
 		
 		const tiledMapInfo = createTiledMap(mapSprite, mapData);
-		console.log("Tiled map info created:", !!tiledMapInfo);
-		console.log("=== END TILED MAP DETECTION ===");
+		// console.log("Tiled map info created:", !!tiledMapInfo);
+		// console.log("=== END TILED MAP DETECTION ===");
 		
 		let map;
 		if (tiledMapInfo) {
-			console.log("✅ Using tiled map system for large map:", mapSprite);
+			// console.log("✅ Using tiled map system for large map:", mapSprite);
 			
 			// Create a temporary map while tiles are loading
 			const tempMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor), "temp-map"]);
@@ -797,18 +799,32 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			
 			// Load tiles and create tile objects
 			loadMapTiles(mapSprite).then(() => {
-				console.log("Tiles loaded, creating tile objects...");
+				// console.log("Tiles loaded, creating tile objects...");
 				createTileGameObjects();
 				
 				// Remove loading screen and temporary map after tiles are created
 				k.wait(0.1, () => {
 					removeLoadingScreen();
 					k.destroyAll("temp-map");
-					console.log("✅ Loading complete - temporary map removed, tiles should be visible");
+					// console.log("✅ Loading complete - temporary map removed, tiles should be visible");
+					
+					// Additional check for dog visibility after tiled map loads
+					k.wait(0.2, () => {
+						const dogs = k.get("dog");
+						if (dogs.length > 0) {
+							const dog = dogs[0];
+							// console.log(`🐕 Post-tiled check - Dog at: ${dog.pos.x}, ${dog.pos.y}, Visible: ${dog.visible !== false}`);
+							// Ensure dog is visible and properly positioned
+							dog.visible = true;
+							dog.z = 15; // Higher z-index to ensure visibility over tiles
+						} else {
+							console.warn("🐕 No dog found after tiled map loading!");
+						}
+					});
 				});
 			}).catch((error) => {
 				console.error("❌ Failed to load tiles:", error);
-				console.log("Keeping original map due to tile loading failure");
+				// console.log("Keeping original map due to tile loading failure");
 				removeLoadingScreen(); // Make sure to remove loading screen on error
 				// Keep the temporary map if tile loading fails
 			});
@@ -819,8 +835,8 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 				add: (obj) => k.add(obj) // Fallback for any map.add() calls
 			};
 		} else {
-			console.log("⚠️ Using normal map rendering for:", mapSprite);
-			console.log("⚠️ This may cause blurry rendering for large maps!");
+			// console.log("⚠️ Using normal map rendering for:", mapSprite);
+			// console.log("⚠️ This may cause blurry rendering for large maps!");
 			map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
 			
 			// Apply sprite rendering fixes to the map
@@ -832,11 +848,11 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		// Check if player already exists to prevent duplication
 		const existingPlayers = k.get("player");
 		if (existingPlayers.length > 0) {
-			console.warn(`Found ${existingPlayers.length} existing players, destroying them`);
+			// console.warn(`Found ${existingPlayers.length} existing players, destroying them`);
 			k.destroyAll("player");
 		}
 		
-		console.log("Creating new player for scene:", sceneName);
+		// console.log("Creating new player for scene:", sceneName);
 		//Erstellt den Spieler
 		const player = k.make([
 			k.sprite(currentCharacterSprite, { anim: "idle-down" }),
@@ -861,19 +877,19 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		
 		// Apply KSB-specific fixes if this is the KSB map
 		if (sceneName.includes('ksb') || mapSprite.includes('ksb')) {
-			console.log("🎯 Detected KSB map, applying specific fixes...");
+			// console.log("🎯 Detected KSB map, applying specific fixes...");
 			
 			// Check if we need to apply tiled rendering for KSB
 			if (!tiledMapInfo) {
-				console.log("⚠️ KSB map detected but tiled system not active, forcing tiled rendering now...");
+				// console.log("⚠️ KSB map detected but tiled system not active, forcing tiled rendering now...");
 				k.wait(0.5, () => {
 					// Force create tiled map for KSB
-					console.log("🔧 Force creating tiled map for KSB...");
+					// console.log("🔧 Force creating tiled map for KSB...");
 					const ksbTiledInfo = createTiledMap(mapSprite, mapData);
 					if (ksbTiledInfo) {
-						console.log("✅ Creating tiles for KSB fallback...");
+						// onsole.log("✅ Creating tiles for KSB fallback...");
 						loadMapTiles(mapSprite).then(() => {
-							console.log("✅ KSB tiles loaded, creating tile objects...");
+							// console.log("✅ KSB tiles loaded, creating tile objects...");
 							createTileGameObjects();
 							
 							// Remove loading screen and original map after tiles are created
@@ -883,21 +899,21 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 									obj.sprite === mapSprite && !obj.is("map-tile")
 								);
 								existingMaps.forEach(mapObj => {
-									console.log("🗑️ Removing original map object for KSB");
+									// console.log("🗑️ Removing original map object for KSB");
 									k.destroy(mapObj);
 								});
-								console.log("✅ KSB fallback loading complete");
+								// console.log("✅ KSB fallback loading complete");
 							});
 						}).catch((error) => {
-							console.error("❌ Failed to load KSB tiles:", error);
+							// console.error("❌ Failed to load KSB tiles:", error);
 							removeLoadingScreen(); // Remove loading screen on error
 						});
 					} else {
-						console.error("❌ Failed to create KSB tiled map info");
+						// console.error("❌ Failed to create KSB tiled map info");
 					}
 				});
 			} else {
-				console.log("✅ KSB map already using tiled system");
+				// console.log("✅ KSB map already using tiled system");
 			}
 			
 			k.wait(0.2, () => {
@@ -923,13 +939,14 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			k.destroyAll("dog");
 		}
 		
-		console.log("Creating new dog for scene:", sceneName);
+		// console.log("Creating new dog for scene:", sceneName);
 		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
+			k.z(12), // Ensure dog renders above map (player is z=9, so dog is slightly higher)
 			k.scale(scaleFactor - 1.5),
 			{
 				speed: 150,
@@ -967,6 +984,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		const dogNameTag = k.make([
 			k.text(dogName.toUpperCase(), { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
+			k.z(16), // Higher than dog to ensure name tag is visible
 			{ followOffset: k.vec2(-20, -50) },
 		]);
 
@@ -1186,12 +1204,12 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 							k.scale(scaleFactor),
 							k.z(20) // Higher z-index than player (9) so it renders above
 						]);
-						console.log(`Rendered foreground objects for ${sceneName}`);
+						// console.log(`Rendered foreground objects for ${sceneName}`);
 					} else {
-						console.log(`Foreground sprite not loaded for ${sceneName}, skipping render`);
+						// console.log(`Foreground sprite not loaded for ${sceneName}, skipping render`);
 					}
 				} catch (error) {
-					console.warn(`Could not check or render foreground for ${sceneName}:`, error);
+					// console.warn(`Could not check or render foreground for ${sceneName}:`, error);
 				}
 			}
 		}
@@ -1642,7 +1660,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 					k.add(playerNameTag);
 				}
 
-				// Position dog
+				// Position dog with improved fallback logic
 				if (dogSpawn) {
 					dog.pos = k.vec2(
 						(map.pos.x + dogSpawn.x) * scaleFactor,
@@ -1650,7 +1668,55 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 					);
 					k.add(dog);
 					k.add(dogNameTag);
+					// console.log(`🐕 Dog positioned at spawn point: ${dog.pos.x}, ${dog.pos.y}`);
+				} else if (playerSpawn) {
+					// Fallback: Position dog near player if no dog spawn point exists
+					dog.pos = k.vec2(
+						(map.pos.x + playerSpawn.x) * scaleFactor + 50, // Offset slightly from player
+						(map.pos.y + playerSpawn.y) * scaleFactor + 30
+					);
+					k.add(dog);
+					k.add(dogNameTag);
+					console.log(`🐕 Dog positioned near player (fallback): ${dog.pos.x}, ${dog.pos.y}`);
+				} else {
+					// Last resort: Position dog at map center
+					const mapCenterX = map.pos.x * scaleFactor + 200;
+					const mapCenterY = map.pos.y * scaleFactor + 200;
+					dog.pos = k.vec2(mapCenterX, mapCenterY);
+					k.add(dog);
+					k.add(dogNameTag);
+					console.log(`🐕 Dog positioned at map center (last resort): ${dog.pos.x}, ${dog.pos.y}`);
 				}
+			}
+		}
+
+		// Safety check: Ensure dog is always added to the scene
+		// This handles cases where maps might not have a spawnpoints layer
+		const dogsInScene = k.get("dog");
+		if (dogsInScene.length === 0) {
+			console.warn("🐕 No dog found in scene after layer processing, adding dog near player");
+			// Position dog near player as fallback
+			dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
+			k.add(dog);
+			k.add(dogNameTag);
+			console.log(`🐕 Dog added to scene at: ${dog.pos.x}, ${dog.pos.y}`);
+		} else {
+			// Dog exists, but let's verify it's properly positioned and visible
+			const sceneDog = dogsInScene[0];
+			// console.log(`🐕 Dog verification - Position: ${sceneDog.pos.x}, ${sceneDog.pos.y}, Visible: ${sceneDog.visible !== false}`);
+			
+			// Ensure dog is visible and has proper z-index
+			sceneDog.visible = true;
+			if (!sceneDog.z || sceneDog.z < 10) {
+				sceneDog.z = 10; // Ensure dog renders above map
+			}
+			
+			// For large maps (like campus), ensure dog is not too far from player
+			const distance = sceneDog.pos.dist(player.pos);
+			if (distance > 2000) {
+				console.warn(`🐕 Dog too far from player (${Math.floor(distance)}), repositioning`);
+				sceneDog.pos = k.vec2(player.pos.x + 100, player.pos.y + 50);
+				console.log(`🐕 Dog repositioned to: ${sceneDog.pos.x}, ${sceneDog.pos.y}`);
 			}
 		}
 
@@ -1829,6 +1895,12 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		//Visuals
 		k.onUpdate(() => {
 			k.camPos(player.worldPos().x, player.worldPos().y - 100);
+			
+			// Check for map preloading opportunities
+			// Only check every few frames to avoid performance impact
+			if (k.time() % 2 < 0.1) { // Check roughly every 2 seconds
+				checkMapPreloading(sceneName, player.worldPos());
+			}
 		});
 
 		// Tooltip timer update with improved logging
@@ -1851,7 +1923,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 
 			// Check if it's time to show the tooltip
 			if (gameplayTimer >= homeKeyTooltipTime) {
-				console.log("Time to show tooltip!");
+				// console.log("Time to show tooltip!");
 				showHomeKeyTooltip();
 			}
 		});
@@ -1972,15 +2044,34 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			const maxDistance = 1200;
 			let speed = dog.speed;
 
-			if (distance > maxDistance + 200) {
-				dog.pos = player.pos.clone();
+			// Improved teleportation logic for larger maps
+			if (distance > maxDistance + 400) { // Increased threshold for larger maps
+				// Teleport dog to a position near the player, not exactly on the player
+				const offsetX = Math.random() * 100 - 50; // Random offset between -50 and 50
+				const offsetY = Math.random() * 100 - 50;
+				dog.pos = k.vec2(player.pos.x + offsetX, player.pos.y + offsetY);
+				console.log(`🐕 Dog teleported to player due to large distance (${Math.floor(distance)})`);
 			} else if (distance > maxDistance) {
-				speed = 300;
+				speed = 400; // Increased speed when far away
+			}
+
+			// Validate dog position - ensure it's not at invalid coordinates
+			if (isNaN(dog.pos.x) || isNaN(dog.pos.y) || dog.pos.x === 0 && dog.pos.y === 0) {
+				console.warn("🐕 Dog position invalid, repositioning near player");
+				dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
 			}
 
 			// If the follower is farther than the followDistance, it should move towards the player
 			if (distance > followDistance) {
 				const direction = player.pos.sub(dog.pos).unit();
+				
+				// Validate direction vector
+				if (isNaN(direction.x) || isNaN(direction.y)) {
+					console.warn("🐕 Invalid direction vector, repositioning dog");
+					dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
+					return;
+				}
+				
 				dog.move(direction.scale(speed));
 
 				// Determine animation based on direction
@@ -2146,7 +2237,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		function showHomeKeyTooltip() {
 			if (homeKeyTooltipShown) return;
 
-			console.log("Showing home key tooltip!"); // Debug log
+			// console.log("Showing home key tooltip!"); // Debug log
 			homeKeyTooltipShown = true;
 
 			// Save to session state
@@ -2298,7 +2389,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			  timeOffset += noteData.duration;
 			});
 		  } catch (e) {
-			console.error("Error playing 8-bit melody:", e);
+			// console.error("Error playing 8-bit melody:", e);
 		  }
 		}
 
@@ -2370,7 +2461,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			let originalSprintSpeed = null;
 			const player = k.get("player")[0];
 			if (player) {
-				console.log("Enhancing player with easter egg effects - Original speed:", player.speed);
+				// console.log("Enhancing player with easter egg effects - Original speed:", player.speed);
 
 				// Store original values
 				originalSpeed = player.speed;
@@ -2405,25 +2496,25 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 					clearInterval(playerInterval);
 				});
 
-				console.log("Speed boosted to:", player.speed, "Sprint speed boosted to:", player.sprintSpeed);
+				// console.log("Speed boosted to:", player.speed, "Sprint speed boosted to:", player.sprintSpeed);
 			} else {
-				console.log("Player not found - cannot apply speed boost");
+				// console.log("Player not found - cannot apply speed boost");
 			}
 
 			// Remove all effects after a minute
 			k.wait(60, () => {
-			  console.log("Removing retro effects...");
+			  // console.log("Removing retro effects...");
 
 			  // Restore player speed
 			  if (player) {
 				if (originalSpeed !== null) {
 					player.speed = originalSpeed;
-					console.log("Restored player speed to", originalSpeed);
+					// console.log("Restored player speed to", originalSpeed);
 				}
 
 				if (originalSprintSpeed !== null) {
 					player.sprintSpeed = originalSprintSpeed;
-					console.log("Restored player sprint speed to", originalSprintSpeed);
+					// console.log("Restored player sprint speed to", originalSprintSpeed);
 				}
 			  }
 
@@ -2474,7 +2565,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 
 		// Add proper scene cleanup
 		k.onSceneLeave(() => {
-			console.log(`Leaving scene: ${sceneName}`);
+			// console.log(`Leaving scene: ${sceneName}`);
 			
 			// Performance cleanup - free up resources
 			cleanupMapResources(sceneName);
@@ -2545,7 +2636,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 				inventoryShop.style.display = 'none';
 			}
 			
-			console.log(`Scene cleanup completed for: ${sceneName}`);
+			// console.log(`Scene cleanup completed for: ${sceneName}`);
 		});
 	});
 }
@@ -2572,40 +2663,40 @@ document.addEventListener("keydown", (e) => {
 	// Emergency fix key for map rendering issues (Ctrl+R)
 	if (e.ctrlKey && e.key.toLowerCase() === "r") {
 		e.preventDefault(); // Prevent browser refresh
-		console.log("Emergency map rendering fix triggered");
+		// console.log("Emergency map rendering fix triggered");
 		emergencyRenderingFix();
 	}
 	
 	// KSB-specific fix key (Ctrl+K)
 	if (e.ctrlKey && e.key.toLowerCase() === "k") {
 		e.preventDefault(); // Prevent any default browser behavior
-		console.log("KSB-specific rendering fix triggered");
+		// console.log("KSB-specific rendering fix triggered");
 		fixKSBMapRendering();
 	}
 	
 	// Reload map sprite with pixel-perfect settings (Ctrl+S)
 	if (e.ctrlKey && e.key.toLowerCase() === "s") {
 		e.preventDefault(); // Prevent browser save dialog
-		console.log("Reloading current map sprite with pixel-perfect settings");
+		// console.log("Reloading current map sprite with pixel-perfect settings");
 		
 		// Try to determine current scene/map name
 		const currentScene = k.getSceneName ? k.getSceneName() : null;
 		if (currentScene && currentScene !== "loading") {
-			console.log("Reloading sprite for scene:", currentScene);
+			// console.log("Reloading sprite for scene:", currentScene);
 			reloadMapSprite(currentScene);
 		} else {
-			console.log("Could not determine current scene for sprite reload");
+			// console.log("Could not determine current scene for sprite reload");
 		}
 	}
 	
 	// Test tiled map system (Ctrl+T)
 	if (e.ctrlKey && e.key.toLowerCase() === "t") {
 		e.preventDefault();
-		console.log("Testing tiled map system for current scene");
+		// console.log("Testing tiled map system for current scene");
 		
 		const currentScene = k.getSceneName ? k.getSceneName() : null;
 		if (currentScene && currentScene !== "loading") {
-			console.log("Creating tiled map for:", currentScene);
+			// console.log("Creating tiled map for:", currentScene);
 			
 			// Clean up existing map tiles
 			cleanupTiledMap();
@@ -2615,20 +2706,20 @@ document.addEventListener("keydown", (e) => {
 			const tiledInfo = createTiledMap(currentScene);
 			if (tiledInfo) {
 				loadMapTiles(currentScene).then(() => {
-					console.log("Test tiles loaded, creating tile objects...");
+					// console.log("Test tiles loaded, creating tile objects...");
 					createTileGameObjects();
 					
 					// Remove loading screen after test completion
 					k.wait(0.1, () => {
 						removeLoadingScreen();
-						console.log("Test tiled map creation complete");
+						// console.log("Test tiled map creation complete");
 					});
 				}).catch((error) => {
-					console.error("Test tile loading failed:", error);
+					// console.error("Test tile loading failed:", error);
 					removeLoadingScreen();
 				});
 			} else {
-				console.log("Map doesn't need tiling (within size limits)");
+				// console.log("Map doesn't need tiling (within size limits)");
 			}
 		}
 	}
@@ -2666,7 +2757,7 @@ document.addEventListener("keydown", (e) => {
 	// Show all goto labels (Ctrl+G)
 	if (e.ctrlKey && e.key.toLowerCase() === "g") {
 		e.preventDefault();
-		console.log("Debug: Toggling all goto labels");
+		// console.log("Debug: Toggling all goto labels");
 		const gotoInfo = getGotoAreaInfo();
 		if (gotoInfo.visibleLabels > 0) {
 			debugHideAllGotoLabels();
@@ -2681,5 +2772,62 @@ document.addEventListener("keydown", (e) => {
 		console.log("=== PERFORMANCE STATISTICS ===");
 		logPerformanceStats();
 		console.log("=== END PERFORMANCE STATS ===");
+	}
+	
+	// Debug dog position and status (Ctrl+O)
+	if (e.ctrlKey && e.key.toLowerCase() === "o") {
+		e.preventDefault();
+		console.log("=== DOG DEBUG INFO ===");
+		const dogs = k.get("dog");
+		const players = k.get("player");
+		
+		if (dogs.length === 0) {
+			console.log("❌ No dog found in scene!");
+		} else {
+			const dog = dogs[0];
+			const player = players[0];
+			console.log(`🐕 Dog position: ${dog.pos.x.toFixed(2)}, ${dog.pos.y.toFixed(2)}`);
+			console.log(`👤 Player position: ${player.pos.x.toFixed(2)}, ${player.pos.y.toFixed(2)}`);
+			console.log(`📏 Distance: ${dog.pos.dist(player.pos).toFixed(2)}`);
+			console.log(`🎬 Dog animation: ${dog.curAnim()}`);
+			console.log(`🏃 Dog speed: ${dog.speed}`);
+			console.log(`👁️ Dog visible: ${dog.visible !== false}`);
+			console.log(`🎯 Dog in scene: ${k.get("dog").length} dogs found`);
+		}
+		console.log("=== END DOG DEBUG ===");
+	}
+	
+	// Manual dog recovery (Ctrl+Shift+D)
+	if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "d") {
+		e.preventDefault();
+		console.log("🚑 Manual dog recovery triggered!");
+		
+		const dogs = k.get("dog");
+		const players = k.get("player");
+		
+		if (players.length === 0) {
+			console.log("❌ No player found - cannot recover dog");
+			return;
+		}
+		
+		const player = players[0];
+		
+		if (dogs.length === 0) {
+			console.log("🐕 No dog found - this might indicate a deeper issue");
+			console.log("💡 Try switching to a different map and back to reset the dog");
+		} else {
+			const dog = dogs[0];
+			console.log(`🐕 Recovering dog from position: ${dog.pos.x}, ${dog.pos.y}`);
+			
+			// Teleport dog to player
+			dog.pos = k.vec2(player.pos.x + 100, player.pos.y + 50);
+			dog.visible = true;
+			dog.z = 15;
+			
+			// Reset dog animation
+			dog.play("dog-idle-side");
+			
+			console.log(`✅ Dog recovered to position: ${dog.pos.x}, ${dog.pos.y}`);
+		}
 	}
 });

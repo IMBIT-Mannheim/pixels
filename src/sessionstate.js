@@ -84,7 +84,7 @@ export function saveGame() {
         sessionState.timestamps.lastSave = Date.now();
         
         console.groupCollapsed(`%c[Session Saved] Session ID: ${sessionState.sessionId}`, "color: green; font-weight: bold;");
-        console.log(JSON.parse(JSON.stringify(sessionState)));
+        // console.log(JSON.parse(JSON.stringify(sessionState)));
         console.groupEnd();
 
     } catch (error) {
@@ -100,9 +100,9 @@ export function loadGame() {
         if (data) {
             deserializeSessionState(data);
             console.groupCollapsed(`%c[Session Loaded] Session ID: ${sessionState.sessionId}`, "color: purple; font-weight: bold;");
-            console.log(JSON.parse(JSON.stringify(sessionState)));
+            // console.log(JSON.parse(JSON.stringify(sessionState)));
             console.groupEnd();
-            console.log("Game loaded successfully.");
+            // console.log("Game loaded successfully.");
         } else {
             console.warn("No saved game found.");
         }
@@ -179,7 +179,7 @@ export function clearGameData() {
         _tamperingAlertShown: false
     });
     
-    console.log("🧹 Game data cleared successfully");
+    // console.log("🧹 Game data cleared successfully");
 }
 
 // Private cookie getter
@@ -199,14 +199,14 @@ function getCookie(name) {
 export function ensureSessionId() {
     // Check if sessionState already has an ID before looking at cookies
     if (sessionState.sessionId) {
-        console.log("Using existing session ID:", sessionState.sessionId);
+        // console.log("Using existing session ID:", sessionState.sessionId);
         return;
     }
     
     const cookieId = getCookie("sessionStateId");
 
     if (cookieId) {
-        console.log("Using cookie session ID:", cookieId);
+        // console.log("Using cookie session ID:", cookieId);
         sessionState.sessionId = cookieId;
     } else {
         let newId;
@@ -236,7 +236,7 @@ export function ensureSessionId() {
             });
         }
         
-        console.log("Generated new session ID:", newId);
+        // console.log("Generated new session ID:", newId);
         sessionState.sessionId = newId;
         setCookie("sessionStateId", newId, 365);
     }
@@ -285,7 +285,7 @@ export async function getSecureScore() {
     
     // If no secure score but we have a legacy score, migrate it
     if (sessionState.progress.score > 0) {
-        console.log("Migrating legacy score to secure score system");
+        // console.log("Migrating legacy score to secure score system");
         try {
             sessionState.progress.secureScore = await migrateToSecureScore(
                 sessionState.progress.score,
@@ -345,7 +345,7 @@ export async function increaseScoreForDialogue(amount, dialogueId) {
         // Save the game
         saveGame();
         
-        console.log(`🔒 Secure score increased by ${amount} for dialogue ${dialogueId}. New score: ${newScore}`);
+        // console.log(`🔒 Secure score increased by ${amount} for dialogue ${dialogueId}. New score: ${newScore}`);
         return newScore;
     } catch (error) {
         console.error("Error during dialogue score increase:", error);
@@ -384,7 +384,7 @@ export async function increaseSecureScore(amount) {
         // Save the game
         saveGame();
         
-        console.log(`🔒 Secure score increased by ${amount}. New score: ${newScore}`);
+        // console.log(`🔒 Secure score increased by ${amount}. New score: ${newScore}`);
         return newScore;
     } catch (error) {
         console.error("Error during score increase:", error);
@@ -430,7 +430,7 @@ export async function decreaseSecureScore(amount) {
         // Save the game
         saveGame();
         
-        console.log(`🔒 Secure score decreased by ${amount}. New score: ${newScore}`);
+        // console.log(`🔒 Secure score decreased by ${amount}. New score: ${newScore}`);
         return newScore;
     } catch (error) {
         console.error("Error during score decrease:", error);
@@ -463,14 +463,14 @@ export async function resetSecureScore() {
     // Save the game
     saveGame();
     
-    console.log("🔒 Secure score reset to 0");
+    // console.log("🔒 Secure score reset to 0");
     return 0;
 }
 
 // Validate current score integrity (for debugging/admin purposes)
 export async function validateCurrentScore() {
     if (!sessionState.progress.secureScore) {
-        console.log("No secure score to validate");
+        // console.log("No secure score to validate");
         return false;
     }
     
@@ -483,7 +483,7 @@ export async function validateCurrentScore() {
 
 // Initialize secure scoring system (call this after loading game)
 export async function initializeSecureScoring() {
-    console.log("🔒 Initializing secure scoring system...");
+    // console.log("🔒 Initializing secure scoring system...");
     
     // Ensure session ID exists
     ensureSessionId();
@@ -491,7 +491,7 @@ export async function initializeSecureScoring() {
     // Validate current score
     const currentScore = await getSecureScore();
     
-    console.log(`🔒 Secure scoring initialized. Current score: ${currentScore}`);
+    // console.log(`🔒 Secure scoring initialized. Current score: ${currentScore}`);
     
     // Optional: Validate integrity in development
     if (process.env.NODE_ENV === 'development') {
