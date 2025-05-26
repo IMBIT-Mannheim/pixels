@@ -89,12 +89,12 @@ export const dialogueData = {
   },
   bwlopa: [{
     id: 16,
-    title: 'Prof. Magnolica',
+    title: 'Prof. Magnolica ',
     text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP? `,
     answers: [
-      '1) Die Inflation eines Landes',
-      '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes',
-      '3) Die Arbeitslosenquote',
+      '1) Die Inflation eines Landes ',
+      '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes ',
+      '3) Die Arbeitslosenquote ',
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -102,12 +102,12 @@ export const dialogueData = {
   },
   {
     id: 15,
-    title: 'Prof. Magnolica',
+    title: 'Prof. Magnolica ',
     text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
     answers: [
-      '1) VWL',
-      '2) BWL',
-      '3) DWL',
+      '1) VWL ',
+      '2) BWL ',
+      '3) DWL ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft. ',
@@ -115,24 +115,24 @@ export const dialogueData = {
   },],
   bwlGuy: [{
     id: 14,
-    title: 'Prof. Burnett',
+    title: 'Prof. Burnett ',
     text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchfuehrung? `,
     answers: [
-      '1) Aktiva = Passiva',
-      '2) Einnahmen = Ausgaben',
-      '3) Soll = Gewinn',
+      '1) Aktiva = Passiva ',
+      '2) Einnahmen = Ausgaben ',
+      '3) Soll = Gewinn ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
     wrongText: 'Falsch! ',
   }, {
     id: 13,
-    title: 'Prof. Burnett',
+    title: 'Prof. Burnett ',
     text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
     answers: [
-      '1) Grundlagen der Rechnungslegung',
-      '2) Statistik',
-      '3) Marketing',
+      '1) Grundlagen der Rechnungslegung ',
+      '2) Statistik ',
+      '3) Marketing ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
@@ -140,12 +140,12 @@ export const dialogueData = {
   },],
   bwlgirl: [{
     id: 12,
-    title: 'Prof. Eibe',
+    title: 'Prof. Eibe ',
     text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
     answers: [
-      '1) Die Bilanz eines Unternehmens zu erstellen',
-      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
-      '3) Die Mitarbeiterzufriedenheit zu messen',
+      '1) Die Bilanz eines Unternehmens zu erstellen ',
+      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren ',
+      '3) Die Mitarbeiterzufriedenheit zu messen ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -153,12 +153,12 @@ export const dialogueData = {
   },
   {
     id: 11,
-    title: 'Prof. Eibe',
+    title: 'Prof. Eibe ',
     text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
     answers: [
-      '1) BWL',
-      '2) VWL',
-      '3) Unternehmensfuehrung',
+      '1) BWL ',
+      '2) VWL ',
+      '3) Unternehmensfuehrung ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Sehr gut! Du denkst strategisch. ',
@@ -166,12 +166,12 @@ export const dialogueData = {
   },],
   itgirl1: [{
     id: 10,
-    title: 'Prof. Birk',
+    title: 'Prof. Birk ',
     text: `Gruess dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
     answers: [
-      '1) Daten speichern',
-      '2) Text ausgeben',
-      '3) Schleifen ausfuehren',
+      '1) Daten speichern ',
+      '2) Text ausgeben ',
+      '3) Schleifen ausfuehren ',
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -179,12 +179,12 @@ export const dialogueData = {
   },
   {
     id: 9,
-    title: 'Prof. Birk',
+    title: 'Prof. Birk ',
     text: `Bonusfrage: „Welches Fach koennte ich wohl unterrichten?" `,
     answers: [
-      '1) Programmierung',
-      '2) Cryptographie',
-      '3) Datasecurity',
+      '1) Programmierung ',
+      '2) Cryptographie ',
+      '3) Datasecurity ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Du hast den Dreh raus.“',
@@ -192,12 +192,12 @@ export const dialogueData = {
   },],
   itgirl2: [{
     id: 8,
-    title: 'Prof. Lind',
+    title: 'Prof. Lind ',
     text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: \n Welches der folgenden ist keine Speicherart?“`,
     answers: [
-      '1) RAM',
-      '2) CPU',
-      '3) HDD',
+      '1) RAM ',
+      '2) CPU ',
+      '3) HDD ',
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -205,12 +205,12 @@ export const dialogueData = {
   },
   {
     id: 7,
-    title: 'Prof. Lind',
+    title: 'Prof. Lind ',
     text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
     answers: [
-      '1) Grundlegende Konzepte der IT',
-      '2) Computerwissenschaft',
-      '3) Netzwerke',
+      '1) Grundlegende Konzepte der IT ',
+      '2) Computerwissenschaft ',
+      '3) Netzwerke ',
     ],
     correctAnswer: 1, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
@@ -218,12 +218,12 @@ export const dialogueData = {
   },],
   itguy: {
     id: 6,
-    title: 'Prof. Eich',
+    title: 'Prof. Eich ',
     text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS?“`,
     answers: [
-      '1) Basis Instandhaltungssysteme',
-      '2) Betriebliche Informationssysteme',
-      '3) Bedingte Informationssperre',
+      '1) Basis Instandhaltungssysteme ',
+      '2) Betriebliche Informationssysteme ',
+      '3) Bedingte Informationssperre ',
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! Weiter so. ',
