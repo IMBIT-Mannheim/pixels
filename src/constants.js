@@ -19,7 +19,7 @@ export const music = [
 ]
 
 export const companyMapsVisible = {
-  'ksb': true,
+  'ksb': false,
   'atos': false,
 }
 
