@@ -702,6 +702,10 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		const gotoBoundaries = [];
 		const allBoundaries = [];
 		const npcBoundaries = [];
+		
+		// Create a global set of goto area names for filtering
+		const gotoAreaNames = new Set();
+		
 		const boundaryLayer = layers.find(l => l.name === "boundaries");
 		if (boundaryLayer?.objects) {
 		  boundaryLayer.objects.forEach(o => {
@@ -718,6 +722,8 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			key: o.name,
 			pos:  k.vec2(o.x * scaleFactor, o.y * scaleFactor),
 			});
+			// Add to global set for filtering
+			gotoAreaNames.add(o.name);
 		});
 		}
 		function capitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
@@ -755,6 +761,18 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 
 			// Find the nearest NPC or named boundary (excluding goto areas)
 			for (const b of npcBoundaries) {
+				// Skip if this boundary is actually a goto area
+				if (gotoAreaNames.has(b.key)) {
+					// Debug: Log when we skip a goto area
+					// console.log(`Skipping goto area: ${b.key}`);
+					continue;
+				}
+				
+				// Skip generic "boundary" collision objects
+				if (b.key === "boundary") {
+					continue;
+				}
+				
 				const d = p.dist(b.pos);
 				if (d < bestNpcDist) {
 					bestNpcDist = d;
@@ -764,6 +782,8 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 
 			// Show NPC interaction button only
 			if (bestNpcDist < R) {
+				// Debug: Log which NPC is being detected
+				// console.log(`NPC detected: ${nearestNpc.key} at distance ${Math.floor(bestNpcDist)}`);
 				// NPC or object is close - show T button
 				interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
 				interactButton.style.display = 'block';
@@ -1403,19 +1423,21 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 											promptTimer += k.dt();
 
 											if (promptTimer >= PROMPT_DELAY) {
+											  // DISABLED: Old system T-button logic - now handled by new combined system
 											  // Show T-button only for named interactive boundaries (NPCs, objects, etc.)
 											  // Exclude generic "boundary" collision objects
-											  if (boundaryObj.name && boundaryObj.name !== "boundary") {
+											  // if (boundaryObj.name && boundaryObj.name !== "boundary") {
 												// Interactive boundary (NPC/object) → show T-button
-												interactButton.style.display = "block";
-											  }
+												// interactButton.style.display = "block";
+											  // }
 											}
 										  }
 										  else if (isInProximity) {
 											isInProximity = false;
 											promptTimer = 0;
+											// DISABLED: Old system T-button logic - now handled by new combined system
 											// hide T-button as you walk away
-											interactButton.style.display = "none";
+											// interactButton.style.display = "none";
 										  }
 									});
 
