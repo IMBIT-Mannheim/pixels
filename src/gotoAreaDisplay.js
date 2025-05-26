@@ -16,31 +16,31 @@ const GOTO_CONFIG = {
 
 // Initialize goto area display system
 export function initGotoAreaDisplay(mapData) {
-    console.log("Initializing goto area display system");
+    // console.log("Initializing goto area display system");
     
     // Clean up existing labels
     cleanupGotoLabels();
     
     if (!mapData || !mapData.layers) {
-        console.log("No map data available for goto areas");
+        // console.log("No map data available for goto areas");
         return;
     }
     
     // Find the goto layer
     const gotoLayer = mapData.layers.find(layer => layer.name === "goto");
     if (!gotoLayer || !gotoLayer.objects) {
-        console.log("No goto layer found in map data");
+        // console.log("No goto layer found in map data");
         return;
     }
     
-    console.log("Found goto layer with", gotoLayer.objects.length, "objects");
+    // console.log("Found goto layer with", gotoLayer.objects.length, "objects");
     
     // Create label data for each goto area
     gotoLabels = gotoLayer.objects
         .filter(obj => obj.name && obj.name.trim().length > 0)
         .map(obj => {
             const labelText = formatGotoName(obj.name);
-            console.log("Creating goto label for:", obj.name, "->", labelText);
+            // console.log("Creating goto label for:", obj.name, "->", labelText);
             
             return {
                 name: obj.name,
@@ -56,7 +56,7 @@ export function initGotoAreaDisplay(mapData) {
             };
         });
     
-    console.log("Initialized", gotoLabels.length, "goto area labels");
+    // console.log("Initialized", gotoLabels.length, "goto area labels");
     isGotoSystemActive = true;
 }
 
@@ -106,7 +106,7 @@ function createGotoLabel(labelData) {
         "goto-label"
     ]);
     
-    console.log("Created goto label for:", labelData.name, "at", labelData.x, labelY);
+    // console.log("Created goto label for:", labelData.name, "at", labelData.x, labelY);
 }
 
 // Remove floating label for a goto area
@@ -178,7 +178,7 @@ export function updateGotoAreaDisplay(player) {
 
 // Clean up all goto labels
 export function cleanupGotoLabels() {
-    console.log("Cleaning up goto area labels");
+    // console.log("Cleaning up goto area labels");
     
     for (const labelData of gotoLabels) {
         removeGotoLabel(labelData);
@@ -209,7 +209,7 @@ export function getGotoAreaInfo() {
 
 // Force show all goto labels (for debugging)
 export function debugShowAllGotoLabels() {
-    console.log("Debug: Showing all goto labels");
+    // console.log("Debug: Showing all goto labels");
     
     for (const labelData of gotoLabels) {
         if (!labelData.isVisible) {
@@ -226,7 +226,7 @@ export function debugShowAllGotoLabels() {
 
 // Force hide all goto labels (for debugging)
 export function debugHideAllGotoLabels() {
-    console.log("Debug: Hiding all goto labels");
+    // console.log("Debug: Hiding all goto labels");
     
     for (const labelData of gotoLabels) {
         removeGotoLabel(labelData);
