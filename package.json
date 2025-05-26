@@ -4,10 +4,12 @@
 	"scripts": {
 		"build": "vite build",
 		"dev": "vite --host",
-		"zip": "npm run build && mkdir -p dist && zip -r dist/game.zip www -x \"**/.DS_Store\""
+		"zip": "npm run build && mkdir -p dist && zip -r dist/game.zip www -x \"**/.DS_Store\"",
+		"start": "node server.js"
 	},
 	"dependencies": {
-		"kaplay": "^3001.0.16"
+		"kaplay": "^3001.0.16",
+		"express": "^4.18.2"
 	},
 	"devDependencies": {
 		"vite": "^6.3.4"

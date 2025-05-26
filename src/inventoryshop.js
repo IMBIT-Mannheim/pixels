@@ -1,5 +1,5 @@
 import { k } from "./kaboomCtx.js";
-import { sessionState, saveGame } from "./sessionstate.js";
+import { sessionState, saveGame, decreaseSecureScore } from "./sessionstate.js";
 import { refreshScoreUI } from "./utils.js";
 
 // Function to load all avatar sprites with animations
@@ -313,9 +313,9 @@ function renderShopItem(item, container) {
         buyButton.style.cursor = "not-allowed";
     }
 
-    buyButton.addEventListener("click", () => {
+    buyButton.addEventListener("click", async () => {
         if (sessionState.progress.score >= item.price) {
-            purchaseItem(item);
+            await purchaseItem(item);
             document.getElementById("inventory-score-display").textContent = `Coins: ${sessionState.progress.score}`;
         }
         document.getElementById("game").focus();
@@ -423,22 +423,38 @@ function renderInventoryItem(item, container) {
 }
 
 // Function to purchase an item
-function purchaseItem(item) {
+async function purchaseItem(item) {
     // Check if player has enough score
     if (sessionState.progress.score < item.price) {
         // Skip alert and just return
         return;
     }
 
-    // Deduct price from score
-    sessionState.progress.score -= item.price;
+    // Store original score for verification
+    const originalScore = sessionState.progress.score;
+
+    // Deduct price from score using secure scoring system
+    const newScore = await decreaseSecureScore(item.price);
+    
+    // Verify the purchase was successful (score was actually decreased)
+    if (newScore === originalScore) {
+        // Purchase failed - score wasn't decreased
+        console.error("Failed to decrease score for purchase");
+        return;
+    }
+
+    // Verify the decrease amount is correct
+    if (originalScore - newScore !== item.price) {
+        console.error(`Score decrease mismatch. Expected: ${item.price}, Actual: ${originalScore - newScore}`);
+        return;
+    }
 
     // Add item to inventory
     if (!sessionState.inventory.purchasedItems.includes(item.id)) {
         sessionState.inventory.purchasedItems.push(item.id);
     }
 
-    // Save changes
+    // Save changes (score is already saved by decreaseSecureScore)
     saveGame();
 
     // Update UI

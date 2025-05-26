@@ -1,5 +1,5 @@
 import { sessionState, saveGame } from "./sessionstate.js";
-import { dialogueData } from "./constants.js";
+import { increaseSecureScore, increaseScoreForDialogue, resetSecureScore, getSecureScore } from "./sessionstate.js";
 
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
@@ -77,11 +77,11 @@ class Dialogue {
     constructor() {
         closeBtn.addEventListener("click", this._close_or_next.bind(this));
         closeXBtn.addEventListener("click", this._close_or_next.bind(this));
-        document.addEventListener("keydown", (key) => {
+        document.addEventListener("keydown", async (key) => {
             if (!this._currentDialogue) return;
             if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
                 const number = key.code.slice(-1) - 0;
-                this._questionAnswer(number);
+                await this._questionAnswer(number);
             } else {
                 if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
             }
@@ -117,21 +117,43 @@ class Dialogue {
         return !!(this._currentDialogue && typeof this._currentDialogue == "object");
     }
 
-    getScore() {
-        return this._score;
+    async getScore() {
+        return await getSecureScore();
     }
 
-    resetScore() {
+    async resetScore() {
         this._answeredQuizzes = [];
         this._score = 0;
     
         sessionState.progress.answeredDialogues = [];
-        sessionState.progress.score = 0;
-        saveGame();
+        await resetSecureScore();
     
-        scoreUI.innerHTML = this._score;
+        scoreUI.innerHTML = 0;
     }
-    
+
+    async increaseScore(amount) {
+        const newScore = await increaseSecureScore(amount);
+        this._score = newScore; // Keep local copy in sync
+        
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = newScore;
+        }
+        
+        return newScore;
+    }
+
+    async increaseScoreForDialogue(amount, dialogueId) {
+        const newScore = await increaseScoreForDialogue(amount, dialogueId);
+        this._score = newScore; // Keep local copy in sync
+        
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = newScore;
+        }
+        
+        return newScore;
+    }
 
     async _typingEffect(text) {
         if (this._typer) this._typer.stop(true);
@@ -172,38 +194,20 @@ class Dialogue {
         dialogueUI.style.display = "block";
         await this._typingEffect(this._currentDialogue.text);
 
-        // answers kann fehlen → leeres Array verwenden
-        const answers = Array.isArray(this._currentDialogue.answers)
-                        ? this._currentDialogue.answers
-                        : [];
+        for (let index = 0; index < this._currentDialogue.answers.length; index++) {
+            const button = document.createElement("button");
+            button.classList.add("button");
+            button.classList.add("question-btn");
 
- answers.forEach((txt, idx) => {
-     const button = document.createElement("button");
-     button.classList.add("button", "question-btn");
-     button.innerHTML = txt;
-     button.addEventListener("click", () => {
-         this._questionAnswer(idx + 1);
-     });
-     dialogueContainer.appendChild(button);
- });
-    }
-
-    increaseScore(amount) {
-        sessionState.progress.score += amount;
-        saveGame();
-        const scoreUI = document.getElementById("score-value");
-        if (scoreUI) {
-            scoreUI.innerHTML = sessionState.progress.score;
+            button.innerHTML = this._currentDialogue.answers[index];
+            button.addEventListener("click", async () => {
+                await this._questionAnswer(index + 1);
+            });
+            dialogueContainer.appendChild(button);
         }
     }
-    
-    
 
-    _questionAnswer(number) {
-        if (!Array.isArray(this._currentDialogue?.answers) || !this._currentDialogue.answers.length) {
-            return;                      // Dialog hat gar keine Quizfragen
-        }
-        
+    async _questionAnswer(number) {
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
         }
@@ -216,11 +220,8 @@ class Dialogue {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
                 this._answeredQuizzes.push(this._currentDialogue.id);
     
-                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
-                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
-                }
-    
-                this.increaseScore(1);  // Clean scoring
+                // Use the new atomic function that handles both score and answeredDialogues update
+                await this.increaseScoreForDialogue(1, this._currentDialogue.id);
             }
     
             this._typingEffect(this._currentDialogue.correctText);
@@ -280,55 +281,10 @@ export function getCookie(name) {
     return null;
 }
 
-export function refreshScoreUI() {
+export async function refreshScoreUI() {
     const scoreUI = document.getElementById("score-value");
     if (scoreUI) {
-        scoreUI.innerHTML = sessionState.progress.score;
+        const currentScore = await getSecureScore();
+        scoreUI.innerHTML = currentScore;
     }
-}
-
-/* ---------- Quiz-Status & Wiederholungs-Prompt ---------- */
-
-/**
- * true ⇒ Spieler hat bereits jede Quizfrage dieser Figur gelöst
- */
-export function quizFinished(npcKey) {
-        // Rohdaten holen (kann Array, Objekt oder undefined sein)
-        const raw = dialogueData[npcKey];
-
-        // In ein Array umwandeln, damit wir sicher .filter() benutzen können
-        const ds = Array.isArray(raw) ? raw
-                : raw ? [raw]           // einzelnes Objekt ⇒ Array mit 1 Element
-                : [];                   // undefined ⇒ leeres Array
-    
-        // alle echten Quizfragen (mit answers[]) heraussuchen
-        const quizIds = ds
-            .filter(d => Array.isArray(d.answers) && d.answers.length)
-            .map(d => d.id);
-    
-        // Hat die Figur überhaupt Quizfragen?
-        if (quizIds.length === 0) return false;
-    
-        // true ⇢ jede Frage dieser Figur wurde schon richtig beantwortet
-        return quizIds.every(id =>
-            sessionState.progress.answeredDialogues.includes(id)
-        );
-    }
-
-/**
- * Liefert einen Ein-Satz-Dialog zum erneuten Durchspielen
- */
-export function makeReplayPrompt(npcKey) {
-    const speaker = dialogueData[npcKey][0].title;
-    return [{
-        id: `revisit_${npcKey}`,
-        title: speaker,
-        text: 'Schoen dich wiederzusehen! Meine Fragen hast du bereits richtig ' +
-              'beantwortet. Moechtest du sie trotzdem nochmal durchgehen? ' +
-              'Neue Punkte bekommst du dafuer allerdings nicht ;). ',
-        answers: ['Ja', 'Nein'],
-        correctAnswer: 0,   // unterdrückt Scoring
-        correctText: '',
-        wrongText: ''
-    }];
 }
