@@ -4,7 +4,6 @@ export let maps = [
   'unternehmensausstellung',
   'almeria',
   'campus',
-  'ksb',
 ]
 export const mapMusic = {
   'mensa': 'Mensa',
@@ -18,6 +17,12 @@ export const music = [
   'eglise_orgue',
   'haunted'
 ]
+
+export const companyMapsVisible = {
+  'ksb': true,
+  'atos': false,
+}
+
 export const scaleFactor = 4;
 export const dialogueData = {
 
@@ -515,3 +520,28 @@ export const dialogueData = {
     },
   ],
 };
+
+// Hardcoded map lists to avoid server dependency
+export const regularMaps = [
+    "campus",
+    "mensa", 
+    "klassenzimmer",
+    "almeria",
+    "unternehmensausstellung"
+];
+
+export const companyMaps = [
+    "companies/ksb"
+];
+
+// Combined list for loading sprites
+export const allMaps = [...regularMaps, ...companyMaps];
+
+// Replace the async functions with simple synchronous ones
+export function getAvailableMaps() {
+    return regularMaps;
+}
+
+export function getAllMaps() {
+    return allMaps;
+}

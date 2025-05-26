@@ -1,16 +1,29 @@
-import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
+import { dialogueData, maps, music, scaleFactor, mapMusic, getAvailableMaps, getAllMaps, regularMaps, companyMaps, allMaps } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, initializeSecureScoring } from "./sessionstate.js";
 import { attachInventoryShopListeners, loadAvatarSprites } from "./inventoryshop.js";
+import { initCompanyFlags, checkFlagProximity, cleanupFlags, getCompanyInteractionStatus } from './companyFlagInteraction';
+import { initMapRendering, fixSpriteRendering, resetCameraToSafePosition, handleWindowResize, cleanupMapRendering, emergencyRenderingFix, fixKSBMapRendering, reloadMapSprite, createTiledMap, loadMapTiles, createTileGameObjects, cleanupTiledMap, createLoadingScreen, updateLoadingProgress, removeLoadingScreen, shouldUseTiledRendering } from "./mapRenderingFix";
+import { initGotoAreaDisplay, updateGotoAreaDisplay, cleanupGotoLabels, getGotoAreaInfo, debugShowAllGotoLabels, debugHideAllGotoLabels } from "./gotoAreaDisplay";
+import { dialogueData as ksbDialogueData } from "./dialogues/ksb.js";
+import { initializePerformanceOptimizedMaps, forceLoadMap, logPerformanceStats, cleanupMapResources, startBackgroundLoading } from "./performanceOptimizer.js";
 
 // Properly initialize session state
 console.log("Initializing session state...");
 ensureSessionId(); // Make sure we have a session ID first
 console.log("Session ID:", sessionState.sessionId);
 loadGame(); // Then load saved data
-refreshScoreUI();
+
+// Initialize secure scoring system
+initializeSecureScoring().then(async () => {
+    console.log("🔒 Secure scoring system ready");
+    await refreshScoreUI();
+}).catch(async error => {
+    console.error("Failed to initialize secure scoring:", error);
+    await refreshScoreUI();
+});
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
@@ -41,11 +54,22 @@ let debugTooltip = false; // For debugging
 // Konami code sequence
 const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
 let konamiIndex = 0;
-let konamiDebug = true; // Enable debug logging
+const konamiDebug = false; // Set to true for debugging
+let konamiListenerAdded = false; // Flag to prevent multiple listeners
 
 loadCureSprites();
 defineCureScene();
 
+// Create a wrapper for setupScene that will be available immediately
+window.setupScene = function(sceneName, mapFile, mapSprite) {
+    // Check if the actual setupScene function is available
+    if (typeof setupSceneInternal === 'function') {
+        return setupSceneInternal(sceneName, mapFile, mapSprite);
+    } else {
+        console.warn(`setupScene called for ${sceneName} but function not yet available - will retry from performance optimizer`);
+        // The performance optimizer will handle retrying
+    }
+};
 
 k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	sliceX: 4,
@@ -60,57 +84,65 @@ k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
 	},
 });
 
+// Load company flag sprite
+// k.loadSprite("company-flag", "./sprites/company-flag.svg");
+
 loadAvatarSprites();
 
-
-for (let i = 0; i < maps.length; i++) {
-	const map = maps[i];
-	let button = document.createElement('button');
-	button.className = "button";
-	button.innerHTML = map.toUpperCase();
-	button.addEventListener("click", () => {
-		world_map.style.display = "none";
-		showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-		k.go(map);
-		game.focus();
-	});
-	spawnpoints_world_map.appendChild(button);
-	k.loadSprite(map, `./maps/${map}.png`)
-
-	// Try to load foreground objects sprite if it exists
-	// Check if the file exists first before attempting to load it
-	const foregroundImg = new Image();
-	foregroundImg.onerror = () => {
-		console.log(`No foreground objects for ${map} (expected)`);
-	};
-	foregroundImg.onload = () => {
-		// Only load the sprite if the image exists
-		try {
-			k.loadSprite(`${map}-ForegroundObjects`, `./maps/${map}-ForegroundObjects.png`);
-			console.log(`Loaded foreground objects for ${map}`);
-		} catch (e) {
-			console.log(`Error loading foreground objects for ${map}`, e);
-		}
-	};
-	// Set source last to trigger load
-	foregroundImg.src = `./maps/${map}-ForegroundObjects.png`;
-
-	// Load map-specific music
-	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
-	const musicFilePath = `./sounds/music/${encodeURIComponent(mapSpecificMusic)}.mp3`;
-	k.loadSound(`bgm_${map}`, musicFilePath);
-	setupScene(map, `./maps/${map}.json`, map);
+// Initialize maps with performance optimization
+function initializeMaps() {
+  console.log("🚀 Starting performance-optimized map initialization...");
+  
+  // Clear existing map buttons
+  spawnpoints_world_map.innerHTML = '';
+  
+  // Create buttons for available maps (UI only - maps load in background)
+  const availableMaps = getAvailableMaps();
+  for (const map of availableMaps) {
+    let button = document.createElement('button');
+    button.className = "button";
+    button.innerHTML = map.split('/').pop().toUpperCase();
+    button.addEventListener("click", async () => {
+      // Force load the map if not already loaded
+      await forceLoadMap(map);
+      
+      world_map.style.display = "none";
+      showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+      k.go(map);
+      game.focus();
+    });
+    spawnpoints_world_map.appendChild(button);
+  }
+  
+  // Initialize the performance-optimized loading system
+  initializePerformanceOptimizedMaps();
+  
+  console.log("✅ Map initialization completed - campus loaded, others loading in background");
 }
 
-const random_song = music[Math.floor(Math.random() * music.length)];
-k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
-k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
+// Load essential sounds and setup scene function
+function loadEssentialAssets() {
+  console.log("📦 Loading essential game assets...");
+  
+  // Load essential sounds
+  const random_song = music[Math.floor(Math.random() * music.length)];
+  k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+  k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
+  
+  // Load sound effects
+  k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
+  k.loadSound("talk", "./sounds/effects/talk.mp3");
+  k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
+  k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
+  
+  console.log("✅ Essential assets loaded");
+}
 
-//läd die Sounds im Hintergrund
-k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
-k.loadSound("talk", "./sounds/effects/talk.mp3");
-k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
-k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
+// Replace the old map initialization code with the new function
+initializeMaps();
+
+// Load essential sounds and setup scene function
+loadEssentialAssets();
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -503,7 +535,13 @@ k.scene("loading", () => {
 			window.showDogInitialDialogue = true;
 		}
 		attachInventoryShopListeners();
+		
+		// Go to campus first
 		k.go(spawnpoint);
+		
+		// Start background loading of other maps after the game has started
+		console.log("🎮 Game started - initiating background map loading...");
+		startBackgroundLoading();
 	}
 });
 
@@ -519,8 +557,54 @@ function getSpawnPointNamesBySource(sourceMap) {
 	};
 }
 
-function setupScene(sceneName, mapFile, mapSprite) {
+// Handle deferred scene setup when switching to a map
+// function handleDeferredSceneSetup(sceneName) {
+//     if (window.deferredScenes && window.deferredScenes.has(sceneName)) {
+//         console.log(`🔧 Setting up deferred scene: ${sceneName}`);
+//         setupSceneInternal(sceneName, `./maps/${sceneName}.json`, sceneName);
+//         window.deferredScenes.delete(sceneName);
+//         return true;
+//     }
+//     return false;
+// }
+
+function setupSceneInternal(sceneName, mapFile, mapSprite) {
 	k.scene(sceneName, async (sceneData = {}) => {
+		console.log(`Setting up scene: ${sceneName}`);
+		
+		// Log performance stats when entering a scene
+		if (sceneName !== "loading") {
+			logPerformanceStats();
+		}
+
+		// Helper function to get the correct dialogue data based on scene
+		function getDialogueData() {
+			if (sceneName.includes('ksb') || sceneName.includes('companies/ksb')) {
+				console.log("Using KSB dialogue data for scene:", sceneName);
+				return ksbDialogueData;
+			}
+			return dialogueData;
+		}
+
+		// Get the appropriate dialogue data for this scene
+		const currentDialogueData = getDialogueData();
+
+		// For global dialogues like dogInitial, always use main dialogueData
+		function getGlobalDialogue(dialogueKey) {
+			return dialogueData[dialogueKey];
+		}
+		
+		// Prevent infinite loops by checking if scene is already being set up
+		if (window.currentlySettingUpScene === sceneName) {
+			console.warn(`Scene ${sceneName} is already being set up, preventing infinite loop`);
+			return;
+		}
+		window.currentlySettingUpScene = sceneName;
+		
+		// Clean up any existing objects first
+		k.destroyAll("player");
+		k.destroyAll("dog");
+		
 		let isFullMapView = false;  // Variable to track if in full map view
 		let isInventoryOpen = false;
 		const showDebugOverlay = false; // Set to true to enable debug overlay
@@ -581,13 +665,36 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			}
 			// Clear the global reference when leaving the scene
 			window.currentBgm = null;
+			cleanupFlags();
 		});
 
 
 
-		//Lädt die Mapdaten
-		const mapData = await (await fetch(mapFile)).json();
-		const layers = mapData.layers;
+		//Lädt die Mapdaten - handle the case where we can't fetch
+		let mapData = null;
+		try {
+			// Only try to fetch if we're running with a server
+			if (window.location.protocol !== 'file:') {
+				mapData = await (await fetch(mapFile)).json();
+			}
+		} catch (error) {
+			console.warn(`Could not load map data for ${sceneName}:`, error);
+			// Create a minimal mapData structure
+			mapData = {
+				name: sceneName,
+				layers: []
+			};
+		}
+		
+		// If mapData is still null, create a minimal structure
+		if (!mapData) {
+			mapData = {
+				name: sceneName,
+				layers: []
+			};
+		}
+		
+		const layers = mapData.layers || [];
 		const INTERACTION_RADIUS = 170;
 		const gotoBoundaries = [];
 		const allBoundaries = [];
@@ -612,57 +719,123 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		}
 		function capitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
 
-k.onUpdate(() => {
-	if (player.isInDialogue) return;
+		// Initialize company flags for this map
+		initCompanyFlags(mapData);
 
-	const p = player.worldPos();
-	const R = INTERACTION_RADIUS;
+		// Initialize goto area display system
+		initGotoAreaDisplay(mapData);
 
-	let nearestGoto = null;
-	let nearestNpc = null;
-	let bestGotoDist = Infinity;
-	let bestNpcDist = Infinity;
+		// Combined interaction system to prevent overlapping prompts
+		k.onUpdate(() => {
+			// Skip if player is in dialogue or frozen
+			if (player.isInDialogue || player.isFrozen || isFullMapView || isInventoryOpen) return;
 
-	// Find the nearest GOTO boundary
-	for (const b of gotoBoundaries) {
-		const d = p.dist(b.pos);
-		if (d < bestGotoDist) {
-			bestGotoDist = d;
-			nearestGoto = b;
-		}
-	}
+			const p = player.worldPos();
+			const R = INTERACTION_RADIUS;
 
-	// Find the nearest NPC or named boundary
-	for (const b of npcBoundaries) {
-		const d = p.dist(b.pos);
-		if (d < bestNpcDist) {
-			bestNpcDist = d;
-			nearestNpc = b;
-		}
-	}
+			// Update goto area display system
+			updateGotoAreaDisplay(player);
 
-	// Determine which interaction to show
-	if (bestGotoDist < R || bestNpcDist < R) {
-		if (bestGotoDist < bestNpcDist) {
-			// Door is closer
-			if (nearestGoto?.key?.trim()?.length > 0) {
-				interactButton.textContent = capitalize(nearestGoto.key.trim()) + " Tuer";
+			// First, check for company flag interactions
+			const companyInteraction = checkFlagProximity(player);
+			
+			// If company interaction is active, hide character interaction and return early
+			if (companyInteraction.hasCompanyInteraction) {
+				interactButton.style.display = 'none';
+				return; // Exit early to prevent character interactions
+			}
+
+			// No company interaction, proceed with NPC interactions only
+			// (Goto areas now use the new floating label system)
+			let nearestNpc = null;
+			let bestNpcDist = Infinity;
+
+			// Find the nearest NPC or named boundary (excluding goto areas)
+			for (const b of npcBoundaries) {
+				const d = p.dist(b.pos);
+				if (d < bestNpcDist) {
+					bestNpcDist = d;
+					nearestNpc = b;
+				}
+			}
+
+			// Show NPC interaction button only
+			if (bestNpcDist < R) {
+				// NPC or object is close - show T button
+				interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
 				interactButton.style.display = 'block';
 			} else {
+				// No NPCs nearby - hide button
 				interactButton.style.display = 'none';
 			}
-		} else {
-			// NPC or object is closer
-			interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
-			interactButton.style.display = 'block';
-		}
-	} else {
-		interactButton.style.display = 'none';
-	}
-});
+		});
+
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
-		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+		
+		// Check if this map needs tiled rendering due to size limitations
+		console.log("=== TILED MAP DETECTION ===");
+		console.log("Checking if map needs tiled rendering:", mapSprite);
+		console.log("Scene name:", sceneName);
+		console.log("Map data available:", !!mapData);
+		
+		// Check if this map should use tiled rendering
+		const shouldUseTiling = shouldUseTiledRendering(mapSprite);
+		console.log("Should use tiled rendering (forced):", shouldUseTiling);
+		
+		const tiledMapInfo = createTiledMap(mapSprite, mapData);
+		console.log("Tiled map info created:", !!tiledMapInfo);
+		console.log("=== END TILED MAP DETECTION ===");
+		
+		let map;
+		if (tiledMapInfo) {
+			console.log("✅ Using tiled map system for large map:", mapSprite);
+			
+			// Create a temporary map while tiles are loading
+			const tempMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor), "temp-map"]);
+			fixSpriteRendering(tempMap);
+			
+			// Load tiles and create tile objects
+			loadMapTiles(mapSprite).then(() => {
+				console.log("Tiles loaded, creating tile objects...");
+				createTileGameObjects();
+				
+				// Remove loading screen and temporary map after tiles are created
+				k.wait(0.1, () => {
+					removeLoadingScreen();
+					k.destroyAll("temp-map");
+					console.log("✅ Loading complete - temporary map removed, tiles should be visible");
+				});
+			}).catch((error) => {
+				console.error("❌ Failed to load tiles:", error);
+				console.log("Keeping original map due to tile loading failure");
+				removeLoadingScreen(); // Make sure to remove loading screen on error
+				// Keep the temporary map if tile loading fails
+			});
+			
+			// Create a dummy map object for compatibility
+			map = {
+				pos: k.vec2(0, 0),
+				add: (obj) => k.add(obj) // Fallback for any map.add() calls
+			};
+		} else {
+			console.log("⚠️ Using normal map rendering for:", mapSprite);
+			console.log("⚠️ This may cause blurry rendering for large maps!");
+			map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+			
+			// Apply sprite rendering fixes to the map
+			fixSpriteRendering(map);
+		}
+		
 		let currentCharacterSprite = sessionState.inventory.activeCharacter || character
+		
+		// Check if player already exists to prevent duplication
+		const existingPlayers = k.get("player");
+		if (existingPlayers.length > 0) {
+			console.warn(`Found ${existingPlayers.length} existing players, destroying them`);
+			k.destroyAll("player");
+		}
+		
+		console.log("Creating new player for scene:", sceneName);
 		//Erstellt den Spieler
 		const player = k.make([
 			k.sprite(currentCharacterSprite, { anim: "idle-down" }),
@@ -681,7 +854,58 @@ k.onUpdate(() => {
 			},
 			"player",
 		]);
-		k.onUpdate(() => {
+		
+		// Initialize map rendering fixes after player is created
+		initMapRendering(mapSprite, mapData);
+		
+		// Apply KSB-specific fixes if this is the KSB map
+		if (sceneName.includes('ksb') || mapSprite.includes('ksb')) {
+			console.log("🎯 Detected KSB map, applying specific fixes...");
+			
+			// Check if we need to apply tiled rendering for KSB
+			if (!tiledMapInfo) {
+				console.log("⚠️ KSB map detected but tiled system not active, forcing tiled rendering now...");
+				k.wait(0.5, () => {
+					// Force create tiled map for KSB
+					console.log("🔧 Force creating tiled map for KSB...");
+					const ksbTiledInfo = createTiledMap(mapSprite, mapData);
+					if (ksbTiledInfo) {
+						console.log("✅ Creating tiles for KSB fallback...");
+						loadMapTiles(mapSprite).then(() => {
+							console.log("✅ KSB tiles loaded, creating tile objects...");
+							createTileGameObjects();
+							
+							// Remove loading screen and original map after tiles are created
+							k.wait(0.1, () => {
+								removeLoadingScreen();
+								const existingMaps = k.get("*").filter(obj => 
+									obj.sprite === mapSprite && !obj.is("map-tile")
+								);
+								existingMaps.forEach(mapObj => {
+									console.log("🗑️ Removing original map object for KSB");
+									k.destroy(mapObj);
+								});
+								console.log("✅ KSB fallback loading complete");
+							});
+						}).catch((error) => {
+							console.error("❌ Failed to load KSB tiles:", error);
+							removeLoadingScreen(); // Remove loading screen on error
+						});
+					} else {
+						console.error("❌ Failed to create KSB tiled map info");
+					}
+				});
+			} else {
+				console.log("✅ KSB map already using tiled system");
+			}
+			
+			k.wait(0.2, () => {
+				fixKSBMapRendering();
+			});
+		}
+		
+		// Add sprite update handler for character changes
+		const spriteUpdateHandler = k.onUpdate(() => {
 			const correctSprite = sessionState.inventory.activeCharacter || character
 			if (correctSprite != currentCharacterSprite) {
 				const flipX = player.flipX;
@@ -689,8 +913,16 @@ k.onUpdate(() => {
 				currentCharacterSprite = correctSprite;
 				player.flipX = flipX;
 			}
-		})
-
+		});
+		
+		// Check if dog already exists to prevent duplication
+		const existingDogs = k.get("dog");
+		if (existingDogs.length > 0) {
+			console.warn(`Found ${existingDogs.length} existing dogs, destroying them`);
+			k.destroyAll("dog");
+		}
+		
+		console.log("Creating new dog for scene:", sceneName);
 		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
@@ -1152,28 +1384,19 @@ k.onUpdate(() => {
 											promptTimer += k.dt();
 
 											if (promptTimer >= PROMPT_DELAY) {
-											  // If this boundary is a "goto" (scene-transition) object…
-											  if (gotoBoundaries.some(b => b.key === boundaryObj.name)) {
-												// show its name on your world-map overlay
-												const name = boundaryObj.name.charAt(0).toUpperCase() + boundaryObj.name.slice(1);
-												world_map.textContent = name;
-												world_map.style.display = "block";
-												// hide the T-button
-												interactButton.style.display = "none";
-											  }
-											  else {
-												// normal interactive boundary → show T-button
+											  // Show T-button only for named interactive boundaries (NPCs, objects, etc.)
+											  // Exclude generic "boundary" collision objects
+											  if (boundaryObj.name && boundaryObj.name !== "boundary") {
+												// Interactive boundary (NPC/object) → show T-button
 												interactButton.style.display = "block";
-												world_map.style.display = "none";
 											  }
 											}
 										  }
 										  else if (isInProximity) {
 											isInProximity = false;
 											promptTimer = 0;
-											// hide everything as you walk away
+											// hide T-button as you walk away
 											interactButton.style.display = "none";
-											world_map.style.display = "none";
 										  }
 									});
 
@@ -1184,39 +1407,43 @@ k.onUpdate(() => {
 									k.onKeyPress("t", () => {
 										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
 										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
-											showWorldMapBtn.style.display = "none";
-											// Hide the interaction button
-											interactButton.style.display = "none";
-											if (boundaryObj.exclamation) k.destroy(boundaryObj.exclamation);
-											if (boundaryObj.interactionPrompt) k.destroy(boundaryObj.interactionPrompt);
-											if (boundaryObj.promptText) k.destroy(boundaryObj.promptText);
-											k.play("talk", {
-												volume: sound_effects_volume,
-											});
-											if (walkingSound) {
-												walkingSound.stop();
-												walkingSound = null;
-											}
-
-											// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
-											if (boundaryObj.name === "sportscar") {
-												dialogue.setQuestionButtonClickListener((buttonIndex) => {
-													dialogue.setQuestionButtonClickListener(null);
-													if (buttonIndex === 1) {
-														dialogue._close_or_next();
-														k.go("cure_minigame");
-													}
+											// Only handle T-key for named interactive boundaries (NPCs, objects, etc.)
+											// Exclude generic "boundary" collision objects
+											if (boundaryObj.name && boundaryObj.name !== "boundary") {
+												showWorldMapBtn.style.display = "none";
+												// Hide the interaction button
+												interactButton.style.display = "none";
+												if (boundaryObj.exclamation) k.destroy(boundaryObj.exclamation);
+												if (boundaryObj.interactionPrompt) k.destroy(boundaryObj.interactionPrompt);
+												if (boundaryObj.promptText) k.destroy(boundaryObj.promptText);
+												k.play("talk", {
+													volume: sound_effects_volume,
 												});
+												if (walkingSound) {
+													walkingSound.stop();
+													walkingSound = null;
+												}
+
+												// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+												if (boundaryObj.name === "sportscar") {
+													dialogue.setQuestionButtonClickListener((buttonIndex) => {
+														dialogue.setQuestionButtonClickListener(null);
+														if (buttonIndex === 1) {
+															dialogue._close_or_next();
+															k.go("cure_minigame");
+														}
+													});
+													dialogue.display(
+														currentDialogueData[boundaryObj.name],
+														() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+													);
+													return;
+												}
 												dialogue.display(
-													dialogueData[boundaryObj.name],
-													() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+													currentDialogueData[boundaryObj.name],
+													() => (showWorldMapBtn.style.display = "flex", game.focus())
 												);
-												return;
 											}
-											dialogue.display(
-												dialogueData[boundaryObj.name],
-												() => (showWorldMapBtn.style.display = "flex", game.focus())
-											);
 										}
 									});
 								}
@@ -1336,10 +1563,12 @@ k.onUpdate(() => {
 
 			if (layer.name === "goto") {
 				for (const boundary of layer.objects) {
-				  map.add([
-					k.area({ shape: new k.Rect(k.vec2(0), boundary.width, boundary.height) }),
+				  // For tiled maps, add directly to the scene instead of to the map object
+				  // since the map object is just a dummy for tiled rendering
+				  const gotoObject = k.add([
+					k.area({ shape: new k.Rect(k.vec2(0), boundary.width * scaleFactor, boundary.height * scaleFactor) }),
 					k.body({ isStatic: true }),
-					k.pos(boundary.x, boundary.y),
+					k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor),
 					k.rotate(boundary.rotation),
 					boundary.name,
 				  ]);
@@ -1806,7 +2035,7 @@ k.onUpdate(() => {
 			previousPos = dog.pos.clone();
 
 			if (window.showDogInitialDialogue) {
-				dialogue.display(dialogueData.dogInitial, () => {
+				dialogue.display(getGlobalDialogue('dogInitial'), () => {
 					setCookie("dog_initial_answered", true, 365);
 				});
 				window.showDogInitialDialogue = false;
@@ -1972,7 +2201,7 @@ k.onUpdate(() => {
 
 			// Create a continue prompt
 			const continuePrompt = k.add([
-				k.text("Press any key to continue", {
+				k.text("Press Q to continue", {
 					size: 16,
 					font: "monospace",
 					styles: {
@@ -2000,8 +2229,8 @@ k.onUpdate(() => {
 			const playerWasFrozen = player.isFrozen;
 			player.isFrozen = true;
 
-			// Listen for any key to dismiss
-			const keyHandler = k.onKeyPress(() => {
+			// Listen for Q key specifically to dismiss
+			const keyHandler = k.onKeyPress("q", () => {
 				tooltipBox.destroy();
 				tooltipHeader.destroy();
 				tooltipText.destroy();
@@ -2042,113 +2271,80 @@ k.onUpdate(() => {
 
 			// Play each note sequentially
 			let timeOffset = 0;
-			notes.forEach(note => {
-			  if (note.note !== 'rest') {
-				// Create oscillator for each note
-				const oscillator = audioCtx.createOscillator();
-				const gainNode = audioCtx.createGain();
+			notes.forEach((noteData, index) => {
+			  if (noteData.note !== 'rest') {
+				const frequency = frequencies[noteData.note];
+				if (frequency) {
+				  setTimeout(() => {
+					const oscillator = audioCtx.createOscillator();
+					const gainNode = audioCtx.createGain();
 
-				oscillator.connect(gainNode);
-				gainNode.connect(audioCtx.destination);
+					oscillator.connect(gainNode);
+					gainNode.connect(audioCtx.destination);
 
-				// Set waveform and frequency
-				oscillator.type = 'square'; // Square wave for that 8-bit sound
-				oscillator.frequency.value = frequencies[note.note];
+					oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+					oscillator.type = 'square'; // 8-bit style square wave
 
-				// Set volume
-				gainNode.gain.value = volume;
+					gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+					gainNode.gain.linearRampToValueAtTime(volume * 0.1, audioCtx.currentTime + 0.01);
+					gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + noteData.duration);
 
-				// Schedule note start and stop
-				oscillator.start(audioCtx.currentTime + timeOffset);
-				oscillator.stop(audioCtx.currentTime + timeOffset + note.duration);
-
-				// Add slight decay for more natural sound
-				gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + timeOffset + note.duration);
+					oscillator.start(audioCtx.currentTime);
+					oscillator.stop(audioCtx.currentTime + noteData.duration);
+				  }, timeOffset * 1000);
+				}
 			  }
-			  timeOffset += note.duration;
+			  timeOffset += noteData.duration;
 			});
-		  } catch (err) {
-			console.log("Error playing 8-bit melody", err);
+		  } catch (e) {
+			console.error("Error playing 8-bit melody:", e);
 		  }
 		}
 
-		// Global function to trigger the retro easter egg
-		window.triggerRetroEasterEgg = function() {
-		  console.log("🎮 Triggering retro easter egg! 🎮");
+		// Make the function globally available for the easter egg
+		window.triggerRetroEasterEgg = () => {
+		  console.log("🎮 Retro Easter Egg Activated! 🎮");
 
-		  // Play retro sound
 		  try {
-			const retroSound = k.play("retro-sound", {
-			  volume: 0.5, // Use fixed volume for consistency
-			});
-			console.log("Playing retro sound...");
-		  } catch (e) {
-			console.error("Error playing retro sound:", e);
-			// Try fallback 8-bit melody
-			play8BitMelody(0.5);
-		  }
+			// Play the 8-bit melody
+			const music_volume = sessionState.settings.musicVolume || 0.5;
+			play8BitMelody(music_volume);
 
-		  // Get screen dimensions
-		  const width = window.innerWidth;
-		  const height = window.innerHeight;
+			// Get screen dimensions
+			const width = k.width();
+			const height = k.height();
 
-		  // Create retro visual effect with primitive shapes
-		  try {
-			// Create overlay
-			const retroOverlay = k.add([
+			// Create retro-style background effect
+			const retroBg = k.add([
 			  k.rect(width, height),
 			  k.pos(0, 0),
-			  k.color(0, 0, 0, 0.1),
+			  k.color(k.rgb(20, 20, 40)),
+			  k.opacity(0.8),
 			  k.fixed(),
 			  k.z(1000),
-			  "retro-effect",
-			  {
-				update() {
-				  // Flicker effect
-				  this.opacity = 0.1 + Math.sin(k.time() * 10) * 0.05;
-				}
-			  }
+			  "retro-effect"
 			]);
 
-			// Add scanlines
-			for (let i = 0; i < height; i += 4) {
+			// Add scanlines effect
+			for (let y = 0; y < height; y += 4) {
 			  k.add([
-				k.rect(width, 1),
-				k.pos(0, i),
-				k.color(0, 0, 0, 0.2),
+				k.rect(width, 2),
+				k.pos(0, y),
+				k.color(k.rgb(0, 255, 0)),
+				k.opacity(0.1),
 				k.fixed(),
 				k.z(1001),
 				"retro-scanline"
 			  ]);
 			}
 
-			// Add RGB shift text effect
-			const rgbShiftR = k.add([
-			  k.text("RETRO MODE", { size: 32, font: "sink" }),
-			  k.pos(width / 2 - 2, 100 - 2),
+			// Add retro text
+			const retroText = k.add([
+			  k.text("RETRO MODE ACTIVATED", { size: 48, font: "sink" }),
+			  k.pos(width / 2, height / 2),
 			  k.anchor("center"),
 			  k.fixed(),
-			  k.color(k.rgb(255, 0, 0, 0.7)),
-			  k.z(1002),
-			  "retro-text"
-			]);
-
-			const rgbShiftG = k.add([
-			  k.text("RETRO MODE", { size: 32, font: "sink" }),
-			  k.pos(width / 2, 100),
-			  k.anchor("center"),
-			  k.fixed(),
-			  k.color(k.rgb(0, 255, 0, 0.7)),
-			  k.z(1002),
-			  "retro-text"
-			]);
-
-			const rgbShiftB = k.add([
-			  k.text("RETRO MODE", { size: 32, font: "sink" }),
-			  k.pos(width / 2 + 2, 100 + 2),
-			  k.anchor("center"),
-			  k.fixed(),
-			  k.color(k.rgb(0, 0, 255, 0.7)),
+			  k.color(k.rgb(0, 255, 0)),
 			  k.z(1002),
 			  "retro-text"
 			]);
@@ -2242,40 +2438,247 @@ k.onUpdate(() => {
 		  }
 		};
 
-		// Add global key handler for Konami code detection
-		document.addEventListener("keydown", (e) => {
-		  // Check if the pressed key matches the next key in the Konami sequence
-		  if (e.code === konamiCode[konamiIndex]) {
-			konamiIndex++;
-			if (konamiDebug) {
-			  console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
-			}
+		// Add global key handler for Konami code detection (only once)
+		if (!konamiListenerAdded) {
+			konamiListenerAdded = true;
+			document.addEventListener("keydown", (e) => {
+			  // Check if the pressed key matches the next key in the Konami sequence
+			  if (e.code === konamiCode[konamiIndex]) {
+				konamiIndex++;
+				if (konamiDebug) {
+				  console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+				}
 
-			// If the full sequence is entered, trigger the easter egg
-			if (konamiIndex === konamiCode.length) {
-			  console.log("🎮 KONAMI CODE ACTIVATED! 🎮");
-			  window.triggerRetroEasterEgg();
-			  konamiIndex = 0; // Reset for next time
-			}
-		  } else {
-			konamiIndex = 0; // Reset if incorrect key
-			// If the first key of the sequence is pressed, start the sequence again
-			if (e.code === konamiCode[0]) {
-			  konamiIndex = 1;
-			  if (konamiDebug) {
-				console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+				// If the full sequence is entered, trigger the easter egg
+				if (konamiIndex === konamiCode.length) {
+				  console.log("🎮 KONAMI CODE ACTIVATED! 🎮");
+				  window.triggerRetroEasterEgg();
+				  konamiIndex = 0; // Reset for next time
+				}
+			  } else {
+				konamiIndex = 0; // Reset if incorrect key
+				// If the first key of the sequence is pressed, start the sequence again
+				if (e.code === konamiCode[0]) {
+				  konamiIndex = 1;
+				  if (konamiDebug) {
+					console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+				  }
+				}
 			  }
+			});
+		}
+
+		// Scene setup is complete, clear the flag
+		window.currentlySettingUpScene = null;
+
+		// Add proper scene cleanup
+		k.onSceneLeave(() => {
+			console.log(`Leaving scene: ${sceneName}`);
+			
+			// Performance cleanup - free up resources
+			cleanupMapResources(sceneName);
+			
+			// Clear the scene setup flag
+			window.currentlySettingUpScene = null;
+			
+			// Stop any walking sounds
+			if (walkingSound) {
+				walkingSound.stop();
+				walkingSound = null;
 			}
-		  }
+			
+			// Clean up company flag interactions
+			cleanupFlags();
+			
+			// Clean up goto area labels
+			cleanupGotoLabels();
+			
+			// Clean up map rendering
+			cleanupMapRendering();
+			
+			// Clean up tiled map system
+			cleanupTiledMap();
+			
+			// Clean up loading screen
+			removeLoadingScreen();
+			
+			// Clean up any retro effects
+			k.destroyAll("retro-effect");
+			k.destroyAll("retro-scanline");
+			k.destroyAll("retro-text");
+			k.destroyAll("retro-pixel");
+			k.destroyAll("retro-speed-text");
+			
+			// Clean up event handlers
+			if (spriteUpdateHandler) {
+				k.onUpdate(spriteUpdateHandler, () => {});
+			}
+			
+			// Destroy all scene-specific objects
+			k.destroyAll("player");
+			k.destroyAll("dog");
+			k.destroyAll("boundary");
+			k.destroyAll("exclamation");
+			k.destroyAll("promptText");
+			k.destroyAll("map-tile"); // Clean up map tiles
+			k.destroyAll("temp-map"); // Clean up temporary maps
+			k.destroyAll("loading-screen"); // Clean up loading screen elements
+			
+			// Reset any global state
+			isFullMapView = false;
+			isInventoryOpen = false;
+			
+			// Hide UI elements
+			const interactButton = document.getElementById("interact-button");
+			if (interactButton) {
+				interactButton.style.display = 'none';
+			}
+			
+			const worldMap = document.getElementById("world-map");
+			if (worldMap) {
+				worldMap.style.display = 'none';
+			}
+			
+			const inventoryShop = document.getElementById("inventory-shop");
+			if (inventoryShop) {
+				inventoryShop.style.display = 'none';
+			}
+			
+			console.log(`Scene cleanup completed for: ${sceneName}`);
 		});
 	});
 }
 
+// Update the global wrapper to use the actual function now that it's defined
+window.setupScene = setupSceneInternal;
+
 k.go("loading");
+
+// Add window resize handler for map rendering
+window.addEventListener('resize', () => {
+	handleWindowResize();
+});
 
 // For testing, add a key to force show the tooltip
 k.onKeyPress("t", () => {
 	if (k.isKeyDown("shift")) {
 		showHomeKeyTooltip();
+	}
+});
+
+// Add DOM event listener for Ctrl key combinations (since Kaboom doesn't handle Ctrl properly)
+document.addEventListener("keydown", (e) => {
+	// Emergency fix key for map rendering issues (Ctrl+R)
+	if (e.ctrlKey && e.key.toLowerCase() === "r") {
+		e.preventDefault(); // Prevent browser refresh
+		console.log("Emergency map rendering fix triggered");
+		emergencyRenderingFix();
+	}
+	
+	// KSB-specific fix key (Ctrl+K)
+	if (e.ctrlKey && e.key.toLowerCase() === "k") {
+		e.preventDefault(); // Prevent any default browser behavior
+		console.log("KSB-specific rendering fix triggered");
+		fixKSBMapRendering();
+	}
+	
+	// Reload map sprite with pixel-perfect settings (Ctrl+S)
+	if (e.ctrlKey && e.key.toLowerCase() === "s") {
+		e.preventDefault(); // Prevent browser save dialog
+		console.log("Reloading current map sprite with pixel-perfect settings");
+		
+		// Try to determine current scene/map name
+		const currentScene = k.getSceneName ? k.getSceneName() : null;
+		if (currentScene && currentScene !== "loading") {
+			console.log("Reloading sprite for scene:", currentScene);
+			reloadMapSprite(currentScene);
+		} else {
+			console.log("Could not determine current scene for sprite reload");
+		}
+	}
+	
+	// Test tiled map system (Ctrl+T)
+	if (e.ctrlKey && e.key.toLowerCase() === "t") {
+		e.preventDefault();
+		console.log("Testing tiled map system for current scene");
+		
+		const currentScene = k.getSceneName ? k.getSceneName() : null;
+		if (currentScene && currentScene !== "loading") {
+			console.log("Creating tiled map for:", currentScene);
+			
+			// Clean up existing map tiles
+			cleanupTiledMap();
+			k.destroyAll("map-tile");
+			
+			// Create new tiled map
+			const tiledInfo = createTiledMap(currentScene);
+			if (tiledInfo) {
+				loadMapTiles(currentScene).then(() => {
+					console.log("Test tiles loaded, creating tile objects...");
+					createTileGameObjects();
+					
+					// Remove loading screen after test completion
+					k.wait(0.1, () => {
+						removeLoadingScreen();
+						console.log("Test tiled map creation complete");
+					});
+				}).catch((error) => {
+					console.error("Test tile loading failed:", error);
+					removeLoadingScreen();
+				});
+			} else {
+				console.log("Map doesn't need tiling (within size limits)");
+			}
+		}
+	}
+	
+	// Debug info key (Ctrl+D)
+	if (e.ctrlKey && e.key.toLowerCase() === "d") {
+		e.preventDefault();
+		console.log("=== RENDERING DEBUG INFO ===");
+		console.log("Canvas:", k.canvas);
+		console.log("Canvas dimensions:", k.canvas ? `${k.canvas.width}x${k.canvas.height}` : "No canvas");
+		console.log("Screen dimensions:", `${k.width()}x${k.height()}`);
+		console.log("Camera position:", k.camPos());
+		console.log("Camera scale:", k.camScale());
+		
+		const canvas = k.canvas;
+		if (canvas) {
+			const ctx = canvas.getContext('2d');
+			if (ctx) {
+				console.log("Image smoothing enabled:", ctx.imageSmoothingEnabled);
+				console.log("Image smoothing quality:", ctx.imageSmoothingQuality);
+				console.log("Current transform:", ctx.getTransform());
+			}
+		}
+		
+		// Show current scene
+		console.log("Current scene:", k.getSceneName ? k.getSceneName() : "Unknown");
+		console.log("Player objects:", k.get("player").length);
+		
+		// Show goto area info
+		const gotoInfo = getGotoAreaInfo();
+		console.log("Goto area system:", gotoInfo);
+		console.log("=== END DEBUG INFO ===");
+	}
+	
+	// Show all goto labels (Ctrl+G)
+	if (e.ctrlKey && e.key.toLowerCase() === "g") {
+		e.preventDefault();
+		console.log("Debug: Toggling all goto labels");
+		const gotoInfo = getGotoAreaInfo();
+		if (gotoInfo.visibleLabels > 0) {
+			debugHideAllGotoLabels();
+		} else {
+			debugShowAllGotoLabels();
+		}
+	}
+	
+	// Show performance statistics (Ctrl+P)
+	if (e.ctrlKey && e.key.toLowerCase() === "p") {
+		e.preventDefault();
+		console.log("=== PERFORMANCE STATISTICS ===");
+		logPerformanceStats();
+		console.log("=== END PERFORMANCE STATS ===");
 	}
 });

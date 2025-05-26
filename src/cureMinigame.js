@@ -1,6 +1,6 @@
 import { k } from "./kaboomCtx";
 import {setCamScale, refreshScoreUI } from "./utils";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame } from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, increaseSecureScore } from "./sessionstate.js";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -42,15 +42,40 @@ export function loadCureSprites() {
 }
 
 export function defineCureScene() {
-    let timePassed = 0;
-    let gameSpeed = GAME_SPEED;
-    let obstacles = [];
-    let decorations = [];
-    let isGameOver = false;
-    let stripes = []; // Array für alle Straßenmarkierungen
-    let music = undefined;
-
     k.scene("cure_minigame", async () => {
+        // Reset all game state variables at the start of the scene
+        let timePassed = 0;
+        let gameSpeed = GAME_SPEED;
+        let obstacles = [];
+        let decorations = [];
+        let isGameOver = false;
+        let stripes = [];
+        let music = undefined;
+        let isRestarting = false; // Flag to track if we're restarting vs actually leaving
+
+        // Clean up any existing game objects from previous runs
+        k.destroyAll("player");
+        k.destroyAll("road");
+        k.destroyAll("boundary");
+        k.destroyAll("stripe");
+        k.destroyAll("obstacle");
+        k.destroyAll("decoration");
+        k.destroyAll("decoration_part");
+        
+        // Clean up any game over UI elements that might still exist
+        k.get().forEach(obj => {
+            if (obj.text && (obj.text.includes("Game Over") || obj.text.includes("ESC:") || obj.text.includes("Leertaste:"))) {
+                obj.destroy();
+            }
+        });
+        
+        // Clean up any background panels from game over screen
+        k.get().forEach(obj => {
+            if (obj.color && obj.color.r === 150 && obj.color.g === 0 && obj.color.b === 0) {
+                obj.destroy();
+            }
+        });
+
         const music_volume = sessionState.settings.musicVolume || 0.5;
 
         // Hide world map and inventory buttons during minigame
@@ -351,6 +376,17 @@ export function defineCureScene() {
                     k.go("campus");
                 });
                 k.onKeyPress("space", () => {
+                    // Set restart flag to prevent score processing
+                    isRestarting = true;
+                    
+                    // Clean up current game state before restarting
+                    if (music) {
+                        music.stop();
+                    }
+                    music = undefined;
+                    window.currentBgm = null;
+                    
+                    // Restart the minigame scene
                     k.go("cure_minigame");
                 });
             }
@@ -525,13 +561,53 @@ export function defineCureScene() {
             setCamScale(k);
         });
 
-        k.onSceneLeave(() => {
+        k.onSceneLeave(async () => {
+            // If we're restarting, skip score processing and UI changes
+            if (isRestarting) {
+                console.log("Restarting minigame - skipping score processing");
+                
+                // Only do essential cleanup for restart
+                obstacles.forEach((obstacle) => obstacle.destroy());
+                decorations.forEach((decoration) => decoration.destroy());
+                stripes.forEach((stripe) => stripe.destroy());
+                
+                // Stop the music if it exists
+                if (music) {
+                    music.stop();
+                }
+                
+                // Clear the background music reference
+                window.currentBgm = null;
+                
+                // Reset game state
+                obstacles = [];
+                decorations = [];
+                stripes = [];
+                timePassed = 0;
+                isGameOver = false;
+                music = undefined;
+                
+                return; // Exit early for restart
+            }
 
+            // Normal exit logic (going back to main game)
             const currentScore = calculateScore(timePassed);
-            console.log("Increasing score by " + currentScore);
-            sessionState.progress.score = sessionState.progress.score + currentScore;
-            refreshScoreUI();
-            saveGame();
+            console.log("Minigame completed with score:", currentScore);
+            
+            // Update minigame-specific scores
+            sessionState.minigames.cureMinigame.lastScore = currentScore;
+            if (currentScore > sessionState.minigames.cureMinigame.bestScore) {
+                sessionState.minigames.cureMinigame.bestScore = currentScore;
+                console.log("🏆 New best minigame score:", currentScore);
+            }
+            
+            // Add minigame score to main secure score
+            if (currentScore > 0) {
+                await increaseSecureScore(currentScore);
+                console.log("🔒 Added", currentScore, "points to secure score");
+            }
+            
+            await refreshScoreUI();
 
             // Show world map and inventory buttons when leaving minigame
             const showWorldMapBtn = document.getElementById("show-world-map");
@@ -562,6 +638,7 @@ export function defineCureScene() {
             music = undefined;
 
             //Hide minigame-specific HTML
+            const during_minigame = document.getElementsByClassName("during-minigame");
             for (let i = 0; i < during_minigame.length; i++) {
                 during_minigame[i].style.display = "none";
                 during_minigame[i].style.opacity = 0;
