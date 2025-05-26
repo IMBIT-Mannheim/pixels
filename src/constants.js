@@ -327,6 +327,64 @@ export const dialogueData = {
     answers: [
     ],
   },
+
+  sbgirl: [
+    {
+      id: 145,
+      title: 'Prof. Meier',
+      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Schmidt und leite das Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren?`,
+      answers: [
+        '1) Vorteile des dualen Studiums ',
+        '2) Bewerbung und Ablauf ',
+      ],
+      correctAnswer: 1,
+      correctText: `Das duale Studium an der DHBW Mannheim bringt viele Vorteile: 
+      - Praxis und Theorie im Wechsel (alle 3 Monate) 
+      - 3 Jahre Studiendauer, Abschluss mit 210 ECTS 
+      - Verguetung durch das Unternehmen ab Tag 1 
+      - Kleine Kursgroessen & enge Betreuung 
+      - Sehr gute Chancen auf Uebernahme (rund 85%) 
+      - Internationale Moeglichkeiten mit dem International Office 
+      - Modern ausgestatteter Campus in Mannheim 
+        Du willst mehr dazu wissen? Dann schau hier vorbei: 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/das-duale-studium">Duales Studium DHBW </a>`,
+      wrongText: `So bewirbst du dich fuer ein duales Studium an der DHBW Mannheim:
+      1. Studienplatz bei Partnerunternehmen finden: 👉  <a target="_blank" href="https://studyup.mannheim.dhbw.de">StudyUp Plattform </a>
+      2. Bewerbung direkt beim Unternehmen (kein zentrales Vergabeverfahren) 
+      3. Studienvertrag unterschreiben und ans DHBW-Portal weiterleiten 
+      4. Online-Immatrikulation einreichen 
+      5. Optional: Vorkurse & Orientierungsangebote nutzen
+      Zulassungsvoraussetzungen: 
+      - Allgemeine oder fachgebundene Hochschulreife (Abitur) 
+      - Fachhochschulreife mit zusaetzlichen Nachweisen 
+      - Berufliche Qualifikation oder auslaendischer Abschluss (mit Bedingungen) 
+      - Studienvertrag mit einem Dualen Partnerunternehmen
+      Mehr dazu 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/das-duale-studium/zulassungsvoraussetzungen">Zulassungsvoraussetzungen DHBW Mannheim</a>
+      Weitere Infos zur Immatrikulation: 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/service/servicezentrum-studium-und-lehre/immatrikulation-beurlaubung-exmatrikulation">Immatrikulation DHBW</a>`,
+    }
+  ],
+  sbgirl2: [
+    {
+      id: 144,
+      title: 'Prof. Bauer',
+      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Bauer und bin im Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren? `,
+      answers: [
+        '1) Studienberatung & Orientierung',
+        '2) Events & Campus kennenlernen',
+      ],
+      correctAnswer: 1,
+      correctText: `Noch unsicher, welcher Studiengang zu dir passt? Unsere Studienberatung hilft dir: 
+    - Persoenliche Beratung 
+    - Online-Tests zur Selbsteinschaetzung (OSA, MathX3 usw.) 
+    - Hilfreiche Tools zur Studienwahl 
+    Alle Infos zur Orientierung findest du hier 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/studienwahl-beratung">Studienberatung DHBW</a> Kontakt: studienberatung.ma@dhbw.de`, 
+      wrongText: `Du willst die DHBW Mannheim live erleben? 
+        - Infoveranstaltungen auf dem Campus oder digital 
+        - Teilnahme an Messen in deiner Region 
+        - Campusbesuche & Erstsemester-Welcome 
+      Aktuelle Termine und Events findest du hier 👉 <a target="_blank" href="https://events.mannheim.dhbw.de/event?event_filter%5BsearchTerm%5D=&event_filter%5BstartDate%5D=&event_filter%5BendDate%5D=&event_filter%5BtargetGroups%5D%5B%5D=9&submitFilter=common.search">DHBW Events</a> 
+      Wir freuen uns auf dich! `,
+    }
+  ],
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
