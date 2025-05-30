@@ -1596,6 +1596,9 @@ input[type="range"]::-ms-thumb {
         border: 2px solid #ffd700 !important;
         border-radius: 8px !important;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4) !important;
+        /* Ensure visibility with zoomed out camera */
+        position: relative !important;
+        z-index: 1000 !important;
     }
     
     /* Prevent scrolling during minigame */
@@ -1612,6 +1615,11 @@ input[type="range"]::-ms-thumb {
         -webkit-touch-callout: none;
         -webkit-user-select: none;
         user-select: none;
+        /* Ensure canvas scales properly with camera zoom */
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
     }
     
     /* Minigame instructions for mobile */
@@ -1630,6 +1638,42 @@ input[type="range"]::-ms-thumb {
         text-align: center;
         max-width: 90%;
         box-sizing: border-box;
+    }
+    
+    /* Enhanced stats container for minigame */
+    .stats-container.during-game {
+        /* Ensure stats remain visible with camera zoom */
+        position: fixed !important;
+        top: 1vh !important;
+        right: 1vh !important;
+        z-index: 1000 !important;
+        /* Scale appropriately for mobile */
+        transform: scale(0.9);
+        transform-origin: top right;
+    }
+    
+    /* Minigame touch control hints */
+    .cure-minigame-hint {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(45, 41, 41, 0.8);
+        color: #ffd700;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 1rem;
+        z-index: 100;
+        border: 1px solid rgba(255, 215, 0, 0.5);
+        text-align: center;
+        max-width: 80%;
+        box-sizing: border-box;
+        animation: fadeInOut 3s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        20%, 80% { opacity: 1; }
     }
 }
 

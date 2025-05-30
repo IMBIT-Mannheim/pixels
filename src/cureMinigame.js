@@ -304,6 +304,79 @@ class CureMobileControls {
         this.touchStartX = 0;
         this.touchCurrentX = 0;
     }
+    
+    // Apply mobile camera scaling for better visibility
+    applyMobileCameraScale() {
+        if (!this.isMobile) return;
+        
+        try {
+            // Check if Kaplay context is available
+            if (typeof k === 'undefined' || !k.camScale) {
+                console.log("📱 Cure Minigame: Kaplay context not available for camera scaling");
+                return false;
+            }
+            
+            // Store original scale for potential restoration (only once)
+            if (!this.originalCamScale) {
+                try {
+                    this.originalCamScale = k.camScale();
+                    console.log("📱 Cure Minigame: Stored original camera scale:", this.originalCamScale);
+                } catch (e) {
+                    console.log("📱 Cure Minigame: Could not get current camera scale, using default");
+                    this.originalCamScale = { x: 1, y: 1 };
+                }
+            }
+            
+            // Apply mobile-specific scaling based on screen size
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            // Calculate appropriate scale factor for mobile minigame
+            let mobileScaleFactor;
+            
+            if (screenWidth <= 480) {
+                // Small phones - zoom out significantly for better overview
+                mobileScaleFactor = k.vec2(0.6, 0.6);
+            } else if (screenWidth <= 768) {
+                // Tablets and larger phones - moderate zoom out
+                mobileScaleFactor = k.vec2(0.75, 0.75);
+            } else if (screenWidth <= 1024) {
+                // Large tablets - slight zoom out
+                mobileScaleFactor = k.vec2(0.85, 0.85);
+            } else {
+                // Very large screens - minimal zoom out
+                mobileScaleFactor = k.vec2(0.9, 0.9);
+            }
+            
+            // Apply the mobile scale
+            k.camScale(mobileScaleFactor);
+            
+            console.log(`📱 Cure Minigame: Applied mobile camera scale: ${mobileScaleFactor.x}x for screen ${screenWidth}x${screenHeight}px`);
+            
+            // Store current mobile scale for reference
+            this.currentMobileScale = mobileScaleFactor;
+            
+            return true;
+            
+        } catch (error) {
+            console.warn("📱 Cure Minigame: Could not apply mobile camera scale:", error);
+            return false;
+        }
+    }
+    
+    // Restore original camera scale
+    restoreOriginalCameraScale() {
+        if (!this.isMobile) return;
+        
+        try {
+            if (this.originalCamScale && typeof k !== 'undefined' && k.camScale) {
+                k.camScale(this.originalCamScale);
+                console.log("📱 Cure Minigame: Restored original camera scale");
+            }
+        } catch (error) {
+            console.warn("📱 Cure Minigame: Could not restore original camera scale:", error);
+        }
+    }
 }
 
 export function loadCureSprites() {
@@ -624,6 +697,9 @@ export function defineCureScene() {
                         // Restart function
                         isRestarting = true;
                         
+                        // Restore camera scale before restarting
+                        cureMobileControls.restoreOriginalCameraScale();
+                        
                         // Clean up current game state before restarting
                         if (music) {
                             music.stop();
@@ -639,6 +715,10 @@ export function defineCureScene() {
                     },
                     () => {
                         // Exit function
+                        
+                        // Restore camera scale before exiting
+                        cureMobileControls.restoreOriginalCameraScale();
+                        
                         if (music) {
                             music.stop();
                         }
@@ -830,12 +910,64 @@ export function defineCureScene() {
         });
 
         setCamScale(k);
+        
+        // Apply mobile camera scaling for better visibility on mobile devices
+        if (cureMobileControls.isMobile) {
+            // Small delay to ensure everything is set up
+            setTimeout(() => {
+                cureMobileControls.applyMobileCameraScale();
+            }, 100);
+            
+            // Show touch control hint for mobile users
+            setTimeout(() => {
+                const hint = k.add([
+                    k.text("Wische links/rechts zum Steuern", { 
+                        size: 20,
+                        font: "monogram"
+                    }),
+                    k.pos(k.width() / 2, k.height() - 80),
+                    k.anchor("center"),
+                    k.color(k.rgb(255, 215, 0)),
+                    k.z(1000),
+                    k.opacity(0),
+                    "touch-hint"
+                ]);
+                
+                // Fade in
+                k.tween(hint.opacity, 1, 0.5, k.easings.easeOutQuad, (val) => {
+                    hint.opacity = val;
+                });
+                
+                // Fade out after 3 seconds
+                setTimeout(() => {
+                    if (hint && hint.opacity !== undefined) {
+                        k.tween(hint.opacity, 0, 0.5, k.easings.easeInQuad, (val) => {
+                            hint.opacity = val;
+                        }).then(() => {
+                            if (hint && hint.destroy) {
+                                hint.destroy();
+                            }
+                        });
+                    }
+                }, 3000);
+            }, 500);
+        }
 
         k.onResize(() => {
             setCamScale(k);
+            
+            // Reapply mobile camera scaling on resize
+            if (cureMobileControls.isMobile) {
+                setTimeout(() => {
+                    cureMobileControls.applyMobileCameraScale();
+                }, 50);
+            }
         });
 
         k.onSceneLeave(async () => {
+            // Restore original camera scale before leaving
+            cureMobileControls.restoreOriginalCameraScale();
+            
             // Clean up mobile controls
             cureMobileControls.cleanup();
             
