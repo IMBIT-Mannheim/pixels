@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="stylesheet" href="main.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>IMBIT-PIXELS</title>
 </head>
 
@@ -112,12 +112,14 @@
                     </ul>
                     <h3>Steuerung</h3>
                     <ul>
-                        <li>Bewegen: WASD, Pfeiltasten oder Mausklick</li>
+                        <li>Bewegen: WASD, Pfeiltasten, Mausklick oder virtueller Joystick (Mobil)</li>
                         <li>Dialog oeffnen: Automatisch, wenn man in der Naehe ist</li>
                         <li>Dialog schliessen: ESC oder Schliessen-Button</li>
                         <li>Quiz beantworten: Waehle deine Antworten mit den "Answer"-Buttons</li>
                         <li>Weltkarte oeffnen: M gedrueckt halten oder den Button unten rechts druecken</li>
                         <li>Teleportieren: Ueber die Weltkarte zu einem anderen Punkt</li>
+                        <li>Interagieren: T-Taste oder Touch-Button (Mobil)</li>
+                        <li>Inventar: I-Taste oder Touch-Button (Mobil)</li>
                     </ul>
                     <h3>Was dich bei IMBIT Pixel erwartet</h3>
                     <ul>
@@ -133,6 +135,38 @@
         </div>
         <button id="show-world-map" class="button during-game">Weltkarte anzeigen (M)</button>
         <button id="show-inventory" class="button during-game">Inventar/Shop anzeigen (I)</button>
+        
+        <!-- Mobile Controls -->
+        <div id="mobile-controls" class="mobile-controls during-game">
+            <!-- Virtual Joystick -->
+            <div id="virtual-joystick" class="virtual-joystick">
+                <div id="joystick-base" class="joystick-base">
+                    <div id="joystick-knob" class="joystick-knob"></div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div id="mobile-action-buttons" class="mobile-action-buttons">
+                <button id="mobile-map-btn" class="mobile-btn map-btn">M</button>
+                <button id="mobile-inventory-btn" class="mobile-btn inventory-btn">I</button>
+            </div>
+        </div>
+        
+        <!-- Landscape Orientation Disclaimer -->
+        <div id="orientation-disclaimer" class="orientation-disclaimer">
+            <div class="orientation-content">
+                <div class="phone-icon">
+                    📱 ↻
+                </div>
+                <h2>Für die beste Spielerfahrung</h2>
+                <p>Bitte drehe dein Gerät ins Querformat</p>
+                <p class="orientation-subtitle">For the best gaming experience, please rotate your device to landscape mode</p>
+                <div class="landscape-icon">
+                    📱
+                </div>
+            </div>
+        </div>
+        
         <div id="inventory-shop">
             <div class="inventory-shop-container">
                 <h2>Inventar & Shop</h2>

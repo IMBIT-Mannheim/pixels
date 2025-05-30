@@ -9,6 +9,7 @@ import { initMapRendering, fixSpriteRendering, resetCameraToSafePosition, handle
 import { initGotoAreaDisplay, updateGotoAreaDisplay, cleanupGotoLabels, getGotoAreaInfo, debugShowAllGotoLabels, debugHideAllGotoLabels } from "./gotoAreaDisplay";
 import { dialogueData as ksbDialogueData } from "./dialogues/ksb.js";
 import { initializePerformanceOptimizedMaps, forceLoadMap, logPerformanceStats, cleanupMapResources, startBackgroundLoading, checkMapPreloading, setCurrentMap } from "./performanceOptimizer.js";
+import { mobileControls } from "./mobileControls.js";
 
 // Properly initialize session state
 console.log("Initializing session state...");
@@ -516,6 +517,15 @@ k.scene("loading", () => {
 
 		// Add game-active class to body for CSS fallback
 		document.body.classList.add('game-active');
+
+		// Activate mobile controls for touch devices
+		mobileControls.setActive(true);
+		
+		// Check orientation status for mobile devices
+		const orientationStatus = mobileControls.getOrientationStatus();
+		if (orientationStatus.shouldShowDisclaimer) {
+			console.log("📱 Mobile device detected in portrait mode - showing orientation disclaimer");
+		}
 
 		game.focus();
 

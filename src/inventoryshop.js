@@ -92,6 +92,7 @@ export function initInventoryShop() {
     contentContainer.style.height = "80%";
     contentContainer.style.justifyContent = "space-around";
     contentContainer.style.padding = "20px";
+    contentContainer.style.boxSizing = "border-box";
     inventoryShopContainer.appendChild(contentContainer);
 
     // Create the shop section
@@ -102,6 +103,7 @@ export function initInventoryShop() {
     shopSection.style.padding = "15px";
     shopSection.style.borderRadius = "10px";
     shopSection.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+    shopSection.style.boxSizing = "border-box";
     contentContainer.appendChild(shopSection);
 
     // Shop title
@@ -129,6 +131,7 @@ export function initInventoryShop() {
     inventorySection.style.padding = "15px";
     inventorySection.style.borderRadius = "10px";
     inventorySection.style.backgroundColor = "rgba(0, 0, 0, 0.6)";
+    inventorySection.style.boxSizing = "border-box";
     contentContainer.appendChild(inventorySection);
 
     // Inventory title
@@ -236,46 +239,50 @@ function renderShopItem(item, container) {
     itemElement.style.borderRadius = "5px";
     itemElement.style.alignItems = "center";
 
+    // Create image container for better mobile layout
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "item-image-container";
+    
     // Original frame size from sprite sheet
     const originalFrameWidth = 17;
     const originalFrameHeight = 33;
 
-// Scale factor
+    // Scale factor
     const scale = 1.75;
     const scaledFrameWidth = originalFrameWidth * scale;
     const scaledFrameHeight = originalFrameHeight * scale;
 
-// Create wrapper (the visible frame)
+    // Create wrapper (the visible frame)
     const imageWrapper = document.createElement("div");
     imageWrapper.style.width = `${scaledFrameWidth}px`;
     imageWrapper.style.height = `${scaledFrameHeight}px`;
     imageWrapper.style.overflow = "hidden";
-    imageWrapper.style.marginRight = "15px";
     imageWrapper.style.borderRadius = "3px";
     imageWrapper.style.display = "inline-block";
 
-// Create the full image
+    // Create the full image
     const itemImage = document.createElement("img");
     itemImage.src = item.image;
     itemImage.alt = item.name;
 
-// Scale the image up (entire sprite sheet)
+    // Scale the image up (entire sprite sheet)
     itemImage.style.width = `${51 * scale}px`; // 153px
     itemImage.style.height = `${98 * scale}px`; // 294px
     itemImage.style.imageRendering = "pixelated";
     itemImage.style.position = "relative";
 
-// Offset for top-left sprite (col 0, row 0)
+    // Offset for top-left sprite (col 0, row 0)
     itemImage.style.left = `0px`;
     itemImage.style.top = `0px`;
 
-// Append
+    // Append
     imageWrapper.appendChild(itemImage);
-    itemElement.appendChild(imageWrapper);
+    imageContainer.appendChild(imageWrapper);
+    itemElement.appendChild(imageContainer);
 
-    // Item details
+    // Item details container
     const itemDetails = document.createElement("div");
-    itemDetails.style.flex = "1";
+    itemDetails.className = "item-details";
 
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
@@ -291,26 +298,27 @@ function renderShopItem(item, container) {
     itemDetails.appendChild(itemDescription);
 
     // Price
-    const itemPrice = document.createElement("span");
+    const itemPrice = document.createElement("div");
+    itemPrice.className = "item-price";
     itemPrice.textContent = `${item.price} Coins`;
-    itemPrice.style.display = "block";
-    itemPrice.style.marginTop = "5px";
-    itemPrice.style.fontSize = "1rem";
-    itemPrice.style.color = "#ffd700";
     itemDetails.appendChild(itemPrice);
 
     itemElement.appendChild(itemDetails);
+
+    // Action buttons container
+    const itemActions = document.createElement("div");
+    itemActions.className = "item-actions";
 
     // Buy button
     const buyButton = document.createElement("button");
     buyButton.className = "button";
     buyButton.textContent = "Kaufen";
-    buyButton.style.marginLeft = "10px";
 
     // Disable button if not enough score
     if (sessionState.progress.score < item.price) {
         buyButton.style.opacity = "0.5";
         buyButton.style.cursor = "not-allowed";
+        buyButton.disabled = true;
     }
 
     buyButton.addEventListener("click", async () => {
@@ -321,7 +329,8 @@ function renderShopItem(item, container) {
         document.getElementById("game").focus();
     });
 
-    itemElement.appendChild(buyButton);
+    itemActions.appendChild(buyButton);
+    itemElement.appendChild(itemActions);
     container.appendChild(itemElement);
 }
 
@@ -339,49 +348,53 @@ function renderInventoryItem(item, container) {
 
     // Highlight if active
     if (sessionState.inventory.activeCharacter === item.id) {
-        itemElement.style.border = "2px solid #ffd700";
-        itemElement.style.boxShadow = "0 0 10px #ffd700";
+        itemElement.classList.add('active');
     }
+    
+    // Create image container for better mobile layout
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "item-image-container";
+    
     // Original frame size from sprite sheet
     const originalFrameWidth = 17;
     const originalFrameHeight = 33;
 
-// Scale factor
+    // Scale factor
     const scale = 1.75;
     const scaledFrameWidth = originalFrameWidth * scale;
     const scaledFrameHeight = originalFrameHeight * scale;
 
-// Create wrapper (the visible frame)
+    // Create wrapper (the visible frame)
     const imageWrapper = document.createElement("div");
     imageWrapper.style.width = `${scaledFrameWidth}px`;
     imageWrapper.style.height = `${scaledFrameHeight}px`;
     imageWrapper.style.overflow = "hidden";
-    imageWrapper.style.marginRight = "15px";
     imageWrapper.style.borderRadius = "3px";
     imageWrapper.style.display = "inline-block";
 
-// Create the full image
+    // Create the full image
     const itemImage = document.createElement("img");
     itemImage.src = item.image;
     itemImage.alt = item.name;
 
-// Scale the image up (entire sprite sheet)
+    // Scale the image up (entire sprite sheet)
     itemImage.style.width = `${51 * scale}px`; // 153px
     itemImage.style.height = `${98 * scale}px`; // 294px
     itemImage.style.imageRendering = "pixelated";
     itemImage.style.position = "relative";
 
-// Offset for top-left sprite (col 0, row 0)
+    // Offset for top-left sprite (col 0, row 0)
     itemImage.style.left = `0px`;
     itemImage.style.top = `0px`;
 
-// Append
+    // Append
     imageWrapper.appendChild(itemImage);
-    itemElement.appendChild(imageWrapper);
+    imageContainer.appendChild(imageWrapper);
+    itemElement.appendChild(imageContainer);
 
-    // Item details
+    // Item details container
     const itemDetails = document.createElement("div");
-    itemDetails.style.flex = "1";
+    itemDetails.className = "item-details";
 
     const itemName = document.createElement("h4");
     itemName.textContent = item.name;
@@ -398,27 +411,31 @@ function renderInventoryItem(item, container) {
 
     itemElement.appendChild(itemDetails);
 
+    // Action buttons container
+    const itemActions = document.createElement("div");
+    itemActions.className = "item-actions";
+
     // Use button (only for characters)
     if (item.type === "character" && sessionState.inventory.activeCharacter !== item.id) {
         const useButton = document.createElement("button");
         useButton.className = "button";
         useButton.textContent = "Auswaehlen";
-        useButton.style.marginLeft = "10px";
 
         useButton.addEventListener("click", () => {
             selectCharacter(item.id);
         });
 
-        itemElement.appendChild(useButton);
+        itemActions.appendChild(useButton);
     } else if (sessionState.inventory.activeCharacter === item.id) {
         const activeLabel = document.createElement("span");
         activeLabel.textContent = "Aktiv";
-        activeLabel.style.marginLeft = "10px";
-        activeLabel.style.color = "#ffd700";
+        activeLabel.style.color = "#00ff00";
         activeLabel.style.fontWeight = "bold";
-        itemElement.appendChild(activeLabel);
+        activeLabel.style.fontSize = "1.1rem";
+        itemActions.appendChild(activeLabel);
     }
 
+    itemElement.appendChild(itemActions);
     container.appendChild(itemElement);
 }
 

@@ -153,6 +153,12 @@ body.game-active #dhbw_logo:hover {
     box-shadow: 4px 4px black;
     outline: none;
     image-rendering: pixelated;
+    /* Enhanced mobile touch support */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    transition: all 0.2s ease;
 }
 
 .button-no-hover {
@@ -202,6 +208,9 @@ body.game-active #dhbw_logo:hover {
     right: 2vh;
     bottom: 2vh;
     z-index: 100;
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    padding: 12px 16px; /* Increased padding for better touch targets */
 }
 
 #show-inventory {
@@ -210,6 +219,9 @@ body.game-active #dhbw_logo:hover {
     right: 2vh;
     bottom: 10vh;
     z-index: 101;
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    padding: 12px 16px; /* Increased padding for better touch targets */
 }
 
 #show-inventory.active {
@@ -232,6 +244,10 @@ body.game-active #dhbw_logo:hover {
     overflow-x: hidden;
     text-align: center;
     color: #ffd700;
+    /* Enhanced mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 10px;
+    box-sizing: border-box;
 }
 
 #character-carousel {
@@ -440,20 +456,34 @@ input[type="range"]::-ms-thumb {
     display: none;
     background-color: rgba(0, 0, 0, 0.8);
     color: #e0e0e0;
+    padding: 10px; /* Add padding for mobile */
+    box-sizing: border-box;
 }
 
 #world-map img {
     height: 60%;
     border: 5px solid #ffd700;
     border-radius: 10px;
-    cursor: zoom-in;
+    cursor: pointer; /* Changed from zoom-in to pointer for better mobile UX */
     transition: height 0.2s ease;
     margin: 1rem 1rem;
     align-self: center;
+    max-width: 90%; /* Ensure it doesn't overflow on mobile */
+    object-fit: contain; /* Maintain aspect ratio */
 }
 
 #world-map img:hover {
     height: 90%;
+}
+
+#world-map img:active {
+    height: 65%; /* Reduced zoom level for better mobile navigation */
+    transition: height 0.3s ease;
+}
+
+#world-map img.zoomed {
+    height: 70% !important; /* Moderate zoom level for mobile */
+    transition: height 0.3s ease;
 }
 
 #spawnpoints {
@@ -462,6 +492,24 @@ input[type="range"]::-ms-thumb {
     gap: 10px;
     justify-content: center;
     margin: 1em;
+}
+
+/* Make spawnpoint buttons more touch-friendly on mobile */
+@media (max-width: 768px) {
+    #spawnpoints {
+        grid-template-columns: 1fr; /* Single column on mobile */
+        gap: 15px;
+        margin: 0.5em;
+    }
+    
+    #spawnpoints .button {
+        min-height: 50px; /* Larger touch targets */
+        padding: 15px 20px;
+        font-size: 1.8rem;
+        margin: 5px 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
 #world-map img:hover ~ .world-map-info {
@@ -505,12 +553,324 @@ input[type="range"]::-ms-thumb {
     height: 100%;
     width: 100%;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 #inventory-shop h2 {
     color: #ffd700;
     font-size: 3rem;
     margin-bottom: 20px;
+}
+
+/* Mobile optimizations for inventory shop */
+@media (max-width: 768px) {
+    #inventory-shop {
+        /* Better backdrop */
+        background-color: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+    }
+    
+    #inventory-shop .inventory-shop-container {
+        padding: 15px;
+        justify-content: flex-start;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        max-height: 100vh;
+    }
+    
+    #inventory-shop h2 {
+        font-size: 2.4rem;
+        margin-bottom: 20px;
+        margin-top: 15px;
+        text-align: center;
+        color: #ffd700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ffd700;
+    }
+    
+    /* Enhanced mobile close button for inventory */
+    .mobile-close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: linear-gradient(145deg, #2d2929, #1a1a1a);
+        color: #ffd700;
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1000;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-close-btn:active {
+        background: linear-gradient(145deg, #ffd700, #e6c200);
+        color: #2d2929;
+        border-color: #2d2929;
+        transform: scale(0.95);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Enhanced inventory content layout */
+    .inventory-shop-content {
+        flex-direction: column !important;
+        height: auto !important;
+        gap: 25px;
+        margin-top: 10px;
+    }
+    
+    .shop-section,
+    .inventory-section {
+        width: 100% !important;
+        max-height: 50vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 20px;
+        background: rgba(45, 41, 41, 0.3);
+        border: 2px solid #ffd700;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .shop-section h3,
+    .inventory-section h3 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        text-align: center;
+        color: #ffd700;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    /* Enhanced inventory item styling */
+    .inventory-item,
+    .shop-item {
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 2px solid #ffd700;
+        border-radius: 12px;
+        background: linear-gradient(145deg, rgba(45, 41, 41, 0.9), rgba(26, 26, 26, 0.9));
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        min-height: 100px;
+        touch-action: manipulation;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .inventory-item:active,
+    .shop-item:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Image container for items */
+    .item-image-container {
+        flex-shrink: 0;
+        margin-right: 15px;
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .inventory-item img,
+    .shop-item img {
+        max-width: 70px;
+        max-height: 70px;
+        image-rendering: pixelated;
+    }
+    
+    /* Item details container */
+    .item-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .inventory-item h4,
+    .shop-item h4 {
+        font-size: 1.6rem;
+        margin: 0;
+        color: #ffd700;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    .inventory-item p,
+    .shop-item p {
+        font-size: 1.2rem;
+        margin: 0;
+        line-height: 1.4;
+        color: #e0e0e0;
+    }
+    
+    /* Price display */
+    .item-price {
+        font-size: 1.3rem;
+        color: #ffd700;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    
+    /* Action buttons container */
+    .item-actions {
+        flex-shrink: 0;
+        margin-left: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .inventory-item .button,
+    .shop-item .button {
+        font-size: 1.3rem;
+        padding: 10px 15px;
+        min-height: 45px;
+        min-width: 90px;
+        margin: 0;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+    }
+    
+    /* Active item indicator */
+    .inventory-item.active {
+        border-color: #00ff00;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    .inventory-item.active::before {
+        content: "✓ AKTIV";
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #00ff00;
+        color: #000;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+    
+    /* Score display enhancement */
+    .score-display {
+        background: linear-gradient(145deg, #2d2929, #1a1a1a) !important;
+        border: 2px solid #ffd700 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        padding: 12px 18px !important;
+        font-size: 1.8rem !important;
+        font-weight: bold !important;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #inventory-shop .inventory-shop-container {
+        padding: 10px;
+    }
+    
+    #inventory-shop h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        margin-top: 10px;
+    }
+    
+    .mobile-close-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.6rem;
+        top: 12px;
+        right: 15px;
+    }
+    
+    .shop-section,
+    .inventory-section {
+        max-height: 45vh;
+        padding: 12px;
+        gap: 20px;
+    }
+    
+    .shop-section h3,
+    .inventory-section h3 {
+        font-size: 1.7rem;
+        margin-bottom: 12px;
+    }
+    
+    .inventory-item,
+    .shop-item {
+        padding: 15px;
+        min-height: 90px;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .item-image-container {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .inventory-item img,
+    .shop-item img {
+        max-width: 60px;
+        max-height: 60px;
+    }
+    
+    .item-details {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .inventory-item h4,
+    .shop-item h4 {
+        font-size: 1.4rem;
+    }
+    
+    .inventory-item p,
+    .shop-item p {
+        font-size: 1.1rem;
+    }
+    
+    .item-actions {
+        margin-left: 0;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .inventory-item .button,
+    .shop-item .button {
+        font-size: 1.1rem;
+        padding: 8px 12px;
+        min-height: 42px;
+        min-width: 80px;
+    }
+    
+    .score-display {
+        font-size: 1.6rem !important;
+        padding: 10px 15px !important;
+    }
 }
 
 /* Large screens (1920px and above) */
@@ -576,6 +936,13 @@ input[type="range"]::-ms-thumb {
     text-transform: uppercase;
     letter-spacing: 1px;
     animation: pulse 1.5s infinite alternate;
+    /* Enhanced mobile touch support */
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    transition: all 0.2s ease;
 }
 
 @keyframes pulse {
@@ -587,5 +954,702 @@ input[type="range"]::-ms-thumb {
         transform: translateX(-50%) scale(1.05);
         box-shadow: 6px 6px black;
         border-color: white;
+    }
+}
+
+/* Mobile Controls */
+.mobile-controls {
+    display: none; /* Hidden by default, shown on mobile */
+    position: fixed;
+    z-index: 150;
+    pointer-events: none; /* Allow clicks to pass through the container */
+}
+
+/* Show mobile controls only on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-controls {
+        display: block;
+    }
+}
+
+/* Virtual Joystick */
+.virtual-joystick {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    pointer-events: auto;
+    z-index: 151;
+    /* Improve touch responsiveness */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none; /* Prevent scrolling when using joystick */
+}
+
+.joystick-base {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(45, 41, 41, 0.8);
+    border: 3px solid #ffd700;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Improve touch responsiveness */
+    touch-action: none;
+}
+
+.joystick-knob {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ffd700;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile Action Buttons */
+.mobile-action-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: auto;
+    z-index: 151;
+}
+
+.mobile-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #ffd700;
+    background: rgba(45, 41, 41, 0.9);
+    color: #ffd700;
+    font-family: monogram, monospace;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    /* Improve touch responsiveness */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.mobile-btn:active {
+    transform: scale(0.95);
+    background: #ffd700;
+    color: #2d2929;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-btn.active {
+    background: #ffd700;
+    color: #2d2929;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    animation: pulse-glow 1s infinite alternate;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* Specific button styles */
+.map-btn {
+    background: rgba(100, 150, 255, 0.9);
+    border-color: #6496ff;
+    color: white;
+}
+
+.map-btn:active,
+.map-btn.active {
+    background: #6496ff;
+    color: white;
+}
+
+.inventory-btn {
+    background: rgba(150, 255, 100, 0.9);
+    border-color: #96ff64;
+    color: white;
+}
+
+.inventory-btn:active,
+.inventory-btn.active {
+    background: #96ff64;
+    color: white;
+}
+
+/* Hide mobile controls when not on mobile */
+@media (hover: hover) and (pointer: fine) {
+    .mobile-controls {
+        display: none !important;
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+    .joystick-base {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .joystick-knob {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .mobile-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .virtual-joystick {
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .mobile-action-buttons {
+        bottom: 15px;
+        right: 15px;
+        gap: 10px;
+    }
+}
+
+/* Medium mobile screens */
+@media (min-width: 481px) and (max-width: 768px) {
+    .mobile-action-buttons {
+        bottom: 25px;
+        right: 25px;
+        gap: 18px;
+    }
+    
+    .virtual-joystick {
+        bottom: 25px;
+        left: 25px;
+    }
+    
+    .mobile-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 26px;
+    }
+}
+
+/* Ensure mobile controls don't interfere with desktop buttons */
+@media (hover: none) and (pointer: coarse) {
+    /* Hide desktop buttons on mobile when mobile controls are active */
+    #show-world-map,
+    #show-inventory {
+        display: none !important;
+    }
+    
+    /* Adjust interact button positioning for mobile */
+    #interact-button {
+        top: 15px;
+        font-size: 1.5rem;
+        padding: 6px 12px;
+    }
+}
+
+/* Mobile-specific world map adjustments */
+@media (max-width: 768px) {
+    #world-map {
+        padding: 5px;
+        /* Improve touch scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #world-map img {
+        height: 35%; /* Further reduced initial size for better overview */
+        max-width: 95%;
+        margin: 0.5rem;
+        border: 3px solid #ffd700;
+        /* Remove hover cursor and add touch-friendly behavior */
+        cursor: default;
+        /* Add touch zoom capability */
+        touch-action: pinch-zoom;
+    }
+    
+    /* Touch-based zoom for mobile - using active state instead of hover */
+    #world-map img:active {
+        height: 65%; /* Reduced zoom level for better mobile navigation */
+        transition: height 0.3s ease;
+    }
+    
+    /* Add tap-to-zoom functionality */
+    #world-map img.zoomed {
+        height: 70% !important; /* Moderate zoom level for mobile */
+        transition: height 0.3s ease;
+    }
+    
+    #spawnpoints {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin: 0.5em;
+    }
+    
+    .world-map-info {
+        font-size: 0.9rem;
+        padding: 10px;
+        max-height: 40vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .world-map-info h3 {
+        font-size: 1.1rem;
+        margin: 10px 0 5px 0;
+    }
+    
+    .world-map-info ul {
+        margin: 5px 0;
+        padding-left: 20px;
+    }
+    
+    .world-map-info li {
+        margin: 5px 0;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 480px) {
+    #world-map img {
+        height: 30%; /* Even smaller initial size for better overview on small screens */
+        margin: 0.3rem;
+        border: 2px solid #ffd700;
+    }
+    
+    #world-map img:active,
+    #world-map img.zoomed {
+        height: 60%; /* Moderate zoom for small screens - better navigation */
+    }
+    
+    .world-map-info {
+        font-size: 0.8rem;
+        padding: 8px;
+        max-height: 35vh;
+    }
+    
+    .world-map-info h3 {
+        font-size: 1rem;
+    }
+}
+
+/* Landscape Orientation Disclaimer */
+.orientation-disclaimer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #311047, #4a1a5c);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    text-align: center;
+    font-family: monogram, monospace;
+}
+
+.orientation-content {
+    padding: 40px 20px;
+    max-width: 400px;
+    animation: pulse-orientation 2s infinite ease-in-out;
+}
+
+.orientation-content h2 {
+    font-size: 2.5rem;
+    margin: 20px 0;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.orientation-content p {
+    font-size: 1.8rem;
+    margin: 15px 0;
+    line-height: 1.4;
+}
+
+.orientation-subtitle {
+    font-size: 1.2rem !important;
+    color: #cccccc;
+    font-style: italic;
+    margin-top: 25px !important;
+}
+
+.phone-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: rotate-phone 3s infinite ease-in-out;
+}
+
+.landscape-icon {
+    font-size: 3rem;
+    margin-top: 30px;
+    transform: rotate(90deg);
+    animation: glow-landscape 2s infinite alternate;
+}
+
+@keyframes pulse-orientation {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes rotate-phone {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-15deg);
+    }
+    75% {
+        transform: rotate(15deg);
+    }
+}
+
+@keyframes glow-landscape {
+    0% {
+        text-shadow: 0 0 10px #ffd700;
+    }
+    100% {
+        text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700;
+    }
+}
+
+/* Show orientation disclaimer on mobile devices in portrait mode */
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+    .orientation-disclaimer {
+        display: flex !important;
+    }
+    
+    /* Hide all other content when orientation disclaimer is shown */
+    #app > div:not(.orientation-disclaimer),
+    #mobile-controls,
+    .during-game {
+        display: none !important;
+    }
+}
+
+/* Ensure disclaimer is hidden in landscape mode */
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+    .orientation-disclaimer {
+        display: none !important;
+    }
+}
+
+/* Hide disclaimer on desktop */
+@media (hover: hover) and (pointer: fine) {
+    .orientation-disclaimer {
+        display: none !important;
+    }
+}
+
+/* Enhanced Mobile optimizations for dialogue textbox */
+@media (max-width: 768px) {
+    #textbox-container {
+        /* Improve backdrop for better focus */
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+    
+    #textbox {
+        left: 2%;
+        right: 2%;
+        bottom: 2vh;
+        min-height: 20vh;
+        max-height: 60vh;
+        padding: 1rem;
+        font-size: 1.6rem;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Ensure textbox doesn't interfere with mobile controls */
+        margin-bottom: 100px; /* Space for mobile controls */
+        /* Enhanced visual design */
+        border: 3px solid #ffd700;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        /* Better text rendering */
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    #textbox h2 {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+        color: #2d2929;
+        text-align: center;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #ffd700;
+    }
+    
+    #textbox p {
+        font-size: 1.6rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        color: #2d2929;
+        text-align: left;
+    }
+    
+    /* Enhanced close button for mobile */
+    .close-x {
+        top: 8px;
+        right: 12px;
+        font-size: 2.5rem;
+        color: #2d2929;
+        background: rgba(255, 215, 0, 0.2);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s ease;
+    }
+    
+    .close-x:active {
+        background: rgba(255, 215, 0, 0.4);
+        transform: scale(0.95);
+    }
+    
+    /* Enhanced button container for mobile */
+    .btn-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 1.5rem;
+        align-self: stretch;
+        width: 100%;
+    }
+    
+    /* Enhanced dialogue buttons */
+    .button {
+        font-size: 1.6rem;
+        padding: 15px 20px;
+        min-height: 55px;
+        min-width: 100px;
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
+        /* Better touch feedback */
+        transition: all 0.15s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .button:active {
+        transform: scale(0.98);
+        background-color: #1a1a1a;
+    }
+    
+    /* Question buttons in dialogue */
+    .question-btn {
+        background: linear-gradient(145deg, #2d2929, #1a1a1a);
+        border: 2px solid #ffd700;
+        color: white;
+        text-align: left;
+        padding: 18px 20px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+        /* Enhanced typography */
+        font-weight: normal;
+        letter-spacing: 0.5px;
+        line-height: 1.3;
+        /* Better text handling */
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+    }
+    
+    .question-btn:active {
+        background: linear-gradient(145deg, #ffd700, #e6c200);
+        color: #2d2929;
+        border-color: #2d2929;
+        transform: translateY(1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Add number indicators for question buttons */
+    .question-btn::before {
+        content: counter(question-counter);
+        counter-increment: question-counter;
+        display: inline-block;
+        background: #ffd700;
+        color: #2d2929;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    
+    /* Reset counter for each dialogue */
+    #dialogue {
+        counter-reset: question-counter;
+    }
+    
+    /* Main action buttons (Weiter, Schliessen, etc.) */
+    .button:not(.question-btn) {
+        background: linear-gradient(145deg, #ffd700, #e6c200);
+        color: #2d2929;
+        border: 2px solid #2d2929;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .button:not(.question-btn):active {
+        background: linear-gradient(145deg, #2d2929, #1a1a1a);
+        color: #ffd700;
+        border-color: #ffd700;
+    }
+}
+
+@media (max-width: 480px) {
+    #textbox {
+        left: 1%;
+        right: 1%;
+        bottom: 1vh;
+        min-height: 22vh;
+        max-height: 65vh;
+        padding: 0.8rem;
+        font-size: 1.4rem;
+        margin-bottom: 110px; /* More space for smaller screens */
+    }
+    
+    #textbox h2 {
+        font-size: 1.8rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    #textbox p {
+        font-size: 1.4rem;
+        line-height: 1.4;
+    }
+    
+    .close-x {
+        width: 36px;
+        height: 36px;
+        font-size: 2.2rem;
+        top: 6px;
+        right: 8px;
+    }
+    
+    .button {
+        font-size: 1.4rem;
+        padding: 12px 16px;
+        min-height: 50px;
+    }
+    
+    .question-btn {
+        padding: 15px 16px;
+        font-size: 1.3rem;
+    }
+    
+    .question-btn::before {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 1rem;
+        margin-right: 10px;
+    }
+}
+
+/* Mobile optimizations for cure minigame */
+@media (max-width: 768px) {
+    /* Minigame score display optimization */
+    .during-minigame {
+        font-size: 1.8rem !important;
+        padding: 8px 12px !important;
+        margin: 8px !important;
+        background: rgba(45, 41, 41, 0.9) !important;
+        border: 2px solid #ffd700 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    /* Prevent scrolling during minigame */
+    body.minigame-active {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+    
+    /* Game canvas optimization for mobile */
+    #game {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    /* Minigame instructions for mobile */
+    .minigame-instructions {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(45, 41, 41, 0.9);
+        color: #ffd700;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 1.2rem;
+        z-index: 100;
+        border: 1px solid #ffd700;
+        text-align: center;
+        max-width: 90%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 480px) {
+    .during-minigame {
+        font-size: 1.6rem !important;
+        padding: 6px 10px !important;
+        margin: 6px !important;
+    }
+    
+    .minigame-instructions {
+        font-size: 1rem;
+        padding: 6px 12px;
+        top: 5px;
+    }
+    
+    /* Smaller game over buttons for small screens */
+    .cure-game-over-button {
+        min-height: 50px !important;
+        font-size: 1.4rem !important;
+        padding: 10px 15px !important;
     }
 }

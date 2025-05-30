@@ -1,6 +1,7 @@
 import { k } from "./kaboomCtx";
 import {setCamScale, refreshScoreUI } from "./utils";
 import { sessionState, setSessionState, getSessionState, saveGame, loadGame, increaseSecureScore } from "./sessionstate.js";
+import { mobileControls } from "./mobileControls.js";
 
 // Spielkonstanten
 const GAME_SPEED = 300;
@@ -29,6 +30,282 @@ const DECORATION_MARGIN = 20;
 const STRIPE_HEIGHT = 80; // Höhe der Straßenmarkierungen
 const STRIPE_GAP = 120; // Abstand zwischen Straßenmarkierungen
 
+// Mobile controls for cure minigame
+class CureMobileControls {
+    constructor() {
+        this.isMobile = this.detectMobile();
+        this.touchStartX = 0;
+        this.touchCurrentX = 0;
+        this.isTouch = false;
+        this.gameOverButtons = [];
+        
+        if (this.isMobile) {
+            this.setupTouchControls();
+        }
+    }
+    
+    detectMobile() {
+        return (
+            'ontouchstart' in window ||
+            navigator.maxTouchPoints > 0 ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        );
+    }
+    
+    setupTouchControls() {
+        // Touch controls for car movement
+        const canvas = document.getElementById('game');
+        if (!canvas) return;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            this.touchStartX = touch.clientX;
+            this.touchCurrentX = touch.clientX;
+            this.isTouch = true;
+        }, { passive: false });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (this.isTouch) {
+                const touch = e.touches[0];
+                this.touchCurrentX = touch.clientX;
+            }
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.isTouch = false;
+            this.touchStartX = 0;
+            this.touchCurrentX = 0;
+        }, { passive: false });
+        
+        // Prevent scrolling during game
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('#game')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+    
+    getTouchDirection() {
+        if (!this.isTouch) return 'none';
+        
+        const deltaX = this.touchCurrentX - this.touchStartX;
+        const threshold = 30; // Minimum movement threshold
+        
+        if (Math.abs(deltaX) < threshold) return 'none';
+        
+        return deltaX > 0 ? 'right' : 'left';
+    }
+    
+    createMobileGameOverScreen(onRestart, onExit) {
+        // Clear any existing game over elements
+        this.clearGameOverScreen();
+        
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const isMobile = screenWidth <= 768;
+        
+        // Create backdrop
+        const backdrop = k.add([
+            k.rect(k.width(), k.height()),
+            k.pos(0, 0),
+            k.color(k.rgb(0, 0, 0, 0.8)),
+            k.z(198),
+            "game-over-ui"
+        ]);
+        
+        // Create main panel
+        const panelWidth = isMobile ? Math.min(screenWidth * 0.9, 400) : 600;
+        const panelHeight = isMobile ? Math.min(screenHeight * 0.7, 500) : 400;
+        
+        const panel = k.add([
+            k.rect(panelWidth, panelHeight),
+            k.pos(k.width() / 2, k.height() / 2),
+            k.anchor("center"),
+            k.color(k.rgb(45, 41, 41)),
+            k.outline(4, k.rgb(255, 215, 0)),
+            k.z(199),
+            "game-over-ui"
+        ]);
+        
+        // Game Over title
+        const titleSize = isMobile ? 36 : 48;
+        const gameOverText = k.add([
+            k.text("Game Over!", { 
+                size: titleSize,
+                font: "monogram"
+            }),
+            k.pos(k.width() / 2, k.height() / 2 - panelHeight / 3),
+            k.anchor("center"),
+            k.color(k.rgb(255, 50, 50)),
+            k.z(200),
+            "game-over-ui"
+        ]);
+        
+        // Score display
+        const scoreSize = isMobile ? 24 : 32;
+        const scoreElement = document.getElementById("minigame-score-value");
+        const currentScore = scoreElement ? scoreElement.innerText : "0";
+        
+        const scoreText = k.add([
+            k.text(`Punkte: ${currentScore}`, { 
+                size: scoreSize,
+                font: "monogram"
+            }),
+            k.pos(k.width() / 2, k.height() / 2 - panelHeight / 6),
+            k.anchor("center"),
+            k.color(k.rgb(255, 215, 0)),
+            k.z(200),
+            "game-over-ui"
+        ]);
+        
+        // Button dimensions
+        const buttonWidth = isMobile ? panelWidth * 0.8 : 300;
+        const buttonHeight = isMobile ? 60 : 50;
+        const buttonSpacing = isMobile ? 20 : 15;
+        const buttonFontSize = isMobile ? 20 : 24;
+        
+        // Restart button
+        const restartButton = this.createMobileButton(
+            k.width() / 2,
+            k.height() / 2 + buttonSpacing,
+            buttonWidth,
+            buttonHeight,
+            "Nochmal spielen",
+            buttonFontSize,
+            () => {
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                onRestart();
+            }
+        );
+        
+        // Exit button
+        const exitButton = this.createMobileButton(
+            k.width() / 2,
+            k.height() / 2 + buttonSpacing * 2 + buttonHeight,
+            buttonWidth,
+            buttonHeight,
+            "Zurück zum Campus",
+            buttonFontSize,
+            () => {
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                onExit();
+            }
+        );
+        
+        // Store buttons for cleanup
+        this.gameOverButtons = [restartButton, exitButton];
+        
+        // Add keyboard support for non-mobile devices
+        if (!this.isMobile) {
+            k.onKeyPress("space", onRestart);
+            k.onKeyPress("escape", onExit);
+            
+            // Add instruction text for keyboard users
+            const instructionSize = 16;
+            k.add([
+                k.text("Leertaste: Neustarten | ESC: Zurück", { 
+                    size: instructionSize,
+                    font: "monogram"
+                }),
+                k.pos(k.width() / 2, k.height() / 2 + panelHeight / 2 - 30),
+                k.anchor("center"),
+                k.color(k.rgb(200, 200, 200)),
+                k.z(200),
+                "game-over-ui"
+            ]);
+        }
+    }
+    
+    createMobileButton(x, y, width, height, text, fontSize, onClick) {
+        // Button background
+        const button = k.add([
+            k.rect(width, height),
+            k.pos(x, y),
+            k.anchor("center"),
+            k.color(k.rgb(45, 41, 41)),
+            k.outline(3, k.rgb(255, 215, 0)),
+            k.area(),
+            k.z(200),
+            "game-over-ui",
+            {
+                isHovered: false,
+                isPressed: false,
+                originalColor: k.rgb(45, 41, 41),
+                hoverColor: k.rgb(255, 215, 0),
+                pressColor: k.rgb(200, 180, 0)
+            }
+        ]);
+        
+        // Button text
+        const buttonText = k.add([
+            k.text(text, { 
+                size: fontSize,
+                font: "monogram"
+            }),
+            k.pos(x, y),
+            k.anchor("center"),
+            k.color(k.rgb(255, 215, 0)),
+            k.z(201),
+            "game-over-ui"
+        ]);
+        
+        // Touch/click handling
+        button.onHover(() => {
+            if (!button.isPressed) {
+                button.color = button.hoverColor;
+                buttonText.color = k.rgb(45, 41, 41);
+                button.isHovered = true;
+            }
+        });
+        
+        button.onHoverEnd(() => {
+            if (!button.isPressed) {
+                button.color = button.originalColor;
+                buttonText.color = k.rgb(255, 215, 0);
+                button.isHovered = false;
+            }
+        });
+        
+        button.onClick(() => {
+            button.isPressed = true;
+            button.color = button.pressColor;
+            buttonText.color = k.rgb(45, 41, 41);
+            
+            // Visual feedback
+            button.scale = k.vec2(0.95, 0.95);
+            
+            setTimeout(() => {
+                button.scale = k.vec2(1, 1);
+                onClick();
+            }, 150);
+        });
+        
+        return { button, text: buttonText };
+    }
+    
+    clearGameOverScreen() {
+        // Remove all game over UI elements
+        k.get("game-over-ui").forEach(obj => obj.destroy());
+        this.gameOverButtons = [];
+    }
+    
+    cleanup() {
+        this.clearGameOverScreen();
+        this.isTouch = false;
+        this.touchStartX = 0;
+        this.touchCurrentX = 0;
+    }
+}
+
 export function loadCureSprites() {
     k.loadSprite("car", "./sprites/minigames/car.png", {
         sliceX: 1,
@@ -52,6 +329,9 @@ export function defineCureScene() {
         let stripes = [];
         let music = undefined;
         let isRestarting = false; // Flag to track if we're restarting vs actually leaving
+        
+        // Initialize mobile controls for cure minigame
+        const cureMobileControls = new CureMobileControls();
 
         // Clean up any existing game objects from previous runs
         k.destroyAll("player");
@@ -61,6 +341,7 @@ export function defineCureScene() {
         k.destroyAll("obstacle");
         k.destroyAll("decoration");
         k.destroyAll("decoration_part");
+        k.destroyAll("game-over-ui");
         
         // Clean up any game over UI elements that might still exist
         k.get().forEach(obj => {
@@ -83,6 +364,9 @@ export function defineCureScene() {
         const showInventoryBtn = document.getElementById("show-inventory");
         if (showWorldMapBtn) showWorldMapBtn.style.display = "none";
         if (showInventoryBtn) showInventoryBtn.style.display = "none";
+
+        // Hide mobile controls during minigame (they're not needed for this simple left/right game)
+        mobileControls.setActive(false);
 
         if (music === undefined) {
             // Play the map-specific background music only if volume is > 0
@@ -333,62 +617,40 @@ export function defineCureScene() {
         player.onCollide("obstacle", () => {
             if (!isGameOver) {
                 isGameOver = true;
-                // First, add a background panel
-                k.add([
-                    k.rect(700, 400), // Width and height of the panel
-                    k.pos(k.width() / 2, k.height() / 2 + 50),
-                    k.anchor("center"),
-                    k.color(k.rgb(150, 0, 0, 0.1)), // Black with 80% opacity
-                    k.opacity(0.3),
-                    k.outline(4, k.rgb(255, 0, 0)), // Red outline
-                    k.z(199), // Just below the text
-                ]);
-
-                // Game over text with a slight shadow effect
-                k.add([
-                    k.text("Game Over!", { size: 48 }),
-                    k.pos(k.width() / 2, k.height() / 2 - 15),
-                    k.anchor("center"),
-                    k.color(k.rgb(255, 50, 50)), // Brighter red
-                    k.z(200),
-                ]);
-
-                k.add([
-                    k.text("ESC: zurück zum Campus"),
-                    k.pos(k.width() / 2, k.height() / 2 + 80),
-                    k.anchor("center"),
-                    k.z(200),
-                ]);
-
-                k.add([
-                    k.text("Leertaste: Minispiel neustarten"),
-                    k.pos(k.width() / 2, k.height() / 2 + 120),
-                    k.anchor("center"),
-                    k.z(200),
-                ]);
-
-                k.onKeyPress("escape", () => {
-                    if (music) {
-                        music.stop();
+                
+                // Use mobile-friendly game over screen
+                cureMobileControls.createMobileGameOverScreen(
+                    () => {
+                        // Restart function
+                        isRestarting = true;
+                        
+                        // Clean up current game state before restarting
+                        if (music) {
+                            music.stop();
+                        }
+                        music = undefined;
+                        window.currentBgm = null;
+                        
+                        // Clean up mobile controls
+                        cureMobileControls.cleanup();
+                        
+                        // Restart the minigame scene
+                        k.go("cure_minigame");
+                    },
+                    () => {
+                        // Exit function
+                        if (music) {
+                            music.stop();
+                        }
+                        music = undefined;
+                        window.currentBgm = null;
+                        
+                        // Clean up mobile controls
+                        cureMobileControls.cleanup();
+                        
+                        k.go("campus");
                     }
-                    music = undefined;
-                    window.currentBgm = null; // Clear the current bgm reference
-                    k.go("campus");
-                });
-                k.onKeyPress("space", () => {
-                    // Set restart flag to prevent score processing
-                    isRestarting = true;
-                    
-                    // Clean up current game state before restarting
-                    if (music) {
-                        music.stop();
-                    }
-                    music = undefined;
-                    window.currentBgm = null;
-                    
-                    // Restart the minigame scene
-                    k.go("cure_minigame");
-                });
+                );
             }
         });
 
@@ -522,9 +784,21 @@ export function defineCureScene() {
             if (isGameOver) return;
             const directionVector = k.vec2(0, 0);
             let moveDirection = "none";
+            
+            // Mouse/touch controls
             if(k.isMouseDown()) {
-                if (Math.abs(k.mousePos().x - player.pos.x) > 50) moveDirection = k.mousePos().x > (player.pos.x) ? "right" : "left";
+                if (Math.abs(k.mousePos().x - player.pos.x) > 50) {
+                    moveDirection = k.mousePos().x > (player.pos.x) ? "right" : "left";
+                }
             }
+            
+            // Mobile touch controls
+            const touchDirection = cureMobileControls.getTouchDirection();
+            if (touchDirection !== "none") {
+                moveDirection = touchDirection;
+            }
+            
+            // Keyboard controls
             if (k.isKeyDown("left") || k.isKeyDown("a") || moveDirection === "left") {
                 player.direction = "left";
                 directionVector.x = -1;
@@ -562,6 +836,9 @@ export function defineCureScene() {
         });
 
         k.onSceneLeave(async () => {
+            // Clean up mobile controls
+            cureMobileControls.cleanup();
+            
             // If we're restarting, skip score processing and UI changes
             if (isRestarting) {
                 console.log("Restarting minigame - skipping score processing");
@@ -614,6 +891,9 @@ export function defineCureScene() {
             const showInventoryBtn = document.getElementById("show-inventory");
             if (showWorldMapBtn) showWorldMapBtn.style.display = "flex";
             if (showInventoryBtn) showInventoryBtn.style.display = "flex";
+
+            // Restore mobile controls when leaving minigame
+            mobileControls.setActive(true);
 
             // Clean up resources
             k.setBackground(k.Color.fromHex("#311047"));

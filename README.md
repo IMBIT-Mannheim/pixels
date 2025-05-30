@@ -123,12 +123,26 @@ The game features several key locations, each with unique content and interactio
 
 | Action | Controls |
 |--------|----------|
-| **Movement** | WASD, Arrow Keys, or Mouse Click |
+| **Movement** | WASD, Arrow Keys, Mouse Click, or Virtual Joystick (Mobile) |
+| **Interaction** | T key or Touch Button (Mobile) |
 | **Dialogue** | Automatically opens when near NPCs |
 | **Close Dialogue** | ESC or Close Button |
 | **Quiz Answers** | Use the "Answer" buttons |
-| **World Map** | Hold M or click the button in bottom right |
+| **World Map** | Hold M, Touch Button (Mobile), or click the button in bottom right |
+| **Inventory** | I key, Touch Button (Mobile), or click the button in bottom right |
 | **Teleport** | Use the World Map to travel between locations |
+
+### 📱 Mobile Controls
+
+The game includes full mobile support with touch controls:
+
+- **Virtual Joystick**: Located in the bottom-left corner for movement
+- **Action Buttons**: Located in the bottom-right corner
+  - 🔴 **T Button**: Interact with NPCs and objects
+  - 🔵 **M Button**: Open/close world map (hold to keep open)
+  - 🟢 **I Button**: Open/close inventory
+
+Mobile controls automatically appear on touch devices and are hidden on desktop.
 
 ## 🛠️ Technical Details
 
