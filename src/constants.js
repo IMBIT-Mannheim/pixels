@@ -38,10 +38,10 @@ export const dialogueData = {
       - Weltkarte oeffnen: M gedrueckt halten oder den Button unten rechts druecken
       - Teleportieren: Ueber die Weltkarte zu einem anderen Punkt
       Diese Infos findest du spaeter jederzeit unten rechts ueber den Button "Weltkarte anzeigen".
-      Bevor wir mit unserer Reise anfangen, habe ich bereits eine Frage fuer dich: Kennst du schon das duale Studium?`,
+      Bevor wir mit unserer Reise anfangen, habe ich bereits eine Frage fuer dich: Kennst du schon das duale Studium? `,
     answers: [
-      "Ja, kenne ich schon.",
-      "Nein, was ist das?"
+      "Ja, kenne ich schon. ",
+      "Nein, was ist das? "
     ],
     correctAnswer: 1,
     correctText: "Super! Dann kann es ja losgehen! ",
@@ -50,13 +50,13 @@ export const dialogueData = {
 
   //Almeria
   almeriaOpa: {
-    title: 'Almeria Opa',
-    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" > \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" > \n <img src="/images/almeria3.jpg" alt="Almeria3" > \n <img src="/images/almeria4.jpg" alt="Almeria4" > \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" > \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" > \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" > \n <img src="/images/almeria8.jpg" alt="Almeria5" > \n <img src="/images/almeria9.jpg" alt="Almeria5" > \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.png" alt="Almeria5" > \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
+    title: 'Almeria Opa ',
+    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" > \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" > \n <img src="/images/almeria3.jpg" alt="Almeria3" > \n <img src="/images/almeria4.jpg" alt="Almeria4" > \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" > \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" > \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" > \n <img src="/images/almeria8.jpg" alt="Almeria5" > \n <img src="/images/almeria9.jpg" alt="Almeria5" > \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.png" alt="Almeria5" > \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt. `,
     answers: [
     ],
   },
   almeriaGuy: {
-    title: 'Almeria Guy',
+    title: 'Almeria Guy ',
     text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a target="_blank" href="/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
     answers: [
     ],
@@ -64,31 +64,31 @@ export const dialogueData = {
 
   //Klassenzimmer
   factone: {
-    title: '5 Fakten ueber Mannheim',
+    title: '5 Fakten ueber Mannheim ',
     text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Strassennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
     answers: [
     ],
   },
   facttwo: {
-    title: '5 Fakten uebers Duale Studium',
+    title: '5 Fakten uebers Duale Studium ',
     text: `1. Praxis und Theorie: Ein duales Studium kombiniert Hochschulstudium mit praktischer Arbeit im Unternehmen.\n2. Verguetung: Studierende erhalten ein Gehalt waehrend des gesamten Studiums.\n3. Kurze Studiendauer: Ein duales Studium dauert 3 Jahre. \n4. Hohe uebernahmechancen: Viele Unternehmen uebernehmen ihre dualen Studierenden nach dem Abschluss.\n5. Wechsel alle 3 Monate: Theorie- und Praxisphasen wechseln alle drei Monate. `,
     answers: [
     ],
   },
   factthree: {
-    title: '5 Fakten ueber die DHBW Mannheim',
+    title: '5 Fakten ueber die DHBW Mannheim ',
     text: `1. Zweitgroesster Standort: Die DHBW Mannheim ist mit ueber 5.500 Studierenden und rund 2.000 Partnerunternehmen der zweitgroesste Standort der Dualen Hochschule Baden-Wuerttemberg. \n2. Breites Studienangebot: Sie bietet mehr als 45 Studienrichtungen in den Fakultaeten Wirtschaft und Technik an. \n3. 50-jaehriges Jubilaeum: Im Jahr 2024 feiert die DHBW Mannheim ihr 50-jaehriges Bestehen und blickt auf eine erfolgreiche Geschichte des dualen Studiums zurueck. \n4. Hohe Absolventenzahl: Im Jahr 2023 schlossen 1.542 Studierende ihr Studium erfolgreich ab. \n5. Starke Vernetzung: Mit rund 1.900 Dualen Partnern aus verschiedenen Branchen ist die DHBW Mannheim eng mit der Wirtschaft verknuepft und foerdert praxisnahe Ausbildung. `,
     answers: [
     ],
   },
   factfour: {
-    title: 'factfour',
+    title: 'factfour ',
     text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
   },
   factfive: {
-    title: 'factfive',
+    title: 'factfive ',
     text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
@@ -97,7 +97,7 @@ export const dialogueData = {
     // 1) Vorstellung Prof. Magnolica
     {
       id: 0,
-      title: 'Prof. Magnolica',
+      title: 'Prof. Magnolica ',
       text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. `,
       answers: [],       // Intro ohne Buttons
       correctAnswer: 0,  // deaktiviert Quiz-Logik
@@ -107,12 +107,12 @@ export const dialogueData = {
     // 2) Erste Quizfrage von Prof. Magnolica
     {
       id: 16,
-      title: 'Prof. Magnolica',
+      title: 'Prof. Magnolica ',
       text: `Was beschreibt das BIP? `,
       answers: [
-        '1) Die Inflation eines Landes',
-        '2) Mass fuer die gesamte Wirtschaftsleistung eines Landes in einem bestimmten Zeitraum',
-        '3) Die Arbeitslosenquote',
+        '1) Die Inflation eines Landes ',
+        '2) Mass fuer die gesamte Wirtschaftsleistung eines Landes in einem bestimmten Zeitraum ',
+        '3) Die Arbeitslosenquote ',
       ],
       correctAnswer: 2, // = index of correct answer + 1
       correctText: 'Gut gemacht! ',
@@ -121,12 +121,12 @@ export const dialogueData = {
     // 3) Bonusfrage von Prof. Magnolica
     {
       id: 15,
-      title: 'Prof. Magnolica',
+      title: 'Prof. Magnolica ',
       text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
       answers: [
-        '1) VWL',
-        '2) BWL',
-        '3) DWL',
+        '1) VWL ',
+        '2) BWL ',
+        '3) DWL ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft! ',
@@ -138,7 +138,7 @@ export const dialogueData = {
     // 1) Vorstellung Prof. Burnett
     {
       id: 0,
-      title: 'Prof. Burnett',
+      title: 'Prof. Burnett ',
       text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. `,
       answers: [],       // Intro ohne Antwort-Buttons
       correctAnswer: 0,  // deaktiviert Quiz-Logik
@@ -148,12 +148,12 @@ export const dialogueData = {
     // 2) Erste Quizfrage von Prof. Burnett
     {
       id: 14,
-      title: 'Prof. Burnett',
+      title: 'Prof. Burnett ',
       text: `Was ist die Grundgleichung der doppelten Buchfuehrung? `,
       answers: [
-        '1) Aktiva = Passiva',
-        '2) Einnahmen = Ausgaben',
-        '3) Soll = Gewinn',
+        '1) Aktiva = Passiva ',
+        '2) Einnahmen = Ausgaben ',
+        '3) Soll = Gewinn ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Gut gemacht! Weiter so. ',
@@ -162,12 +162,12 @@ export const dialogueData = {
     // 3) Bonusfrage von Prof. Burnett
     {
       id: 13,
-      title: 'Prof. Burnett',
+      title: 'Prof. Burnett ',
       text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
       answers: [
-        '1) Grundlagen der Rechnungslegung',
-        '2) Statistik',
-        '3) Marketing',
+        '1) Grundlagen der Rechnungslegung ',
+        '2) Statistik ',
+        '3) Marketing ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
@@ -189,12 +189,12 @@ export const dialogueData = {
     // 2) Erste Quizfrage von Prof. Eibe
     {
       id: 12,
-      title: 'Prof. Eibe',
+      title: 'Prof. Eibe ',
       text: `Was beschreibt eine SWOT-Analyse? `,
       answers: [
-        '1) Geschaeftsrisiken',
-        '2) Finanzbuchhaltung',
-        '3) Softwareentwicklung',
+        '1) Geschaeftsrisiken ',
+        '2) Finanzbuchhaltung ',
+        '3) Softwareentwicklung ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Gut gemacht! Weiter so. ',
@@ -203,12 +203,12 @@ export const dialogueData = {
     // 3) Bonusfrage von Prof. Eibe
     {
       id: 11,
-      title: 'Prof. Eibe',
+      title: 'Prof. Eibe ',
       text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
       answers: [
-        '1) BWL',
-        '2) VWL',
-        '3) Unternehmensfuehrung',
+        '1) BWL ',
+        '2) VWL ',
+        '3) Unternehmensfuehrung ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Sehr gut! Du denkst strategisch. ',
@@ -220,7 +220,7 @@ export const dialogueData = {
     // 1) Vorstellung von Prof. Birk
     {
       id: 0,
-      title: 'Prof. Birk',
+      title: 'Prof. Birk ',
       text: `Gruess dich, schoen dich kennenzulernen! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. `,
       answers: [],
       correctAnswer: 0,
@@ -230,12 +230,12 @@ export const dialogueData = {
     // 2) Erste Quizfrage von Prof Birk
     {
       id: 10,
-      title: 'Prof. Birk',
+      title: 'Prof. Birk ',
       text: `Was macht die Funktion print() in Python? `,
       answers: [
-        '1) Daten speichern',
-        '2) Text ausgeben',
-        '3) Schleifen ausfuehren',
+        '1) Daten speichern ',
+        '2) Text ausgeben ',
+        '3) Schleifen ausfuehren ',
       ],
       correctAnswer: 2, // = index of correct answer + 1
       correctText: 'Gut gemacht! Weiter so. ',
@@ -244,12 +244,12 @@ export const dialogueData = {
     // 3) Bonusfrage von Prof. Birk
     {
       id: 9,
-      title: 'Prof. Birk',
+      title: 'Prof. Birk ',
       text: `Bonusfrage: Welches Fach koennte ich wohl unterrichten? `,
       answers: [
-        '1) Programmierung',
-        '2) Cryptographie',
-        '3) Datasecurity',
+        '1) Programmierung ',
+        '2) Cryptographie ',
+        '3) Datasecurity ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Gut gemacht! Du scheinst ein echter Code-Kenner zu sein! ',
@@ -261,7 +261,7 @@ export const dialogueData = {
     // 1) Vorstellung von Prof. Lind
     {
       id: 0,
-      title: 'Prof. Lind',
+      title: 'Prof. Lind ',
       text: `Willkommen in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: `,
       answers: [],
       correctAnswer: 0,
@@ -271,12 +271,12 @@ export const dialogueData = {
     // 2) Erste Quizfrage von Prof. Lidnd
     {
       id: 8,
-      title: 'Prof. Lind',
+      title: 'Prof. Lind ',
       text: `Welches der folgenden ist keine Speicherart? `,
       answers: [
-        '1) RAM',
-        '2) CPU',
-        '3) HDD',
+        '1) RAM ',
+        '2) CPU ',
+        '3) HDD ',
       ],
       correctAnswer: 2, // = index of correct answer + 1
       correctText: 'Gut gemacht! Weiter so. ',
@@ -285,12 +285,12 @@ export const dialogueData = {
     // 3) Bonusfrage von Prof. Lind
     {
       id: 7,
-      title: 'Prof. Lind',
+      title: 'Prof. Lind ',
       text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
       answers: [
-        '1) Grundlegende Konzepte der IT',
-        '2) Computerwissenschaft',
-        '3) Netzwerke',
+        '1) Grundlegende Konzepte der IT ',
+        '2) Computerwissenschaft ',
+        '3) Netzwerke ',
       ],
       correctAnswer: 1, // = index of correct answer + 1
       correctText: 'Gut gemacht! Vielleicht sehen wir uns ja bald hier! ',
