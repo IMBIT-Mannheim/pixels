@@ -1,7 +1,6 @@
 export let maps = [
   'mensa',
   'klassenzimmer',
-  'unternehmensausstellung',
   'almeria',
   'campus',
 ]
