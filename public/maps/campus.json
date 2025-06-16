@@ -1535,17 +1535,6 @@
                  "width":29.4949,
                  "x":1219.97,
                  "y":1023.88
-                }, 
-                {
-                 "height":20.9918,
-                 "id":12,
-                 "name":"unternehmensausstellung",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":15.5235,
-                 "x":847.235,
-                 "y":1147.63
                 }],
          "opacity":0.27,
          "type":"objectgroup",
