@@ -699,8 +699,7 @@ export const regularMaps = [
     "campus",
     "mensa", 
     "klassenzimmer",
-    "almeria",
-    "unternehmensausstellung"
+    "almeria"
 ];
 
 export const companyMaps = [
