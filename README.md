@@ -1,7 +1,7 @@
 # 🎮 Imbit Pixels - A 2D Adventure Game
 
 [![Game Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://pixels.imbit-n3xt.com)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://github.com/IMBIT-Mannheim/pixels/blob/development/License)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active-success.svg)](https://dev.pixels.imbit-n3xt.com)
 [![Kaplay](https://img.shields.io/badge/engine-kaplay-orange.svg)](https://github.com/replit/kaboom)
 [![Documentation](https://img.shields.io/badge/docs-brillianideas-blue.svg)](https://docs.brillianideas.com/projects/imbit-n3xt/pixels)
@@ -235,7 +235,7 @@ Contributions are welcome! Please follow the feature development workflow outlin
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under a regulation license. It can be seen in the "License" document.
 
 ## 🌟 Welcome to IMBIT-PIXELS
 
