@@ -8,10 +8,11 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-		"kaplay": "^3001.0.16",
+		"kaplay": "^3001.0.17",
 		"express": "^4.18.2"
 	},
 	"devDependencies": {
-		"vite": "^6.3.4"
+		"vite": "^6.3.5"
+
 	}
 }

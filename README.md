@@ -233,9 +233,9 @@ The game features several key locations, each with unique content and interactio
 
 Contributions are welcome! Please follow the feature development workflow outlined above and submit a Pull Request.
 
-## 📜 License
 
 This project is licensed under a regulation license. It can be seen in the "License" document.
+
 
 ## 🌟 Welcome to IMBIT-PIXELS
 
