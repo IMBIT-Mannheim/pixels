@@ -3,6 +3,7 @@ export let maps = [
   'klassenzimmer',
   'almeria',
   'campus',
+  'unternehmensausstellung',
 ]
 export const mapMusic = {
   'mensa': 'Mensa',
@@ -18,7 +19,7 @@ export const music = [
 ]
 
 export const companyMapsVisible = {
-  'ksb': false,
+  'ksb': true,
   'atos': false,
 }
 
@@ -684,10 +685,10 @@ guy1: [
       id: 27,
       title: "KSB Mitarbeiterin",
       text: `Interessierst du dich dafuer, wie wir weltweit dafuer sorgen, dass Fluessigkeiten sicher und effizient bewegt werden?
-      Wenn ja, druecke einfach "L", um mehr ueber uns und deine Moeglichkeiten im dualen Studium bei KSB zu erfahren.`,
+      Wenn ja, druecke einfach "Leertaste", um mehr ueber uns und deine Moeglichkeiten im dualen Studium bei KSB zu erfahren.`,
       answers: ["Klingt spannend!", "Vielleicht spaeter."],
       correctAnswer: 1, // = index of correct answer + 1
-      correctText: "Sehr schoen, druecke einfach 'L' an der Flagge, um einzutreten und mehr zu erfahren.",
+      correctText: "Sehr schoen, druecke einfach 'Leertaste' an der Flagge, um einzutreten und mehr zu erfahren.",
       wrongText:
         "Kein Problem, du kannst jederzeit zurueckkommen und die Flagge erneut ansprechen.",
     },
@@ -699,7 +700,8 @@ export const regularMaps = [
     "campus",
     "mensa", 
     "klassenzimmer",
-    "almeria"
+    "almeria",
+    "unternehmensausstellung"
 ];
 
 export const companyMaps = [
