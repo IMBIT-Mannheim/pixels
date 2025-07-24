@@ -6,7 +6,7 @@ export const dialogueData = {
     },
     ksb002: {
       title: 'KSB - Enn echte Traditionsunternehme!',
-      text: 'Wusscht du, dass KSB schunn seit 1871 existiert? Dess sinn iwwer 150 Johr! Vunn Frankenthal aus erobert des Unternehme die ganze Welt - heit in iwwer 150 Länner aktiv mit 16.000 Mitarbeiter. "Solutions. For Life." - so lautet unser Motto!',
+      text: 'Wusscht du, dass KSB schunn seit 1871 existiert? Dess sinn iwwer 150 Johr! Vunn Frankenthal aus erobert des Unternehme die ganze Welt - heit in iwwer 150 Laenner aktiv mit 16.000 Mitarbeiter. "Solutions. For Life." - so lautet unser Motto!',
       answers: [],
     },
     ksb003: {
@@ -16,17 +16,17 @@ export const dialogueData = {
     },
     ksb004: {
       title: 'KSB Frankenthal - Unser Hauptsitz!',
-      text: 'In Frankenthal in de Pfalz iss unser Hauptsitz - do wu alles agfange hott! Johannes Klein, Friedrich Schanzlin unn Jakob Becker hänn 1871 die Firma gegrünnt. Heit iss KSB SE & Co. KGaA enn Weltmarktführer ferr Pumpe unn Armaturen!',
+      text: 'In Frankenthal in de Pfalz iss unser Hauptsitz - do wu alles agfange hott! Johannes Klein, Friedrich Schanzlin unn Jakob Becker haenn 1871 die Firma gegruennt. Heit iss KSB SE & Co. KGaA enn Weltmarktfuehrer ferr Pumpe unn Armaturen!',
       answers: [],
     },
     ksb005: {
       title: 'IMBIT - International unn zukunftsorientiert!',
-      text: 'IMBIT iss nit nur enn Studiengang - dess iss dei Ticket in die internationale Geschäftswelt! Englisch als Unterrichtssprache, IT-Kompetenz unn BWL-Know-how. Bei KSB kannschd dann global durchstarte!',
+      text: 'IMBIT iss nit nur enn Studiengang - dess iss dei Ticket in die internationale Geschaeftswelt! Englisch als Unterrichtssprache, IT-Kompetenz unn BWL-Know-how. Bei KSB kannschd dann global durchstarte!',
       answers: [],
     },
     ksb006: {
       title: 'Tobias',
-      text: 'KSB bildet in viele technische unn kaufmännische Berufe aus: Mechatroniker, Industriekaufleute, Gießereimechaniker, Technische Produktdesigner unn viele mehr. Jeder findt was Passendes!',
+      text: 'KSB bildet in viele technische unn kaufmaennische Berufe aus: Mechatroniker, Industriekaufleute, Gießereimechaniker, Technische Produktdesigner unn viele mehr. Jeder findt was Passendes!',
       answers: [],
     },
     ksb007: {
@@ -34,17 +34,17 @@ export const dialogueData = {
       text: 'Wie viele Mitarbeiter arbeite weltweit bei KSB?',
       answers: ['Etwa 5.000', 'Etwa 10.000', 'Etwa 16.000'],
       correctAnswer: 3,
-      correctText: 'Richtig! KSB beschäftigt rund 16.000 Menschen weltweit - enn echte Weltfirma aus de Pfalz!',
-      wrongText: 'Nit ganz - die richtige Zahl iss rund 16.000! Ganz schäh viel Leit, gell?',
+      correctText: 'Richtig! KSB beschaeftigt rund 16.000 Menschen weltweit - enn echte Weltfirma aus de Pfalz!',
+      wrongText: 'Nit ganz - die richtige Zahl iss rund 16.000! Ganz schaeh viel Leit, gell?',
       nextQuestion: 'ksb008'
     },
     ksb008: {
       title: 'Quiz zu KSB - Weiter gehts!',
-      text: 'In wie viele Länder liefert KSB seine Produkte?',
-      answers: ['Über 100 Länder', 'Über 150 Länder', 'Über 200 Länder'],
+      text: 'In wie viele Laender liefert KSB seine Produkte?',
+      answers: ['ueber 100 Laender', 'ueber 150 Laender', 'ueber 200 Laender'],
       correctAnswer: 2,
-      correctText: 'Genau! KSB iss in iwwer 150 Länner aktiv - vunn Frankenthal in die ganze Welt!',
-      wrongText: 'Leider falsch - es sinn iwwer 150 Länner! KSB iss wirklich global!',
+      correctText: 'Genau! KSB iss in iwwer 150 Laenner aktiv - vunn Frankenthal in die ganze Welt!',
+      wrongText: 'Leider falsch - es sinn iwwer 150 Laenner! KSB iss wirklich global!',
       nextQuestion: 'ksb009'
     },
     ksb009: {
@@ -57,17 +57,17 @@ export const dialogueData = {
       nextQuestion: 'ksb010'
     },
     ksb010: {
-      title: 'Ausbildung bei KSB - Top Möglichkeite!',
+      title: 'Ausbildung bei KSB - Top Moeglichkeite!',
       text: 'Aller, bei KSB kannschd richtig was lerne! Mechatroniker, Industriekaufleute, Gießereimechaniker - alles mit Zukunft. Unn dess Beschde: Du arbeitschd in eem Weltunternehme mit Tradition!',
       answers: [],
     },
     ksb011: {
-      title: 'Quiz zu KSB Gründung - Wann wars?',
-      text: 'Wann wurde KSB gegründet?',
+      title: 'Quiz zu KSB Gruendung - Wann wars?',
+      text: 'Wann wurde KSB gegruendet?',
       answers: ['1871', '1881', '1891'],
       correctAnswer: 1,
       correctText: 'Richtig! 1871 - dess iss iwwer 150 Johr her! Johannes Klein hott damals sei Kesselspeisung erfunne.',
-      wrongText: 'Nit ganz - es war 1871! Schon ganz schäh lang her, gell?',
+      wrongText: 'Nit ganz - es war 1871! Schon ganz schaeh lang her, gell?',
       nextQuestion: 'ksb012'
     },
     ksb012: {
@@ -81,11 +81,11 @@ export const dialogueData = {
     },
     ksb013: {
       title: 'Quiz zu KSB Produkten - Was macht KSB?',
-      text: 'Was iss KSBs Hauptgeschäft?',
+      text: 'Was iss KSBs Hauptgeschaeft?',
       answers: ['Pumpen und Armaturen', 'Computer und Software', 'Autos und Motoren'],
       correctAnswer: 1,
-      correctText: 'Genau! Pumpe unn Armaturen - überall wu Flüssigkeite transportiert werre misse!',
-      wrongText: 'Nää, KSB macht Pumpe unn Armaturen - ferr Wasser, Öl unn alle mögliche Flüssigkeite!',
+      correctText: 'Genau! Pumpe unn Armaturen - ueberall wu Fluessigkeite transportiert werre misse!',
+      wrongText: 'Naeae, KSB macht Pumpe unn Armaturen - ferr Wasser, oel unn alle moegliche Fluessigkeite!',
       nextQuestion: 'ksb014'
     },
     ksb014: {
@@ -95,7 +95,7 @@ export const dialogueData = {
     },
     ksb015: {
       title: 'Ausbildung bei KSB - Deine Chance!',
-      text: 'Bei KSB kriegschd e super Ausbildung! Technisch odder kaufmännisch - alles möglich. Unn dess Beschde: Du lernschd in eem Unternehme, wu Innovation unn Tradition Hand in Hand gehe!',
+      text: 'Bei KSB kriegschd e super Ausbildung! Technisch odder kaufmaennisch - alles moeglich. Unn dess Beschde: Du lernschd in eem Unternehme, wu Innovation unn Tradition Hand in Hand gehe!',
       answers: [],
     },
     ksb016: {
@@ -109,16 +109,16 @@ export const dialogueData = {
       answers: ['Mannheim', 'Frankenthal', 'Ludwigshafen'],
       correctAnswer: 2,
       correctText: 'Richtig! Frankenthal in de Pfalz - do wu alles agfange hott!',
-      wrongText: 'Nää, der Hauptsitz iss in Frankenthal - mitten in de schääne Pfalz!',
+      wrongText: 'Naeae, der Hauptsitz iss in Frankenthal - mitten in de schaeaene Pfalz!',
       nextQuestion: 'ksb018'
     },
     ksb018: {
       title: 'Quiz zu KSB Innovation - Was iss neu?',
-      text: 'Wofür steht KSBs neues Motto seit 2024?',
+      text: 'Wofuer steht KSBs neues Motto seit 2024?',
       answers: ['"Solutions. For Life."', '"Pumps. For Future."', '"Technology. For All."'],
       correctAnswer: 1,
-      correctText: 'Genau! "Solutions. For Life." - KSB findt Lösunge ferr des tägliche Lääwe!',
-      wrongText: 'Nit ganz - es hääßt "Solutions. For Life." - Lösunge ferrs Lääwe!',
+      correctText: 'Genau! "Solutions. For Life." - KSB findt Loesunge ferr des taegliche Laeaewe!',
+      wrongText: 'Nit ganz - es haeaeßt "Solutions. For Life." - Loesunge ferrs Laeaewe!',
       nextQuestion: 'ksb019'
     },
     ksb019: {
@@ -133,31 +133,31 @@ export const dialogueData = {
     },
     ksb021: {
       title: 'KSB Info - Tradition unn Innovation!',
-      text: 'Wusscht du, dass KSB schunn seit 1871 existiert? Dess Unternehme iss heit weltweit aktiv in iwwer 150 Länner! Vunn de Pfalz aus erobert KSB die Welt - mit Pumpe unn Armaturen ferr jede Anwendung!',
+      text: 'Wusscht du, dass KSB schunn seit 1871 existiert? Dess Unternehme iss heit weltweit aktiv in iwwer 150 Laenner! Vunn de Pfalz aus erobert KSB die Welt - mit Pumpe unn Armaturen ferr jede Anwendung!',
       answers: [],
     },
     ksb022: {
       title: 'Ausbildung bei KSB - Viele Wege zum Erfolg!',
-      text: 'KSB bildet in viele Berufe aus: Mechatroniker ferr die Technik, Industriekaufleute ferrs Büro, Gießereimechaniker ferr die Produktion. Jeder findt sei Weg bei KSB!',
+      text: 'KSB bildet in viele Berufe aus: Mechatroniker ferr die Technik, Industriekaufleute ferrs Buero, Gießereimechaniker ferr die Produktion. Jeder findt sei Weg bei KSB!',
       answers: [],
     },
     ksb023: {
       title: 'Quiz zu KSB Geschichte - Wer wars?',
-      text: 'Wer waren die Gründer von KSB?',
+      text: 'Wer waren die Gruender von KSB?',
       answers: ['Klein, Schanzlin & Becker', 'Krupp, Siemens & Bosch', 'Meyer, Schmidt & Weber'],
       correctAnswer: 1,
       correctText: 'Richtig! Johannes Klein, Friedrich Schanzlin unn Jakob Becker - die drei Pioniere aus 1871!',
-      wrongText: 'Nää, es waren Klein, Schanzlin unn Becker - daher kommt ah der Name KSB!',
+      wrongText: 'Naeae, es waren Klein, Schanzlin unn Becker - daher kommt ah der Name KSB!',
       nextQuestion: 'ksb024'
     },
     ksb024: {
       title: 'KSB Info - Pumpe ferr die Welt!',
-      text: 'KSB Pumpe findt mer überall: In Kraftwerke, Kläranlagen, Chemiefabriken, sogar in Wolkenkratzer! Vunn Frankenthal aus versorgt KSB die ganze Welt mit Fluidtechnik!',
+      text: 'KSB Pumpe findt mer ueberall: In Kraftwerke, Klaeranlagen, Chemiefabriken, sogar in Wolkenkratzer! Vunn Frankenthal aus versorgt KSB die ganze Welt mit Fluidtechnik!',
       answers: [],
     },
     ksb025: {
       title: 'Ausbildung bei KSB - Deine Zukunft!',
-      text: 'Aller, bei KSB kriegschd e Ausbildung mit Zukunft! Ob technisch odder kaufmännisch - KSB bildet dich zum Experte aus. Unn dess in eem Weltunternehme mit iwwer 150 Johr Erfahrung!',
+      text: 'Aller, bei KSB kriegschd e Ausbildung mit Zukunft! Ob technisch odder kaufmaennisch - KSB bildet dich zum Experte aus. Unn dess in eem Weltunternehme mit iwwer 150 Johr Erfahrung!',
       answers: [],
     },
     ksb026: {
