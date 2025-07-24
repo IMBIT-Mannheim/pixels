@@ -57,92 +57,228 @@ let konamiIndex = 0;
 const konamiDebug = false; // Set to true for debugging
 let konamiListenerAdded = false; // Flag to prevent multiple listeners
 
-loadCureSprites();
-defineCureScene();
+// Optimized startup loading system
+let startupProgress = {
+    critical: 0,
+    background: 0,
+    isReady: false
+};
 
-// Create a wrapper for setupScene that will be available immediately
+// Track background loading progress globally
+window.startupProgress = startupProgress;
+
+// Load only critical assets immediately for fast startup
+function loadCriticalAssets() {
+    console.log("🚀 Loading critical assets for immediate startup...");
+    
+    try {
+        // Load default character sprite only
+        k.loadSprite("male", "./sprites/avatars/male.png", {
+            sliceX: 3,
+            sliceY: 3,
+            anims: {
+                "idle-down": 0,
+                "idle-up": 3,
+                "idle-side": 6,
+                "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+                "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+                "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+            },
+        });
+        
+        // Load dog sprite
+        k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
+            sliceX: 4,
+            sliceY: 3,
+            anims: {
+                "dog-idle-side": 0,
+                "dog-idle-up": 4,
+                "dog-idle-down": 8,
+                "dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
+                "dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
+                "dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
+            },
+        });
+        
+        // Load essential sounds only
+        k.loadSound("talk", "./sounds/effects/talk.mp3");
+        k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
+        
+        console.log("✅ Critical assets loaded - UI ready for interaction");
+        startupProgress.critical = 100;
+        startupProgress.isReady = true;
+        
+    } catch (error) {
+        console.error("❌ Error loading critical assets:", error);
+        // Still mark as ready to prevent blocking the UI
+        startupProgress.critical = 100;
+        startupProgress.isReady = true;
+    }
+}
+
+// Create wrapper for setupScene that will be available immediately
 window.setupScene = function(sceneName, mapFile, mapSprite) {
-    // Check if the actual setupScene function is available
     if (typeof setupSceneInternal === 'function') {
         return setupSceneInternal(sceneName, mapFile, mapSprite);
     } else {
         console.warn(`setupScene called for ${sceneName} but function not yet available - will retry from performance optimizer`);
-        // The performance optimizer will handle retrying
     }
 };
 
-k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
-	sliceX: 4,
-	sliceY: 3,
-	anims: {
-		"dog-idle-side": 0,
-		"dog-idle-up": 4,
-		"dog-idle-down": 8,
-		"dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
-		"dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
-		"dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
-	},
-});
+// Load critical assets immediately
+loadCriticalAssets();
 
-// Load company flag sprite
-// k.loadSprite("company-flag", "./sprites/company-flag.svg");
+// Define cure scene early
+defineCureScene();
 
-loadAvatarSprites();
-
-// Initialize maps with performance optimization
-function initializeMaps() {
-  console.log("🚀 Starting performance-optimized map initialization...");
-  
-  // Clear existing map buttons
-  spawnpoints_world_map.innerHTML = '';
-  
-  // Create buttons for available maps (UI only - maps load in background)
-  const availableMaps = getAvailableMaps();
-  for (const map of availableMaps) {
-    let button = document.createElement('button');
-    button.className = "button";
-    button.innerHTML = map.split('/').pop().toUpperCase();
-    button.addEventListener("click", async () => {
-      // Force load the map if not already loaded
-      await forceLoadMap(map);
-      
-      world_map.style.display = "none";
-      showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-      k.go(map);
-      game.focus();
+// Load non-critical assets in background  
+function loadBackgroundAssets() {
+    console.log("🔄 Starting background asset loading...");
+    
+    return new Promise(async (resolve) => {
+        try {
+            // Load cure minigame sprites
+            await loadCureSpritesBatch();
+            startupProgress.background = 20;
+            
+            // Load all character sprites except the default one
+            await loadCharacterSpritesBatch();
+            startupProgress.background = 40;
+            
+            // Load remaining sounds
+            await loadSoundsBatch();
+            startupProgress.background = 60;
+            
+            // Initialize performance optimizer with essential maps
+            await initializeEssentialMaps();
+            startupProgress.background = 80;
+            
+            // Initialize maps UI
+            initializeMaps();
+            startupProgress.background = 100;
+            
+            console.log("✅ All background assets loaded");
+            resolve();
+            
+        } catch (error) {
+            console.warn("⚠️ Some background assets failed to load:", error);
+            resolve(); // Continue anyway
+        }
     });
-    spawnpoints_world_map.appendChild(button);
-  }
-  
-  // Initialize the performance-optimized loading system
-  initializePerformanceOptimizedMaps();
-  
-  console.log("✅ Map initialization completed - campus loaded, others loading in background");
 }
 
-// Load essential sounds and setup scene function
-function loadEssentialAssets() {
-  console.log("📦 Loading essential game assets...");
-  
-  // Load essential sounds
-  const random_song = music[Math.floor(Math.random() * music.length)];
-  k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
-  k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
-  
-  // Load sound effects
-  k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
-  k.loadSound("talk", "./sounds/effects/talk.mp3");
-  k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
-  k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
-  
-  console.log("✅ Essential assets loaded");
+// Load cure sprites asynchronously
+function loadCureSpritesBatch() {
+    return new Promise((resolve) => {
+        k.loadSprite("car", "./sprites/minigames/car.png", {
+            sliceX: 1,
+            sliceY: 1,
+        });
+        k.loadSprite("roadblock", "./sprites/minigames/roadblock.png");
+        k.loadSprite("rock", "./sprites/minigames/rock.png");
+        k.loadSprite("tree", "./sprites/minigames/tree.png");
+        k.loadSprite("bush", "./sprites/minigames/bush.png");
+        
+        setTimeout(resolve, 50); // Small delay for async loading
+    });
 }
 
-// Replace the old map initialization code with the new function
-initializeMaps();
+// Load character sprites asynchronously
+function loadCharacterSpritesBatch() {
+    return new Promise((resolve) => {
+        const baseAnims = {
+            sliceX: 3,
+            sliceY: 3,
+            anims: {
+                "idle-down": 0,
+                "idle-up": 3,
+                "idle-side": 6,
+                "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+                "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+                "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+            }
+        };
+        
+        // Load all character sprites except male (already loaded)
+        const characterSprites = [
+            "female", "male_wb", "male_mbrown", "male_dbrown", "male_dblonde", 
+            "male_mblonde", "female_dbrown", "female_mbrown", "female_lblonde", 
+            "female_dblonde", "female_mblonde"
+        ];
+        
+        characterSprites.forEach(character => {
+            k.loadSprite(character, `./sprites/avatars/${character}.png`, baseAnims);
+        });
+        
+        // Load shop character sprites
+        k.loadSprite("character-male-paid", "./sprites/avatars/character-male-paid.png", baseAnims);
+        k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
+        k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
+        
+        setTimeout(resolve, 100); // Allow sprites to load
+    });
+}
 
-// Load essential sounds and setup scene function
-loadEssentialAssets();
+// Load remaining sounds asynchronously
+function loadSoundsBatch() {
+    return new Promise((resolve) => {
+        // Load remaining sound effects
+        k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
+        k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
+        
+        // Load background music
+        const random_song = music[Math.floor(Math.random() * music.length)];
+        k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+        k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
+        
+        setTimeout(resolve, 100); // Allow sounds to load
+    });
+}
+
+// Initialize essential maps only
+function initializeEssentialMaps() {
+    return new Promise((resolve) => {
+        // Only load campus map initially, others will be loaded by performance optimizer
+        k.loadSprite("campus", "./maps/campus.png");
+        initializePerformanceOptimizedMaps();
+        setTimeout(resolve, 50);
+    });
+}
+
+// Initialize maps with performance optimization (now called from background loading)
+function initializeMaps() {
+    console.log("🚀 Starting performance-optimized map initialization...");
+    
+    // Clear existing map buttons
+    spawnpoints_world_map.innerHTML = '';
+    
+    // Create buttons for available maps (UI only - maps load in background)
+    const availableMaps = getAvailableMaps();
+    for (const map of availableMaps) {
+        let button = document.createElement('button');
+        button.className = "button";
+        button.innerHTML = map.split('/').pop().toUpperCase();
+        button.addEventListener("click", async () => {
+            // Force load the map if not already loaded
+            await forceLoadMap(map);
+            
+            world_map.style.display = "none";
+            showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+            k.go(map);
+            game.focus();
+        });
+        spawnpoints_world_map.appendChild(button);
+    }
+    
+    console.log("✅ Map initialization completed - campus loaded, others loading in background");
+}
+
+// Start background loading after critical assets are ready
+setTimeout(() => {
+    if (startupProgress.isReady) {
+        loadBackgroundAssets();
+    }
+}, 100);
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
@@ -285,18 +421,39 @@ k.scene("loading", () => {
 		sessionState.settings.character = character;
 		saveGame();
 
-		k.loadSprite(character, "./sprites/avatars/"+ character + ".png", {
-		sliceX: 3,
-		sliceY: 3,
-		anims: {
-			"idle-down": 0,
-			"idle-up": 3,
-			"idle-side": 6,
-			"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-			"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-			"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-		},
-});
+		// Load character sprite on-demand if not already loaded
+		// Most sprites should be loaded by background loading by now
+		const ensureCharacterSprite = (characterName) => {
+			try {
+				// Try to use existing sprite first
+				k.sprite(characterName);
+				return true; // Sprite exists
+			} catch (error) {
+				// Sprite not loaded yet, load it now
+				console.log(`📦 Loading character sprite on-demand: ${characterName}`);
+				try {
+					k.loadSprite(characterName, "./sprites/avatars/"+ characterName + ".png", {
+						sliceX: 3,
+						sliceY: 3,
+						anims: {
+							"idle-down": 0,
+							"idle-up": 3,
+							"idle-side": 6,
+							"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+							"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+							"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+						},
+					});
+					return true; // Successfully loaded
+				} catch (loadError) {
+					console.error(`❌ Failed to load character sprite: ${characterName}`, loadError);
+					return false; // Failed to load
+				}
+			}
+		};
+		
+		// Ensure the selected character sprite is available
+		ensureCharacterSprite(character);
 	}
 
 
@@ -319,6 +476,49 @@ k.scene("loading", () => {
 	currentIndex = characterOrder.indexOf(character);
 	if (currentIndex === -1) currentIndex = 0; // Fallback to the first character if not found
 	updateCarousel();
+
+	// Add loading progress indicator
+	const loadingIndicator = document.createElement('div');
+	loadingIndicator.id = 'startup-loading-indicator';
+	loadingIndicator.style.cssText = `
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background: rgba(0, 0, 0, 0.8);
+		color: white;
+		padding: 10px 15px;
+		border-radius: 8px;
+		font-family: monospace;
+		font-size: 12px;
+		z-index: 10000;
+		border: 2px solid #8a2be2;
+		opacity: 0.9;
+	`;
+	document.body.appendChild(loadingIndicator);
+
+	// Update loading progress
+	function updateLoadingProgress() {
+		if (startupProgress.background >= 100) {
+			loadingIndicator.style.display = 'none';
+			return;
+		}
+		
+		const bgProgress = Math.round(startupProgress.background);
+		loadingIndicator.innerHTML = `
+			⚡ Loading Assets: ${bgProgress}%<br>
+			<div style="width: 150px; height: 4px; background: #333; border-radius: 2px; margin-top: 4px;">
+				<div style="width: ${bgProgress}%; height: 100%; background: #8a2be2; border-radius: 2px; transition: width 0.3s;"></div>
+			</div>
+		`;
+		
+		// Continue updating if not complete
+		if (bgProgress < 100) {
+			setTimeout(updateLoadingProgress, 200);
+		}
+	}
+
+	// Start progress updates
+	setTimeout(updateLoadingProgress, 500);
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
@@ -578,6 +778,15 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		// Log performance stats when entering a scene
 		if (sceneName !== "loading") {
 			logPerformanceStats();
+		}
+		
+		// Special handling for unternehmensausstellung - immediately start KSB preloading
+		if (sceneName === 'unternehmensausstellung') {
+			console.log("🎯 Entering company exhibition - starting KSB map preloading...");
+			// Use a small delay to let the current scene initialize first
+			k.wait(1, () => {
+				checkMapPreloading(sceneName, null); // null playerPos triggers immediate preloading
+			});
 		}
 
 		// Helper function to get the correct dialogue data based on scene

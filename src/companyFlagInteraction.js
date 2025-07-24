@@ -57,17 +57,22 @@ function cleanupCurrentPrompt() {
 }
 
 // Create an enhanced retro-style prompt with better styling
-function createEnhancedPrompt(text, companyName) {
+function createEnhancedPrompt(text, companyName, isPreloaded = false) {
     cleanupCurrentPrompt();
 
     const screenWidth = k.width();
     const screenHeight = k.height();
 
+    // Choose colors based on preload status
+    const bgColor = isPreloaded ? "#0d2e1a" : "#1a0d2e"; // Green-tinted if preloaded
+    const borderColor = isPreloaded ? "#2be282" : "#8a2be2"; // Green border if preloaded
+    const glowColor = isPreloaded ? "#1a5a2a" : "#4a1a5a"; // Green glow if preloaded
+
     // Create main background with gradient effect
     const promptBox = k.add([
         k.rect(500, 80, { radius: 8 }),
-        k.color(k.Color.fromHex("#1a0d2e")), // Darker purple background
-        k.outline(3, k.Color.fromHex("#8a2be2")), // Purple border
+        k.color(k.Color.fromHex(bgColor)),
+        k.outline(3, k.Color.fromHex(borderColor)),
         k.anchor("center"),
         k.pos(screenWidth / 2, 100), // Position at top center
         k.fixed(),
@@ -79,7 +84,7 @@ function createEnhancedPrompt(text, companyName) {
     // Create inner glow effect
     const glowBox = k.add([
         k.rect(494, 74, { radius: 6 }),
-        k.color(k.Color.fromHex("#4a1a5a")), // Lighter purple for inner glow
+        k.color(k.Color.fromHex(glowColor)),
         k.anchor("center"),
         k.pos(screenWidth / 2, 100),
         k.fixed(),
@@ -105,13 +110,29 @@ function createEnhancedPrompt(text, companyName) {
         "company-prompt"
     ]);
 
+    // Add preload indicator if map is ready
+    if (isPreloaded) {
+        const readyIcon = k.add([
+            k.text("⚡", {
+                size: 24,
+                font: "monospace"
+            }),
+            k.color(k.Color.fromHex("#ffff00")), // Bright yellow lightning bolt
+            k.anchor("center"),
+            k.pos(screenWidth / 2 - 200, 85),
+            k.fixed(),
+            k.z(152),
+            "company-prompt"
+        ]);
+    }
+
     // Main prompt text
     const promptText = k.add([
         k.text(text, {
-            size: 20,
+            size: isPreloaded ? 18 : 20, // Slightly smaller if preloaded to fit better
             font: "monospace",
             styles: {
-                fill: k.Color.fromHex("#ffffff"),
+                fill: isPreloaded ? k.Color.fromHex("#00ff00") : k.Color.fromHex("#ffffff"), // Green if preloaded
                 outline: { width: 2, color: k.Color.fromHex("#000000") }
             }
         }),
@@ -298,6 +319,20 @@ function isCompanyAvailable(companyName) {
     return companyMapsVisible[companyName.toLowerCase()] === true;
 }
 
+// Check if a company map is preloaded and ready for instant access
+function isCompanyMapPreloaded(companyMap) {
+    try {
+        // Check if global performance state is available
+        if (window.performanceState && window.performanceState.loadedMaps) {
+            return window.performanceState.loadedMaps.has(companyMap);
+        }
+        return false;
+    } catch (error) {
+        // Fallback: assume not preloaded if we can't check
+        return false;
+    }
+}
+
 // Check player proximity to company locations and coordinate with main interaction system
 export function checkFlagProximity(player) {
     if (!player || companyLocations.length === 0) {
@@ -326,13 +361,17 @@ export function checkFlagProximity(player) {
     if (bestDist < INTERACTION_RADIUS) {
         // Check if company is available
         const isAvailable = isCompanyAvailable(nearest.name);
+        const isPreloaded = isCompanyMapPreloaded(nearest.companyMap);
         
         // Show appropriate prompt if not already active
         if (!isCompanyPromptActive) {
             if (isAvailable) {
-                createEnhancedPrompt(`DRUECKE LEERTASTE UM ZU BESUCHEN`, nearest.name);
+                const promptText = isPreloaded ? 
+                    `DRUECKE LEERTASTE - SOFORT BEREIT!` : 
+                    `DRUECKE LEERTASTE UM ZU BESUCHEN`;
+                createEnhancedPrompt(promptText, nearest.name, isPreloaded);
             } else {
-                createEnhancedPrompt(`IN ARBEIT, SCHAU SPÄTER NOCH MAL VORBEI`, nearest.name);
+                createEnhancedPrompt(`IN ARBEIT, SCHAU SPÄTER NOCH MAL VORBEI`, nearest.name, false);
             }
         }
 
