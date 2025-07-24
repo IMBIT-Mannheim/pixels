@@ -792,33 +792,109 @@ export function loadMapTiles(mapSprite) {
 }
 
 // Create tile game objects in the scene
-export function createTileGameObjects() {
+export function createTileGameObjects(playerSpawnPos = null) {
     if (!tiledMapInfo.isActive) return [];
     
     // console.log("Creating tile game objects...");
     
     const tileObjects = [];
     
-    tiledMapInfo.tiles.forEach((tile) => {
-        if (tile.loaded && tile.spriteName) {
-            // Create game object for this tile
-            const tileObj = k.add([
-                k.sprite(tile.spriteName),
-                k.pos(tile.x * scaleFactor, tile.y * scaleFactor),
-                k.scale(scaleFactor),
-                k.z(0), // Background layer
-                "map-tile"
-            ]);
-            
-            // Apply pixel-perfect rendering
-            tileObj.smooth = false;
-            
-            tile.gameObject = tileObj;
-            tileObjects.push(tileObj);
-        }
-    });
+    // If we have a spawn position, prioritize tiles around that area first
+    let tilesToCreate = tiledMapInfo.tiles.slice(); // Copy array
     
-    // console.log(`Created ${tileObjects.length} tile game objects`);
+    if (playerSpawnPos) {
+        // Sort tiles by distance from spawn point - closest first
+        tilesToCreate.sort((a, b) => {
+            const distA = Math.sqrt(
+                Math.pow((a.x * scaleFactor) - playerSpawnPos.x, 2) + 
+                Math.pow((a.y * scaleFactor) - playerSpawnPos.y, 2)
+            );
+            const distB = Math.sqrt(
+                Math.pow((b.x * scaleFactor) - playerSpawnPos.x, 2) + 
+                Math.pow((b.y * scaleFactor) - playerSpawnPos.y, 2)
+            );
+            return distA - distB;
+        });
+        
+        // Create tiles in batches, prioritizing the immediate spawn area
+        const immediateAreaTiles = [];
+        const otherTiles = [];
+        const spawnAreaRadius = 800; // Pixels - immediate area around spawn
+        
+        tilesToCreate.forEach((tile) => {
+            const dist = Math.sqrt(
+                Math.pow((tile.x * scaleFactor) - playerSpawnPos.x, 2) + 
+                Math.pow((tile.y * scaleFactor) - playerSpawnPos.y, 2)
+            );
+            
+            if (dist <= spawnAreaRadius) {
+                immediateAreaTiles.push(tile);
+            } else {
+                otherTiles.push(tile);
+            }
+        });
+        
+        // Create immediate area tiles first (these must be loaded for seamless experience)
+        immediateAreaTiles.forEach((tile) => {
+            if (tile.loaded && tile.spriteName) {
+                const tileObj = k.add([
+                    k.sprite(tile.spriteName),
+                    k.pos(tile.x * scaleFactor, tile.y * scaleFactor),
+                    k.scale(scaleFactor),
+                    k.z(0), // Background layer
+                    "map-tile"
+                ]);
+                
+                // Apply pixel-perfect rendering
+                tileObj.smooth = false;
+                
+                tile.gameObject = tileObj;
+                tileObjects.push(tileObj);
+            }
+        });
+        
+        // Create other tiles (can be loaded progressively)
+        otherTiles.forEach((tile) => {
+            if (tile.loaded && tile.spriteName) {
+                const tileObj = k.add([
+                    k.sprite(tile.spriteName),
+                    k.pos(tile.x * scaleFactor, tile.y * scaleFactor),
+                    k.scale(scaleFactor),
+                    k.z(0), // Background layer
+                    "map-tile"
+                ]);
+                
+                // Apply pixel-perfect rendering
+                tileObj.smooth = false;
+                
+                tile.gameObject = tileObj;
+                tileObjects.push(tileObj);
+            }
+        });
+        
+        // console.log(`Created ${immediateAreaTiles.length} immediate area tiles and ${otherTiles.length} other tiles`);
+    } else {
+        // No spawn position - create all tiles normally
+        tilesToCreate.forEach((tile) => {
+            if (tile.loaded && tile.spriteName) {
+                const tileObj = k.add([
+                    k.sprite(tile.spriteName),
+                    k.pos(tile.x * scaleFactor, tile.y * scaleFactor),
+                    k.scale(scaleFactor),
+                    k.z(0), // Background layer
+                    "map-tile"
+                ]);
+                
+                // Apply pixel-perfect rendering
+                tileObj.smooth = false;
+                
+                tile.gameObject = tileObj;
+                tileObjects.push(tileObj);
+            }
+        });
+    }
+    
+    // console.log(`Created ${tileObjects.length} tile game objects total`);
     return tileObjects;
 }
 

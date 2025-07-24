@@ -614,6 +614,10 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		// Store default spawn positions
 		let defaultPlayerSpawnPos = null;
 		let defaultDogSpawnPos = null;
+		
+		// Initialize variables used throughout the scene
+		let lastSafePosition = null; // Will be set after player is created
+		let cameraCanFollow = false; // Camera following control for tiled maps
 
 		// Check if home key tooltip has been shown before
 		if (sessionState.tooltips && sessionState.tooltips.homeKeyShown) {
@@ -810,46 +814,30 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		// console.log("=== END TILED MAP DETECTION ===");
 		
 		let map;
+		let tiledLoadingPromise = null;
+		
 		if (tiledMapInfo) {
 			// console.log("✅ Using tiled map system for large map:", mapSprite);
 			
-			// Create a temporary map while tiles are loading
-			const tempMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor), "temp-map"]);
-			fixSpriteRendering(tempMap);
+			// Show loading screen immediately for tiled maps
+			createLoadingScreen();
+			updateLoadingProgress(0, 100, "Loading map tiles...");
 			
-			// Load tiles and create tile objects
-			loadMapTiles(mapSprite).then(() => {
-				// console.log("Tiles loaded, creating tile objects...");
-				createTileGameObjects();
-				
-				// Remove loading screen and temporary map after tiles are created
-				k.wait(0.1, () => {
-					removeLoadingScreen();
-					k.destroyAll("temp-map");
-					// console.log("✅ Loading complete - temporary map removed, tiles should be visible");
-					
-					// Additional check for dog visibility after tiled map loads
-					k.wait(0.2, () => {
-						const dogs = k.get("dog");
-						if (dogs.length > 0) {
-							const dog = dogs[0];
-							// console.log(`🐕 Post-tiled check - Dog at: ${dog.pos.x}, ${dog.pos.y}, Visible: ${dog.visible !== false}`);
-							// Ensure dog is visible and properly positioned
-							dog.visible = true;
-							dog.z = 15; // Higher z-index to ensure visibility over tiles
-						} else {
-							console.warn("🐕 No dog found after tiled map loading!");
-						}
-					});
-				});
+			// Don't show temporary map - user will see loading screen instead
+			// This prevents the purple background issue
+			
+			// Start loading tiles immediately and track progress
+			tiledLoadingPromise = loadMapTiles(mapSprite).then(() => {
+				// console.log("✅ Tiles loaded successfully for:", mapSprite);
+				updateLoadingProgress(100, 100, "Map loaded!");
+				return true;
 			}).catch((error) => {
-				console.error("❌ Failed to load tiles:", error);
-				// console.log("Keeping original map due to tile loading failure");
-				removeLoadingScreen(); // Make sure to remove loading screen on error
-				// Keep the temporary map if tile loading fails
+				console.error("❌ Failed to load tiles for:", mapSprite, error);
+				updateLoadingProgress(0, 100, "Loading failed - using fallback");
+				return false;
 			});
 			
-			// Create a dummy map object for compatibility
+			// Create a dummy map object for compatibility  
 			map = {
 				pos: k.vec2(0, 0),
 				add: (obj) => k.add(obj) // Fallback for any map.add() calls
@@ -895,47 +883,9 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		// Initialize map rendering fixes after player is created
 		initMapRendering(mapSprite, mapData);
 		
-		// Apply KSB-specific fixes if this is the KSB map
-		if (sceneName.includes('ksb') || mapSprite.includes('ksb')) {
-			// console.log("🎯 Detected KSB map, applying specific fixes...");
-			
-			// Check if we need to apply tiled rendering for KSB
-			if (!tiledMapInfo) {
-				// console.log("⚠️ KSB map detected but tiled system not active, forcing tiled rendering now...");
-				k.wait(0.5, () => {
-					// Force create tiled map for KSB
-					// console.log("🔧 Force creating tiled map for KSB...");
-					const ksbTiledInfo = createTiledMap(mapSprite, mapData);
-					if (ksbTiledInfo) {
-						// onsole.log("✅ Creating tiles for KSB fallback...");
-						loadMapTiles(mapSprite).then(() => {
-							// console.log("✅ KSB tiles loaded, creating tile objects...");
-							createTileGameObjects();
-							
-							// Remove loading screen and original map after tiles are created
-							k.wait(0.1, () => {
-								removeLoadingScreen();
-								const existingMaps = k.get("*").filter(obj => 
-									obj.sprite === mapSprite && !obj.is("map-tile")
-								);
-								existingMaps.forEach(mapObj => {
-									// console.log("🗑️ Removing original map object for KSB");
-									k.destroy(mapObj);
-								});
-								// console.log("✅ KSB fallback loading complete");
-							});
-						}).catch((error) => {
-							// console.error("❌ Failed to load KSB tiles:", error);
-							removeLoadingScreen(); // Remove loading screen on error
-						});
-					} else {
-						// console.error("❌ Failed to create KSB tiled map info");
-					}
-				});
-			} else {
-				// console.log("✅ KSB map already using tiled system");
-			}
-			
+		// Apply additional rendering fixes for company maps
+		if (sceneName.includes('ksb') || mapSprite.includes('ksb') || sceneName.includes('companies/')) {
+			// console.log("🎯 Detected company map, applying rendering fixes...");
 			k.wait(0.2, () => {
 				fixKSBMapRendering();
 			});
@@ -982,7 +932,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 				font: "monospace",
 				styles: {
 					fill: k.Color.WHITE,
-					outline: { width: 2, color: k.Color.BLACK }
+					outline: { width: 2, color: k.Color.BLACK } // Retro text outline
 				}
 			}),
 			k.pos(0, 0), // Initial position will be set in update function
@@ -1709,6 +1659,64 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 					k.add(dogNameTag);
 					console.log(`🐕 Dog positioned at map center (last resort): ${dog.pos.x}, ${dog.pos.y}`);
 				}
+				
+				// Complete tile loading now that player is positioned
+				if (tiledLoadingPromise) {
+					updateLoadingProgress(50, 100, "Positioning player...");
+					
+					tiledLoadingPromise.then((loadSuccess) => {
+						if (loadSuccess) {
+							updateLoadingProgress(75, 100, "Creating player area tiles...");
+							// console.log("Tiles loaded, creating tile objects with spawn prioritization...");
+							const playerSpawnPos = player.pos ? player.pos.clone() : null;
+							createTileGameObjects(playerSpawnPos);
+							
+							// Immediately position camera and enable following
+							cameraCanFollow = true;
+							k.camPos(player.worldPos().x, player.worldPos().y - 100);
+							
+							// Wait a brief moment for tiles to render, then remove loading screen
+							k.wait(0.2, () => {
+								updateLoadingProgress(100, 100, "Ready!");
+								k.wait(0.1, () => {
+									removeLoadingScreen();
+									// console.log("✅ Loading complete - player can see map immediately");
+								});
+								
+								// Additional check for dog visibility after tiled map loads
+								const dogs = k.get("dog");
+								if (dogs.length > 0) {
+									const dog = dogs[0];
+									// console.log(`🐕 Post-tiled check - Dog at: ${dog.pos.x}, ${dog.pos.y}, Visible: ${dog.visible !== false}`);
+									// Ensure dog is visible and properly positioned
+									dog.visible = true;
+									dog.z = 15; // Higher z-index to ensure visibility over tiles
+								} else {
+									console.warn("🐕 No dog found after tiled map loading!");
+								}
+							});
+						} else {
+							// Tile loading failed, show fallback map
+							console.warn("⚠️ Using fallback rendering due to tile loading failure");
+							// Create fallback map
+							const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+							fixSpriteRendering(fallbackMap);
+							
+							cameraCanFollow = true;
+							k.camPos(player.worldPos().x, player.worldPos().y - 100);
+							removeLoadingScreen();
+						}
+					}).catch((error) => {
+						console.error("❌ Critical error in tile loading:", error);
+						// Create fallback map and enable camera following
+						const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+						fixSpriteRendering(fallbackMap);
+						
+						cameraCanFollow = true;
+						k.camPos(player.worldPos().x, player.worldPos().y - 100);
+						removeLoadingScreen();
+					});
+				}
 			}
 		}
 
@@ -1740,6 +1748,49 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 				sceneDog.pos = k.vec2(player.pos.x + 100, player.pos.y + 50);
 				console.log(`🐕 Dog repositioned to: ${sceneDog.pos.x}, ${sceneDog.pos.y}`);
 			}
+		}
+		
+		// If no spawnpoints layer was found and we have tiled loading, we need to enable camera following
+		if (tiledLoadingPromise && !cameraCanFollow) {
+			updateLoadingProgress(60, 100, "Setting up map without spawn points...");
+			
+			tiledLoadingPromise.then((loadSuccess) => {
+				if (loadSuccess) {
+					updateLoadingProgress(80, 100, "Creating map tiles...");
+					// console.log("Enabling camera following for map without spawnpoints layer");
+					const playerPos = player.pos ? player.pos.clone() : null;
+					createTileGameObjects(playerPos);
+					
+					// Immediately enable camera following
+					cameraCanFollow = true;
+					k.camPos(player.worldPos().x, player.worldPos().y - 100);
+					
+					k.wait(0.2, () => {
+						updateLoadingProgress(100, 100, "Ready!");
+						k.wait(0.1, () => {
+							removeLoadingScreen();
+						});
+					});
+				} else {
+					console.warn("⚠️ Using fallback rendering for map without spawnpoints");
+					// Create fallback map
+					const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+					fixSpriteRendering(fallbackMap);
+					
+					cameraCanFollow = true;
+					k.camPos(player.worldPos().x, player.worldPos().y - 100);
+					removeLoadingScreen();
+				}
+			}).catch((error) => {
+				console.error("❌ Failed to load tiles in fallback:", error);
+				// Create fallback map
+				const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+				fixSpriteRendering(fallbackMap);
+				
+				cameraCanFollow = true;
+				k.camPos(player.worldPos().x, player.worldPos().y - 100);
+				removeLoadingScreen();
+			});
 		}
 
 		//Bewegung des Spielers mit der Maus
@@ -1802,7 +1853,7 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 		let walkingSound = false;
 
 		// Keep track of last non-colliding position for both keyboard and mouse movement
-		let lastSafePosition = player.pos.clone();
+		lastSafePosition = player.pos.clone(); // Initialize with player position
 
 		// Optimized player movement handler
 		k.onUpdate(() => {
@@ -1914,14 +1965,18 @@ function setupSceneInternal(sceneName, mapFile, mapSprite) {
 			dog.play("dog-idle-side");
 		}
 
-		//Visuals
+		//Visuals - with tiled map coordination
+		cameraCanFollow = !tiledLoadingPromise; // Only follow immediately if not using tiled maps
+		
 		k.onUpdate(() => {
-			k.camPos(player.worldPos().x, player.worldPos().y - 100);
-			
-			// Check for map preloading opportunities
-			// Only check every few frames to avoid performance impact
-			if (k.time() % 2 < 0.1) { // Check roughly every 2 seconds
-				checkMapPreloading(sceneName, player.worldPos());
+			if (cameraCanFollow) {
+				k.camPos(player.worldPos().x, player.worldPos().y - 100);
+				
+				// Check for map preloading opportunities
+				// Only check every few frames to avoid performance impact
+				if (k.time() % 2 < 0.1) { // Check roughly every 2 seconds
+					checkMapPreloading(sceneName, player.worldPos());
+				}
 			}
 		});
 
