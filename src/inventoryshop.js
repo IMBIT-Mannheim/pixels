@@ -2,39 +2,11 @@ import { k } from "./kaboomCtx.js";
 import { sessionState, saveGame, decreaseSecureScore } from "./sessionstate.js";
 import { refreshScoreUI } from "./utils.js";
 
-// Function to load all avatar sprites with animations
+// Function to load all avatar sprites with animations (now deprecated - handled by main.js)
 export function loadAvatarSprites() {
-    // Base animations configuration
-    const baseAnims = {
-        sliceX: 3,
-        sliceY: 3,
-        anims: {
-            "idle-down": 0,
-            "idle-up": 3,
-            "idle-side": 6,
-            "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-            "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-            "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-        }
-    };
-
-    // Load all avatar sprites
-    k.loadSprite("character-male-paid", "./sprites/avatars/character-male-paid.png", baseAnims);
-    k.loadSprite("character-male", "./sprites/avatars/male.png", baseAnims);
-    k.loadSprite("character-female", "./sprites/avatars/female.png", baseAnims);
-    k.loadSprite("character-male-dblonde", "./sprites/avatars/male_dblonde.png", baseAnims);
-    k.loadSprite("character-male-dbrown", "./sprites/avatars/male_dbrown.png", baseAnims);
-    k.loadSprite("character-male-mblonde", "./sprites/avatars/male_mblonde.png", baseAnims);
-    k.loadSprite("character-male-mbrown", "./sprites/avatars/male_mbrown.png", baseAnims);
-    k.loadSprite("character-male-wb", "./sprites/avatars/male_wb.png", baseAnims);
-    k.loadSprite("character-female-dblonde", "./sprites/avatars/female_dblonde.png", baseAnims);
-    k.loadSprite("character-female-dbrown", "./sprites/avatars/female_dbrown.png", baseAnims);
-    k.loadSprite("character-female-lblonde", "./sprites/avatars/female_lblonde.png", baseAnims);
-    k.loadSprite("character-female-mblonde", "./sprites/avatars/female_mblonde.png", baseAnims);
-    k.loadSprite("character-female-mbrown", "./sprites/avatars/female_mbrown.png", baseAnims);
-    k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
-    k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
-    // k.loadSprite("ghost", "./sprites/avatars/ghost_shop.png", baseAnims);
+    // This function is now deprecated as sprite loading is handled by the optimized
+    // startup system in main.js to prevent duplicate loading and improve performance
+    console.log("⚠️ loadAvatarSprites() called but sprites are now loaded by optimized startup system");
 }
 
 // Shop items configuration

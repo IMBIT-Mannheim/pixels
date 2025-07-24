@@ -669,14 +669,16 @@ export function createTiledMap(mapSprite, mapData = null) {
 }
 
 // Load and create tile sprites using canvas manipulation
-export function loadMapTiles(mapSprite) {
+export function loadMapTiles(mapSprite, silent = false) {
     if (!tiledMapInfo.isActive) return Promise.resolve();
     
-    // console.log("Loading map tiles for:", mapSprite);
+    // console.log("Loading map tiles for:", mapSprite, silent ? "(silent mode)" : "");
     
-    // Create loading screen
-    createLoadingScreen();
-    updateLoadingProgress(0, tiledMapInfo.tiles.length + 1, "PREPARING MAP IMAGE...");
+    // Only create loading screen if not in silent mode
+    if (!silent) {
+        createLoadingScreen();
+        updateLoadingProgress(0, tiledMapInfo.tiles.length + 1, "PREPARING MAP IMAGE...");
+    }
     
     return new Promise((resolve, reject) => {
         // Create an image element to load the full map
@@ -687,7 +689,10 @@ export function loadMapTiles(mapSprite) {
             // console.log("Full map image loaded, creating tiles...");
             // console.log("Image dimensions:", fullMapImage.width, "x", fullMapImage.height);
             
-            updateLoadingProgress(1, tiledMapInfo.tiles.length + 1, "CREATING MAP TILES...");
+            // Only update progress if not in silent mode
+            if (!silent) {
+                updateLoadingProgress(1, tiledMapInfo.tiles.length + 1, "CREATING MAP TILES...");
+            }
             
             try {
                 // Create a canvas to extract tiles
@@ -714,20 +719,24 @@ export function loadMapTiles(mapSprite) {
                 const processTile = (index) => {
                     if (index >= totalTiles) {
                         // console.log("All tiles loaded successfully");
-                        updateLoadingProgress(totalTiles + 1, totalTiles + 1, "TILES READY!");
+                        if (!silent) {
+                            updateLoadingProgress(totalTiles + 1, totalTiles + 1, "TILES READY!");
+                        }
                         
-                        // Small delay before resolving to show completion
+                        // Small delay before resolving to show completion (shorter for silent mode)
                         setTimeout(() => {
                             resolve();
-                        }, 200);
+                        }, silent ? 50 : 200);
                         return;
                     }
                     
                     const tile = tiledMapInfo.tiles[index];
                     
                     try {
-                        // Update progress
-                        updateLoadingProgress(index + 1, totalTiles + 1, `PROCESSING TILE ${index + 1}/${totalTiles}...`);
+                        // Update progress only if not silent
+                        if (!silent) {
+                            updateLoadingProgress(index + 1, totalTiles + 1, `PROCESSING TILE ${index + 1}/${totalTiles}...`);
+                        }
                         
                         // Set canvas size to actual tile size
                         canvas.width = tile.width;
@@ -758,12 +767,14 @@ export function loadMapTiles(mapSprite) {
                         
                         // console.log(`Loaded tile ${index + 1}/${totalTiles}: ${tile.width}x${tile.height} at (${tile.x}, ${tile.y})`);
                         
-                        // Process next tile with a small delay for smooth animation
-                        setTimeout(() => processTile(index + 1), 50);
+                        // Process next tile with a small delay (faster for silent mode)
+                        setTimeout(() => processTile(index + 1), silent ? 10 : 50);
                         
                     } catch (error) {
                         console.error(`Error loading tile ${index}:`, error);
-                        removeLoadingScreen();
+                        if (!silent) {
+                            removeLoadingScreen();
+                        }
                         reject(error);
                     }
                 };
@@ -773,7 +784,9 @@ export function loadMapTiles(mapSprite) {
                 
             } catch (error) {
                 console.error("Error in tile creation process:", error);
-                removeLoadingScreen();
+                if (!silent) {
+                    removeLoadingScreen();
+                }
                 reject(error);
             }
         };
@@ -781,7 +794,9 @@ export function loadMapTiles(mapSprite) {
         fullMapImage.onerror = (error) => {
             console.error("Failed to load full map image:", error);
             console.error("Image src:", fullMapImage.src);
-            removeLoadingScreen();
+            if (!silent) {
+                removeLoadingScreen();
+            }
             reject(new Error("Failed to load map image"));
         };
         

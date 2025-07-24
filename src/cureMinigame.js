@@ -30,15 +30,9 @@ const STRIPE_HEIGHT = 80; // Höhe der Straßenmarkierungen
 const STRIPE_GAP = 120; // Abstand zwischen Straßenmarkierungen
 
 export function loadCureSprites() {
-    k.loadSprite("car", "./sprites/minigames/car.png", {
-        sliceX: 1,
-        sliceY: 1,
-    });
-
-    k.loadSprite("roadblock", "./sprites/minigames/roadblock.png");
-    k.loadSprite("rock", "./sprites/minigames/rock.png");
-    k.loadSprite("tree", "./sprites/minigames/tree.png");
-    k.loadSprite("bush", "./sprites/minigames/bush.png");
+    // Cure sprites are now loaded by the optimized startup system in main.js
+    // This function is kept for compatibility but actual loading happens in background
+    console.log("⚠️ loadCureSprites() called but sprites are now loaded by optimized startup system");
 }
 
 export function defineCureScene() {

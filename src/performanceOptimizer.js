@@ -34,6 +34,9 @@ const performanceState = {
     frameStartTime: 0,
 };
 
+// Expose performance state globally for other modules
+window.performanceState = performanceState;
+
 // Initialize performance-optimized map loading
 export function initializePerformanceOptimizedMaps() {
     // console.log("🚀 Initializing performance-optimized map system...");
@@ -138,6 +141,128 @@ function loadMapAssets(mapName, highPriority = false) {
         
     } catch (error) {
         console.warn(`Failed to load assets for ${mapName}:`, error);
+    }
+}
+
+// Async version of loadMapAssets for better control
+async function loadMapAssetsAsync(mapName, highPriority = false) {
+    return new Promise((resolve, reject) => {
+        try {
+            console.log(`📦 Loading assets for ${mapName} (priority: ${highPriority ? 'high' : 'low'})`);
+            
+            // Load map sprite
+            if (mapName.includes('ksb') || mapName.includes('companies/')) {
+                loadLargeMapSprite(mapName);
+            } else {
+                k.loadSprite(mapName, `./maps/${mapName}.png`);
+            }
+            
+            // Load foreground objects (if they exist)
+            loadForegroundObjects(mapName);
+            
+            // Load map-specific music
+            loadMapMusic(mapName);
+            
+            // Always setup scene immediately - no more deferring
+            // This ensures scenes are available when player tries to enter them
+            setupSceneForMap(mapName);
+            
+            // Wait a brief moment for assets to load
+            setTimeout(() => {
+                console.log(`✅ Assets loaded for ${mapName}`);
+                resolve();
+            }, 100);
+            
+        } catch (error) {
+            console.warn(`Failed to load assets for ${mapName}:`, error);
+            reject(error);
+        }
+    });
+}
+
+// Preload map tiles for large maps (without showing loading screen)
+async function preloadMapTiles(mapName) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log(`🧩 Starting silent tile preload for ${mapName}`);
+            
+            // Import the tile loading function
+            const { createTiledMap, loadMapTiles } = await import('./mapRenderingFix.js');
+            
+            // Create tiled map info
+            const tiledMapInfo = createTiledMap(mapName, null);
+            if (!tiledMapInfo) {
+                console.log(`📋 Map ${mapName} doesn't need tiling, skipping tile preload`);
+                resolve();
+                return;
+            }
+            
+            console.log(`🔧 Created tiled map info for ${mapName}, loading tiles silently...`);
+            
+            // Load tiles without showing loading screen (silent mode)
+            await loadMapTiles(mapName, true);
+            
+            console.log(`✅ Tiles preloaded successfully for ${mapName}`);
+            resolve();
+            
+        } catch (error) {
+            console.warn(`⚠️ Failed to preload tiles for ${mapName}:`, error);
+            resolve(); // Don't reject, just continue without tiles
+        }
+    });
+}
+
+// Show subtle notification that a company map is ready
+function showMapReadyNotification(mapName) {
+    try {
+        // Only show notification for company maps
+        if (!mapName.includes('companies/')) return;
+        
+        const friendlyName = mapName.replace('companies/', '').toUpperCase();
+        console.log(`🎯 ${friendlyName} company map is now ready for instant access`);
+        
+        // Add a subtle visual indicator (small, non-intrusive)
+        const notification = k.add([
+            k.rect(200, 30, { radius: 15 }),
+            k.color(0, 100, 0, 0.8), // Semi-transparent green
+            k.pos(k.width() - 220, 20), // Top right corner
+            k.fixed(),
+            k.z(150),
+            k.opacity(0),
+            "preload-notification"
+        ]);
+        
+        const notificationText = k.add([
+            k.text(`${friendlyName} Ready`, {
+                size: 14,
+                font: "monospace"
+            }),
+            k.color(255, 255, 255),
+            k.pos(k.width() - 120, 35),
+            k.anchor("center"),
+            k.fixed(),
+            k.z(151),
+            k.opacity(0),
+            "preload-notification"
+        ]);
+        
+        // Fade in and out animation
+        k.tween(notification.opacity, 1, 0.5, (val) => notification.opacity = val);
+        k.tween(notificationText.opacity, 1, 0.5, (val) => notificationText.opacity = val);
+        
+        // Remove after 3 seconds
+        k.wait(3, () => {
+            k.tween(notification.opacity, 0, 0.5, (val) => notification.opacity = val);
+            k.tween(notificationText.opacity, 0, 0.5, (val) => notificationText.opacity = val);
+            
+            k.wait(0.5, () => {
+                k.destroy(notification);
+                k.destroy(notificationText);
+            });
+        });
+        
+    } catch (error) {
+        console.warn("Failed to show map ready notification:", error);
     }
 }
 
@@ -304,7 +429,7 @@ function cullDecorations(playerPos) {
     }
 }
 
-// Check if a map should be preloaded based on player proximity
+// Enhanced preloading system with company map prioritization
 export function checkMapPreloading(currentMapName, playerPos) {
     // Skip if background loading is still active
     if (performanceState.isBackgroundLoading) {
@@ -322,6 +447,18 @@ export function checkMapPreloading(currentMapName, playerPos) {
     };
     
     const adjacentMaps = mapAdjacency[currentMapName] || [];
+    
+    // Special handling for unternehmensausstellung - prioritize KSB preloading
+    if (currentMapName === 'unternehmensausstellung') {
+        // Immediately start preloading KSB map if not already loaded
+        if (!performanceState.loadedMaps.has('companies/ksb') && 
+            !performanceState.loadingMaps.has('companies/ksb')) {
+            
+            console.log(`🎯 Priority preloading KSB map for company exhibition`);
+            preloadCompanyMap('companies/ksb');
+            return; // Exit early to focus on KSB preloading
+        }
+    }
     
     // Check if player is near map boundaries (simplified approach)
     // In a real implementation, you'd check actual map boundaries
@@ -372,6 +509,55 @@ export function logPerformanceStats() {
     console.log(`Queue length: ${stats.queueLength}`);
     console.log(`Viewport objects:`, stats.viewportObjects);
     console.groupEnd();
+}
+
+// Enhanced company map preloading with tile prioritization
+export function preloadCompanyMap(mapName) {
+    if (performanceState.loadedMaps.has(mapName)) {
+        console.log(`✅ Company map ${mapName} already loaded`);
+        return Promise.resolve();
+    }
+    
+    if (performanceState.loadingMaps.has(mapName)) {
+        console.log(`🔄 Company map ${mapName} already loading`);
+        return Promise.resolve();
+    }
+    
+    console.log(`🎯 Starting enhanced preload for company map: ${mapName}`);
+    
+    // Add to loading set
+    performanceState.loadingMaps.add(mapName);
+    
+    // Create a promise for the preloading process
+    const preloadPromise = new Promise(async (resolve) => {
+        try {
+            // Load basic map assets first
+            await loadMapAssetsAsync(mapName, true); // High priority for company maps
+            
+            // For company maps, also preload tiles if it's a large map
+            if (mapName.includes('ksb') || mapName.includes('companies/')) {
+                console.log(`🔧 Preloading tiles for large company map: ${mapName}`);
+                await preloadMapTiles(mapName);
+            }
+            
+            // Mark as loaded
+            performanceState.loadedMaps.add(mapName);
+            performanceState.loadingMaps.delete(mapName);
+            
+            // Show subtle notification that map is ready
+            showMapReadyNotification(mapName);
+            
+            console.log(`✅ Company map ${mapName} fully preloaded and ready`);
+            resolve();
+            
+        } catch (error) {
+            console.warn(`⚠️ Failed to preload company map ${mapName}:`, error);
+            performanceState.loadingMaps.delete(mapName);
+            resolve(); // Still resolve to prevent blocking
+        }
+    });
+    
+    return preloadPromise;
 }
 
 // Force load a specific map (for immediate access)
