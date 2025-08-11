@@ -1,91 +1,310 @@
-import { dialogueData, maps, music, scaleFactor, mapMusic } from "./constants";
+import { dialogueData, maps, music, scaleFactor, mapMusic, getAvailableMaps, getAllMaps, regularMaps, companyMaps, allMaps } from "./constants";
 import { k } from "./kaboomCtx";
 import { dialogue, setCamScale, refreshScoreUI, getCookie, setCookie } from "./utils";
 import {defineCureScene, loadCureSprites} from "./cureMinigame.js";
-import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId } from "./sessionstate.js";
+import { sessionState, setSessionState, getSessionState, saveGame, loadGame, ensureSessionId, initializeSecureScoring } from "./sessionstate.js";
+import { attachInventoryShopListeners, loadAvatarSprites } from "./inventoryshop.js";
+import { initCompanyFlags, checkFlagProximity, cleanupFlags, getCompanyInteractionStatus } from './companyFlagInteraction';
+import { initMapRendering, fixSpriteRendering, resetCameraToSafePosition, handleWindowResize, cleanupMapRendering, emergencyRenderingFix, fixKSBMapRendering, reloadMapSprite, createTiledMap, loadMapTiles, createTileGameObjects, cleanupTiledMap, createLoadingScreen, updateLoadingProgress, removeLoadingScreen, shouldUseTiledRendering } from "./mapRenderingFix";
+import { initGotoAreaDisplay, updateGotoAreaDisplay, cleanupGotoLabels, getGotoAreaInfo, debugShowAllGotoLabels, debugHideAllGotoLabels } from "./gotoAreaDisplay";
+import { dialogueData as ksbDialogueData } from "./dialogues/ksb.js";
+import { initializePerformanceOptimizedMaps, forceLoadMap, logPerformanceStats, cleanupMapResources, startBackgroundLoading, checkMapPreloading, setCurrentMap } from "./performanceOptimizer.js";
+
+// Properly initialize session state
+console.log("Initializing session state...");
+ensureSessionId(); // Make sure we have a session ID first
+console.log("Session ID:", sessionState.sessionId);
+loadGame(); // Then load saved data
+
+// Initialize secure scoring system
+initializeSecureScoring().then(async () => {
+    console.log("🔒 Secure scoring system ready");
+    await refreshScoreUI();
+}).catch(async error => {
+    console.error("Failed to initialize secure scoring:", error);
+    await refreshScoreUI();
+});
 
 const spawnpoints_world_map = document.getElementById("spawnpoints");
 const world_map = document.getElementById("world-map");
 const showWorldMapBtn = document.getElementById("show-world-map");
-let character = "character-male";
+const interactButton = document.getElementById("interact-button");
+const inventory_shop = document.getElementById("inventory-shop");
+const showInventoryBtn = document.getElementById("show-inventory");
+
+let character = "male";
 let spawnpoint = "campus";
+let characterName;
 let dogName;
-let sound_effects_volume = "0.5";
+let sound_effects_volume = 0.5;
 
-loadCureSprites();
-defineCureScene();
+// Dog intro variables
+let dogIntroActive = false;
+let dogIntroStopDistance = 50;
+let dogIntroSpeed = 200;
+let dogFollowSpeed = 150;
+let dogHasReachedPlayer = false;
 
-k.loadSprite("character-male", "./sprites/character-male.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
+// Tooltip variables
+let gameplayTimer = 0;
+let homeKeyTooltipTime = 0;
+let homeKeyTooltipShown = false;
+let debugTooltip = false; // For debugging
 
-k.loadSprite("character-female", "./sprites/character-female.png", {
-	sliceX: 3,
-	sliceY: 3,
-	anims: {
-		"idle-down": 0,
-		"idle-up": 3,
-		"idle-side": 6,
-		"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
-		"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
-		"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
-	},
-});
+// Konami code sequence
+const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
+let konamiIndex = 0;
+const konamiDebug = false; // Set to true for debugging
+let konamiListenerAdded = false; // Flag to prevent multiple listeners
 
-k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
-	sliceX: 4,
-	sliceY: 3,
-	anims: {
-		"dog-idle-side": 0,
-		"dog-idle-up": 4,
-		"dog-idle-down": 8,
-		"dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
-		"dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
-		"dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
-	},
-});
+// Optimized startup loading system
+let startupProgress = {
+    critical: 0,
+    background: 0,
+    isReady: false
+};
 
-for (let i = 0; i < maps.length; i++) {
-	const map = maps[i];
-	let button = document.createElement('button');
-	button.className = "button";
-	button.innerHTML = map.toUpperCase();
-	button.addEventListener("click", () => {
-		world_map.style.display = "none";
-		showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-		k.go(map);
-		game.focus();
-	});
-	spawnpoints_world_map.appendChild(button);
-	k.loadSprite(map, `./maps/${map}.png`)
+// Track background loading progress globally
+window.startupProgress = startupProgress;
 
-	// Load map-specific music
-	const mapSpecificMusic = mapMusic[map] || music[Math.floor(Math.random() * music.length)];
-	const musicFilePath = `./sounds/music/${encodeURIComponent(mapSpecificMusic)}.mp3`;
-	k.loadSound(`bgm_${map}`, musicFilePath);
-	setupScene(map, `./maps/${map}.json`, map);
+// Load only critical assets immediately for fast startup
+function loadCriticalAssets() {
+    console.log("🚀 Loading critical assets for immediate startup...");
+    
+    try {
+        // Load default character sprite only
+        k.loadSprite("male", "./sprites/avatars/male.png", {
+            sliceX: 3,
+            sliceY: 3,
+            anims: {
+                "idle-down": 0,
+                "idle-up": 3,
+                "idle-side": 6,
+                "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+                "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+                "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+            },
+        });
+        
+        // Load dog sprite
+        k.loadSprite("dog-spritesheet", "./sprites/dog-spritesheet.png", {
+            sliceX: 4,
+            sliceY: 3,
+            anims: {
+                "dog-idle-side": 0,
+                "dog-idle-up": 4,
+                "dog-idle-down": 8,
+                "dog-walk-side": { from: 0, to: 3, loop: true, speed: 8 },
+                "dog-walk-up": { from: 4, to: 7, loop: true, speed: 8 },
+                "dog-walk-down": { from: 8, to: 11, loop: true, speed: 8 },
+            },
+        });
+        
+        // Load essential sounds only
+        k.loadSound("talk", "./sounds/effects/talk.mp3");
+        k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
+        
+        console.log("✅ Critical assets loaded - UI ready for interaction");
+        startupProgress.critical = 100;
+        startupProgress.isReady = true;
+        
+    } catch (error) {
+        console.error("❌ Error loading critical assets:", error);
+        // Still mark as ready to prevent blocking the UI
+        startupProgress.critical = 100;
+        startupProgress.isReady = true;
+    }
 }
 
-const random_song = music[Math.floor(Math.random() * music.length)];
-k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
-k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
+// Create wrapper for setupScene that will be available immediately
+window.setupScene = function(sceneName, mapFile, mapSprite) {
+    if (typeof setupSceneInternal === 'function') {
+        return setupSceneInternal(sceneName, mapFile, mapSprite);
+    } else {
+        console.warn(`setupScene called for ${sceneName} but function not yet available - will retry from performance optimizer`);
+    }
+};
 
-//läd die Sounds im Hintergrund
-k.loadSound("boundary", "./sounds/effects/sfx_spike_impact.mp3");
-k.loadSound("talk", "./sounds/effects/talk.mp3");
-k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
+// Load critical assets immediately
+loadCriticalAssets();
+
+// Define cure scene early
+defineCureScene();
+
+// Load non-critical assets in background  
+function loadBackgroundAssets() {
+    console.log("🔄 Starting background asset loading...");
+    
+    return new Promise(async (resolve) => {
+        try {
+            // Load cure minigame sprites
+            await loadCureSpritesBatch();
+            startupProgress.background = 20;
+            
+            // Load all character sprites except the default one
+            await loadCharacterSpritesBatch();
+            startupProgress.background = 40;
+            
+            // Load remaining sounds
+            await loadSoundsBatch();
+            startupProgress.background = 60;
+            
+            // Initialize performance optimizer with essential maps
+            await initializeEssentialMaps();
+            startupProgress.background = 80;
+            
+            // Initialize maps UI
+            initializeMaps();
+            startupProgress.background = 100;
+            
+            console.log("✅ All background assets loaded");
+            resolve();
+            
+        } catch (error) {
+            console.warn("⚠️ Some background assets failed to load:", error);
+            resolve(); // Continue anyway
+        }
+    });
+}
+
+// Load cure sprites asynchronously
+function loadCureSpritesBatch() {
+    return new Promise((resolve) => {
+        k.loadSprite("car", "./sprites/minigames/car.png", {
+            sliceX: 1,
+            sliceY: 1,
+        });
+        k.loadSprite("roadblock", "./sprites/minigames/roadblock.png");
+        k.loadSprite("rock", "./sprites/minigames/rock.png");
+        k.loadSprite("tree", "./sprites/minigames/tree.png");
+        k.loadSprite("bush", "./sprites/minigames/bush.png");
+        
+        setTimeout(resolve, 50); // Small delay for async loading
+    });
+}
+
+// Load character sprites asynchronously
+function loadCharacterSpritesBatch() {
+    return new Promise((resolve) => {
+        const baseAnims = {
+            sliceX: 3,
+            sliceY: 3,
+            anims: {
+                "idle-down": 0,
+                "idle-up": 3,
+                "idle-side": 6,
+                "walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+                "walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+                "walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+            }
+        };
+        
+        // Load all character sprites except male (already loaded)
+        const characterSprites = [
+            "female", "male_wb", "male_mbrown", "male_dbrown", "male_dblonde", 
+            "male_mblonde", "female_dbrown", "female_mbrown", "female_lblonde", 
+            "female_dblonde", "female_mblonde"
+        ];
+        
+        characterSprites.forEach(character => {
+            k.loadSprite(character, `./sprites/avatars/${character}.png`, baseAnims);
+        });
+        
+        // Load shop character sprites
+        k.loadSprite("character-male-paid", "./sprites/avatars/character-male-paid.png", baseAnims);
+        k.loadSprite("steel-boy-shop", "./sprites/avatars/steel_boy_shop.png", baseAnims);
+        k.loadSprite("steel-girl-shop", "./sprites/avatars/steel_girl_shop.png", baseAnims);
+        
+        setTimeout(resolve, 100); // Allow sprites to load
+    });
+}
+
+// Load remaining sounds asynchronously
+function loadSoundsBatch() {
+    return new Promise((resolve) => {
+        // Load remaining sound effects
+        k.loadSound("footstep", "./sounds/effects/sfx_player_footsteps.mp3");
+        k.loadSound("retro-sound", "./sounds/effects/575510__awildfilli__poke.wav");
+        
+        // Load background music
+        const random_song = music[Math.floor(Math.random() * music.length)];
+        k.loadSound("bgm", `./sounds/music/${random_song}.mp3`);
+        k.loadSound(`bgm_cureMinigame`, "./sounds/music/CureMinigame.mp3");
+        
+        setTimeout(resolve, 100); // Allow sounds to load
+    });
+}
+
+// Initialize essential maps only
+function initializeEssentialMaps() {
+    return new Promise((resolve) => {
+        // Only load campus map initially, others will be loaded by performance optimizer
+        k.loadSprite("campus", "./maps/campus.png");
+        initializePerformanceOptimizedMaps();
+        setTimeout(resolve, 50);
+    });
+}
+
+// Initialize maps with performance optimization (now called from background loading)
+function initializeMaps() {
+    console.log("🚀 Starting performance-optimized map initialization...");
+    
+    // Clear existing map buttons
+    spawnpoints_world_map.innerHTML = '';
+    
+    // Create buttons for available maps (UI only - maps load in background)
+    const availableMaps = getAvailableMaps();
+    for (const map of availableMaps) {
+        let button = document.createElement('button');
+        button.className = "button";
+        button.innerHTML = map.split('/').pop().toUpperCase();
+        button.addEventListener("click", async () => {
+            // Force load the map if not already loaded
+            await forceLoadMap(map);
+            
+            world_map.style.display = "none";
+            showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+            k.go(map);
+            game.focus();
+        });
+        spawnpoints_world_map.appendChild(button);
+    }
+    
+    console.log("✅ Map initialization completed - campus loaded, others loading in background");
+}
+
+// Start background loading after critical assets are ready
+setTimeout(() => {
+    if (startupProgress.isReady) {
+        loadBackgroundAssets();
+    }
+}, 100);
 
 //setzt die Hintergrundfarbe
 k.setBackground(k.Color.fromHex("#311047"));
+
+// Global function to update all music volumes
+function updateMusicVolume(volume) {
+	// Ensure volume is exactly 0 when very low
+	if (volume <= 0.01) {
+		volume = 0;
+		// Stop the music completely when volume is 0
+		if (window.currentBgm) {
+			window.currentBgm.stop();
+			window.currentBgm = null;
+		}
+	} else if (window.currentBgm) {
+		// Only update volume if music is playing and volume > 0
+		window.currentBgm.volume(volume);
+	}
+
+	// Update session state
+	sessionState.settings.musicVolume = volume;
+	saveGame();
+
+	console.log("Music volume updated to:", volume);
+	return volume;
+}
 
 //LVL 0: SCENE LOADING
 k.scene("loading", () => {
@@ -94,71 +313,259 @@ k.scene("loading", () => {
 	const start_game = document.getElementById("start");
 	const music_volume_slider = document.getElementById("music-volume");
 	const sounds_volume = document.getElementById("sounds-volume");
-	const male_button = document.getElementById("male-button");
-	const female_button = document.getElementById("female-button");
 	const game = document.getElementById("game");
+	const character_name_input = document.getElementById("character-name");
 	const dog_name_input = document.getElementById("dog-name");
 
-	// Load previous session state if available
-	ensureSessionId();
-	loadGame();
-	refreshScoreUI();
-	const lastMusicVolume = sessionState.settings.musicVolume;
-	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume;
-	const lastDogName = sessionState.settings.dogName;
+	//Carousel
+	const characters = document.querySelectorAll(".character");
+	const prevButton = document.getElementById("prev-character");
+	const nextButton = document.getElementById("next-character");
+	// Array, das die Reihenfolge der Charaktere definiert
+	const characterOrder = [
+    "male",
+    "female",
+    "male_wb",
+    "male_mbrown",
+    "male_dbrown",
+    "male_dblonde",
+    "male_mblonde",
+    "female_dbrown",
+    "female_mbrown",
+    "female_lblonde",
+    "female_dblonde",
+    "female_mblonde"
+];
 
-	music_volume_slider.value = lastMusicVolume ? lastMusicVolume * 10 : 50;
-	sounds_volume.value = lastSoundEffectsVolume ? lastSoundEffectsVolume * 10 : 50;
-	// select_spawnpoint.value = lastSpawnpoint ? lastSpawnpoint : maps[0];
-	dog_name_input.value = lastDogName ? lastDogName : "Bello";
+	function createIndicators() {
+    const indicatorsContainer = document.getElementById("character-indicators");
+    indicatorsContainer.innerHTML = ""; // Vorherige Punkte entfernen
 
-	male_button.addEventListener("click", () => {
-		character = "character-male";
-		female_button.classList.remove("selected");
-		male_button.classList.add("selected");
-		game.focus();
+    characterOrder.forEach((_, index) => {
+        const indicator = document.createElement("div");
+        indicator.classList.add("indicator");
+        if (index === currentIndex) {
+            indicator.classList.add("active"); // Aktiven Punkt hervorheben
+        }
+        indicatorsContainer.appendChild(indicator);
+    });
+}
+
+	// Funktion zum Aktualisieren der Punkte
+	function updateIndicators() {
+		const indicators = document.querySelectorAll(".indicator");
+		indicators.forEach((indicator, index) => {
+			if (index === currentIndex) {
+				indicator.classList.add("active");
+			} else {
+				indicator.classList.remove("active");
+			}
+		});
+	}
+
+	let currentIndex = characterOrder.indexOf("male"); // Standardmäßig wird der männliche Charakter angezeigt
+	// Funktion zum Aktualisieren der Anzeige
+	function updateCarousel() {
+		characters.forEach((characterElement) => {
+			if (characterElement.id === characterOrder[currentIndex]) {
+				characterElement.classList.add("active");
+				character = characterOrder[currentIndex]; // Aktualisiere die Variable `character`
+				console.log(`Set active character: ${character}`); // Debugging-Ausgabe
+			} else {
+				characterElement.classList.remove("active");
+			}
+		});
+
+		// Zeige den vorherigen Charakter
+		const previousIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+		const previousCharacter = characterOrder[previousIndex];
+		const previousCharacterElement = document.getElementById(previousCharacter);
+		const previousPlaceholder = document.getElementById("previous-character");
+		if (previousCharacterElement) {
+			previousPlaceholder.innerHTML = previousCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		// Zeige den nächsten Charakter
+		const nextIndex = (currentIndex + 1) % characterOrder.length;
+		const nextChar = characterOrder[nextIndex];
+		const nextCharacterElement = document.getElementById(nextChar);
+		const nextPlaceholder = document.getElementById("next-char");
+		if (nextCharacterElement) {
+			nextPlaceholder.innerHTML = nextCharacterElement.innerHTML; // Kopiere den Inhalt
+		}
+
+		updateIndicators(); // Punkte aktualisieren
+	}
+
+	// Event-Listener für den "Vorheriger"-Button
+	prevButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex - 1 + characterOrder.length) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
 	});
 
-	female_button.addEventListener("click", () => {
-		character = "character-female";
-		male_button.classList.remove("selected");
-		female_button.classList.add("selected");
-		game.focus();
+	// Event-Listener für den "Nächster"-Button
+	nextButton.addEventListener("click", () => {
+    	currentIndex = (currentIndex + 1) % characterOrder.length;
+    	updateCarousel();
+		setActiveCharacter(character);
 	});
 
-	
+	// Initiale Anzeige aktualisieren (male-button wird standardmäßig aktiv gesetzt)
+	createIndicators();
+	updateCarousel();
+
+	function setActiveCharacter(selectedCharacter) {
+		character = selectedCharacter; // Aktualisiere die globale Variable `character`
+		// Save the selected character to session state
+		sessionState.settings.character = character;
+		saveGame();
+
+		// Load character sprite on-demand if not already loaded
+		// Most sprites should be loaded by background loading by now
+		const ensureCharacterSprite = (characterName) => {
+			try {
+				// Try to use existing sprite first
+				k.sprite(characterName);
+				return true; // Sprite exists
+			} catch (error) {
+				// Sprite not loaded yet, load it now
+				console.log(`📦 Loading character sprite on-demand: ${characterName}`);
+				try {
+					k.loadSprite(characterName, "./sprites/avatars/"+ characterName + ".png", {
+						sliceX: 3,
+						sliceY: 3,
+						anims: {
+							"idle-down": 0,
+							"idle-up": 3,
+							"idle-side": 6,
+							"walk-down": { from: 0, to: 2, loop: true, speed: 8 },
+							"walk-up": { from: 3, to: 5, loop: true, speed: 8 },
+							"walk-side": { from: 6, to: 8, loop: true, speed: 8 },
+						},
+					});
+					return true; // Successfully loaded
+				} catch (loadError) {
+					console.error(`❌ Failed to load character sprite: ${characterName}`, loadError);
+					return false; // Failed to load
+				}
+			}
+		};
+		
+		// Ensure the selected character sprite is available
+		ensureCharacterSprite(character);
+	}
+
+
+
+
+	// Use sessionState for settings, with cookies as fallback
+	const lastMusicVolume = sessionState.settings.musicVolume || getCookie("music_volume") || 0.5;
+	const lastSoundEffectsVolume = sessionState.settings.soundEffectsVolume || getCookie("sound_effects_volume") || 0.5;
+	const lastCharacterName = sessionState.settings.characterName || getCookie("characterName") || "New Student";
+	const lastDogName = sessionState.settings.dogName || getCookie("dog_name") || "Bello";
+	const lastCharacter = sessionState.settings.character || "male"; // Default to "male" character
+
+	music_volume_slider.value = lastMusicVolume * 100;
+	sounds_volume.value = lastSoundEffectsVolume * 100;
+	character_name_input.value = lastCharacterName;
+	dog_name_input.value = lastDogName;
+	character = lastCharacter; // Set the character based on session state
+
+	// Update carousel to reflect the last selected character
+	currentIndex = characterOrder.indexOf(character);
+	if (currentIndex === -1) currentIndex = 0; // Fallback to the first character if not found
+	updateCarousel();
+
+	// Add loading progress indicator
+	const loadingIndicator = document.createElement('div');
+	loadingIndicator.id = 'startup-loading-indicator';
+	loadingIndicator.style.cssText = `
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background: rgba(0, 0, 0, 0.8);
+		color: white;
+		padding: 10px 15px;
+		border-radius: 8px;
+		font-family: monospace;
+		font-size: 12px;
+		z-index: 10000;
+		border: 2px solid #8a2be2;
+		opacity: 0.9;
+	`;
+	document.body.appendChild(loadingIndicator);
+
+	// Update loading progress
+	function updateLoadingProgress() {
+		if (startupProgress.background >= 100) {
+			loadingIndicator.style.display = 'none';
+			return;
+		}
+		
+		const bgProgress = Math.round(startupProgress.background);
+		loadingIndicator.innerHTML = `
+			⚡ Loading Assets: ${bgProgress}%<br>
+			<div style="width: 150px; height: 4px; background: #333; border-radius: 2px; margin-top: 4px;">
+				<div style="width: ${bgProgress}%; height: 100%; background: #8a2be2; border-radius: 2px; transition: width 0.3s;"></div>
+			</div>
+		`;
+		
+		// Continue updating if not complete
+		if (bgProgress < 100) {
+			setTimeout(updateLoadingProgress, 200);
+		}
+	}
+
+	// Start progress updates
+	setTimeout(updateLoadingProgress, 500);
 
 	let isVideoPlaying = false; // Variable, um den Zustand des Videos zu verfolgen
 
 	// Event-Listener für den Start-Button
 	start_game.addEventListener("click", () => {
+		setActiveCharacter(character);
 		handleStart();
 	});
 
 
 	music_volume_slider.addEventListener("input", () => {
-		const music_volume = music_volume_slider.value / 10;
-	
-		// Update volume for current playing background music
-		if (window.currentBgm) {
-			window.currentBgm.volume(music_volume);
+		let music_volume = music_volume_slider.value / 100;
+
+		// Ensure volume is exactly 0 when slider is at minimum
+		if (music_volume_slider.value === 0) {
+			music_volume = 0;
 		}
-	
-		// Update sessionState instead of setting a cookie
-		sessionState.settings.musicVolume = music_volume;
-		saveGame();
-	
+
+		// Use the global function to update all music volumes
+		updateMusicVolume(music_volume);
+
 		game.focus();
 	});
-	
+
+	sounds_volume.addEventListener("input", () => {
+		sound_effects_volume = sounds_volume.value / 100;
+
+		// Ensure volume is exactly 0 when slider is at minimum
+		if (sounds_volume.value <= 1) {
+			sound_effects_volume = 0;
+		}
+
+		// Update sessionState with new sound effects volume
+		sessionState.settings.soundEffectsVolume = sound_effects_volume;
+		saveGame();
+
+		game.focus();
+	});
+
 	// Event-Listener für Enter- und Leertaste
 	k.onKeyPress(["enter", "space"], () => {
 		handleStart();
 	});
-	
+
 	function handleStart() {
 		if (isVideoPlaying) return; // Prevent starting multiple times
-	
+
 		// Check from sessionState instead of cookie
 		if (sessionState.settings.introWatched) {
 			// Intro already watched, start game directly
@@ -168,7 +575,7 @@ k.scene("loading", () => {
 			showVideoScreen();
 		}
 	}
-	
+
 
 	function showVideoScreen() {
 		isVideoPlaying = true; // Setze den Zustand auf "Video wird abgespielt"
@@ -205,8 +612,16 @@ k.scene("loading", () => {
 		video.controls = false;
 
 		// Setze die Lautstärke des Videos basierend auf dem Musiklautstärke-Slider
-		const musicVolume = music_volume_slider.value / 100; // Slider-Wert in einen Bereich von 0 bis 1 umwandeln
-		video.volume = musicVolume;
+		// Use the current global music volume from sessionState
+		let musicVolume = sessionState.settings.musicVolume;
+		// Ensure volume is 0 when set very low
+		if (musicVolume === 0) {
+			video.volume = 0;
+			video.muted = true; // Explicitly mute the video
+		} else {
+			video.volume = musicVolume;
+			video.muted = false;
+		}
 
 		// Füge einen "Skip Intro"-Button als Pfeil hinzu
 		const skipButton = document.createElement("button");
@@ -227,14 +642,14 @@ k.scene("loading", () => {
 		skipButton.addEventListener("click", () => {
 			document.body.removeChild(videoScreen);
 			isVideoPlaying = false; // Reset playing state
-		
+
 			// 🛠️ Set in sessionState instead of cookie
 			sessionState.settings.introWatched = true;
 			saveGame();
-		
+
 			startGame(); // Start the game
 		});
-		
+
 
 		// Füge den Text und das Video zum Video-Container hinzu
 		const videoContainer = document.createElement("div");
@@ -254,77 +669,411 @@ k.scene("loading", () => {
 		video.addEventListener("ended", () => {
 			document.body.removeChild(videoScreen);
 			isVideoPlaying = false;
-		
+
 			sessionState.settings.introWatched = true;
 			saveGame();
-		
+
 			startGame();
 		});
-		
-		
+
+
 	}
 
 	function startGame() {
-		const music_volume = music_volume_slider.value / 100;
-        const sound_effects_volume = sounds_volume.value / 100;
+		let music_volume = music_volume_slider.value / 100; // Consistent volume calculation
+		sound_effects_volume = sounds_volume.value / 100;
+		spawnpoint = "campus"; // Always start at campus
+		characterName = character_name_input.value;
+		dogName = dog_name_input.value;
 
-        spawnpoint = "mensa";
-        dogName = dog_name_input.value;
+		// Use our global function to update music volume
+		music_volume = updateMusicVolume(music_volume);
 
+		dialogueData.dogInitial.title = dogName;
+
+		// Update both cookies and sessionState
+		setCookie("spawnpoint", spawnpoint, 365);
+		setCookie("music_volume", music_volume, 365);
+		setCookie("sound_effects_volume", sound_effects_volume, 365);
+		setCookie("characterName", characterName, 365);
+		setCookie("dog_name", dogName, 365);
+
+		// Ensure we have a session ID
+		ensureSessionId();
+
+		// Update session state with all current settings - music volume already set by updateMusicVolume
 		sessionState.settings.spawnpoint = spawnpoint;
-        sessionState.settings.musicVolume = music_volume;
-        sessionState.settings.soundEffectsVolume = sound_effects_volume;
-        sessionState.settings.dogName = dogName;
-        saveGame();
-		/*
-		const music = k.play("bgm", {
-			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
-			loop: true,
-		});*/
+		sessionState.settings.soundEffectsVolume = sound_effects_volume;
+		sessionState.settings.dogName = dogName;
+		sessionState.settings.characterName = characterName;
+		sessionState.settings.character = character;
+		saveGame();
 
 		starting_screen.style.display = "none";
 		for (let i = 0; i < during_game.length; i++) {
 			during_game[i].style.display = "block";
 		}
+
+		// Add game-active class to body for CSS fallback
+		document.body.classList.add('game-active');
+
 		game.focus();
+
+		// Check if dog intro has been done before
+		const dogIntroDone = getCookie("dog_intro_done");
+		if (!dogIntroDone) {
+			dogIntroActive = true;
+			window.showDogIntro = true;
+		} else {
+			dogIntroActive = false;
+			window.showDogIntro = false;
+		}
+
 		if (getCookie("dog_initial_answered")) {
 			window.showDogInitialDialogue = false;
 		} else {
 			window.showDogInitialDialogue = true;
 		}
+		attachInventoryShopListeners();
+		
+		// Go to campus first
 		k.go(spawnpoint);
+		
+		// Start background loading of other maps after the game has started
+		console.log("🎮 Game started - initiating background map loading...");
+		startBackgroundLoading();
 	}
 });
 
-function setupScene(sceneName, mapFile, mapSprite) {
-	k.scene(sceneName, async () => {
+// Function to get appropriate spawnpoint names based on source map
+function getSpawnPointNamesBySource(sourceMap) {
+	if (!sourceMap) {
+		return { player: "player", dog: "dog" }; // Default spawnpoints
+	}
+
+	return {
+		player: `player-${sourceMap}`,
+		dog: `dog-${sourceMap}`
+	};
+}
+
+// Handle deferred scene setup when switching to a map
+// function handleDeferredSceneSetup(sceneName) {
+//     if (window.deferredScenes && window.deferredScenes.has(sceneName)) {
+//         console.log(`🔧 Setting up deferred scene: ${sceneName}`);
+//         setupSceneInternal(sceneName, `./maps/${sceneName}.json`, sceneName);
+//         window.deferredScenes.delete(sceneName);
+//         return true;
+//     }
+//     return false;
+// }
+
+function setupSceneInternal(sceneName, mapFile, mapSprite) {
+	k.scene(sceneName, async (sceneData = {}) => {
+		console.log(`Setting up scene: ${sceneName}`);
+		
+		// Set current map for performance tracking
+		setCurrentMap(sceneName);
+		
+		// Log performance stats when entering a scene
+		if (sceneName !== "loading") {
+			logPerformanceStats();
+		}
+		
+		// Special handling for unternehmensausstellung - immediately start KSB preloading
+		if (sceneName === 'unternehmensausstellung') {
+			console.log("🎯 Entering company exhibition - starting KSB map preloading...");
+			// Use a small delay to let the current scene initialize first
+			k.wait(1, () => {
+				checkMapPreloading(sceneName, null); // null playerPos triggers immediate preloading
+			});
+		}
+
+		// Helper function to get the correct dialogue data based on scene
+		function getDialogueData() {
+			if (sceneName.includes('ksb') || sceneName.includes('companies/ksb')) {
+				console.log("Using KSB dialogue data for scene:", sceneName);
+				return ksbDialogueData;
+			}
+			return dialogueData;
+		}
+
+		// Get the appropriate dialogue data for this scene
+		const currentDialogueData = getDialogueData();
+
+		// For global dialogues like dogInitial, always use main dialogueData
+		function getGlobalDialogue(dialogueKey) {
+			return dialogueData[dialogueKey];
+		}
+		
+		// Prevent infinite loops by checking if scene is already being set up
+		if (window.currentlySettingUpScene === sceneName) {
+			console.warn(`Scene ${sceneName} is already being set up, preventing infinite loop`);
+			return;
+		}
+		window.currentlySettingUpScene = sceneName;
+		
+		// Clean up any existing objects first
+		k.destroyAll("player");
+		k.destroyAll("dog");
+		
 		let isFullMapView = false;  // Variable to track if in full map view
+		let isInventoryOpen = false;
+		const showDebugOverlay = false; // Set to true to enable debug overlay
+		// Store default spawn positions
+		let defaultPlayerSpawnPos = null;
+		let defaultDogSpawnPos = null;
+		
+		// Initialize variables used throughout the scene
+		let lastSafePosition = null; // Will be set after player is created
+		let cameraCanFollow = false; // Camera following control for tiled maps
+
+		// Check if home key tooltip has been shown before
+		if (sessionState.tooltips && sessionState.tooltips.homeKeyShown) {
+			homeKeyTooltipShown = true;
+			console.log("Tooltip already shown in previous session"); // Debug log
+		} else {
+			console.log("Tooltip not shown yet"); // Debug log
+		}
+
+		// Set random time for tooltip (between 2-5 minutes)
+		if (!homeKeyTooltipShown && homeKeyTooltipTime === 0) {
+			// For debugging/testing - short time of 20-30 seconds
+			homeKeyTooltipTime = k.rand(120, 300);
+			console.log("Tooltip will show after", homeKeyTooltipTime, "seconds"); // Debug log
+		}
+
+		// Create debug overlay
+		const debugOverlay = k.add([
+			k.text("Debug Info: No interactive objects nearby", {
+				size: 16,
+				font: "monospace",
+				styles: {
+					fill: "#ff0000",
+				}
+			}),
+			k.pos(10, 10),
+			k.fixed(),
+			k.z(200),
+			k.opacity(showDebugOverlay ? 1 : 0), // Only visible when showDebugOverlay is true
+			{
+				updateDebug: function(msg) {
+					this.text = msg;
+				}
+			}
+		]);
 
 		const music_volume = sessionState.settings.musicVolume || 0.5;
 
 		// Play the map-specific background music
-		const music = k.play("bgm_" + sceneName, {
-			volume: music_volume, // Verwende die gleiche Lautstärke wie im Intro
+		// Only play music if volume is greater than 0
+		const music = (music_volume === 0) ? null : k.play("bgm_" + sceneName, {
+			volume: music_volume,
 			loop: true,
 		});
 
+		// Store global reference to current background music so volume slider can control it
+		window.currentBgm = music;
+
 		k.onSceneLeave(() => {
-			music.stop();
+			if (music) {
+				music.stop();
+			}
+			// Clear the global reference when leaving the scene
+			window.currentBgm = null;
+			cleanupFlags();
 		});
 
 
 
-		//Lädt die Mapdaten
-		const mapData = await (await fetch(mapFile)).json();
-		const layers = mapData.layers;
+		//Lädt die Mapdaten - handle the case where we can't fetch
+		let mapData = null;
+		try {
+			// Only try to fetch if we're running with a server
+			if (window.location.protocol !== 'file:') {
+				mapData = await (await fetch(mapFile)).json();
+			}
+		} catch (error) {
+			console.warn(`Could not load map data for ${sceneName}:`, error);
+			// Create a minimal mapData structure
+			mapData = {
+				name: sceneName,
+				layers: []
+			};
+		}
+		
+		// If mapData is still null, create a minimal structure
+		if (!mapData) {
+			mapData = {
+				name: sceneName,
+				layers: []
+			};
+		}
+		
+		const layers = mapData.layers || [];
+		const INTERACTION_RADIUS = 170;
+		const gotoBoundaries = [];
+		const allBoundaries = [];
+		const npcBoundaries = [];
+		
+		// Create a global set of goto area names for filtering
+		const gotoAreaNames = new Set();
+		
+		const boundaryLayer = layers.find(l => l.name === "boundaries");
+		if (boundaryLayer?.objects) {
+		  boundaryLayer.objects.forEach(o => {
+			npcBoundaries.push({
+			  key: o.name,
+			  pos: k.vec2(o.x * scaleFactor, o.y * scaleFactor),
+			});
+		  });
+		}
+		const gotoLayer = layers.find(l => l.name === "goto");
+		if (gotoLayer && gotoLayer.objects) {
+		gotoLayer.objects.forEach(o => {
+			gotoBoundaries.push({
+			key: o.name,
+			pos:  k.vec2(o.x * scaleFactor, o.y * scaleFactor),
+			});
+			// Add to global set for filtering
+			gotoAreaNames.add(o.name);
+		});
+		}
+		function capitalize(str){ return str.charAt(0).toUpperCase()+str.slice(1); }
+
+		// Initialize company flags for this map
+		initCompanyFlags(mapData);
+
+		// Initialize goto area display system
+		initGotoAreaDisplay(mapData);
+
+		// Combined interaction system to prevent overlapping prompts
+		k.onUpdate(() => {
+			// Skip if player is in dialogue or frozen
+			if (player.isInDialogue || player.isFrozen || isFullMapView || isInventoryOpen) return;
+
+			const p = player.worldPos();
+			const R = INTERACTION_RADIUS;
+
+			// Update goto area display system
+			updateGotoAreaDisplay(player);
+
+			// First, check for company flag interactions
+			const companyInteraction = checkFlagProximity(player);
+			
+			// If company interaction is active, hide character interaction and return early
+			if (companyInteraction.hasCompanyInteraction) {
+				interactButton.style.display = 'none';
+				return; // Exit early to prevent character interactions
+			}
+
+			// No company interaction, proceed with NPC interactions only
+			// (Goto areas now use the new floating label system)
+			let nearestNpc = null;
+			let bestNpcDist = Infinity;
+
+			// Find the nearest NPC or named boundary (excluding goto areas)
+			for (const b of npcBoundaries) {
+				// Skip if this boundary is actually a goto area
+				if (gotoAreaNames.has(b.key)) {
+					// Debug: Log when we skip a goto area
+					// console.log(`Skipping goto area: ${b.key}`);
+					continue;
+				}
+				
+				// Skip generic "boundary" collision objects
+				if (b.key === "boundary") {
+					continue;
+				}
+				
+				const d = p.dist(b.pos);
+				if (d < bestNpcDist) {
+					bestNpcDist = d;
+					nearestNpc = b;
+				}
+			}
+
+			// Show NPC interaction button only
+			if (bestNpcDist < R) {
+				// Debug: Log which NPC is being detected
+				// console.log(`NPC detected: ${nearestNpc.key} at distance ${Math.floor(bestNpcDist)}`);
+				// NPC or object is close - show T button
+				interactButton.textContent = 'DRUECKE T ZUM INTERAGIEREN';
+				interactButton.style.display = 'block';
+			} else {
+				// No NPCs nearby - hide button
+				interactButton.style.display = 'none';
+			}
+		});
 
 		//Fügt die Karte hinzu, macht sie sichtbar und skaliert sie
-		const map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
-
+		
+		// Check if this map needs tiled rendering due to size limitations
+		// console.log("=== TILED MAP DETECTION ===");
+		// console.log("Checking if map needs tiled rendering:", mapSprite);
+		// console.log("Scene name:", sceneName);
+		// console.log("Map data available:", !!mapData);
+		
+		// Check if this map should use tiled rendering
+		const shouldUseTiling = shouldUseTiledRendering(mapSprite);
+		// console.log("Should use tiled rendering (forced):", shouldUseTiling);
+		
+		const tiledMapInfo = createTiledMap(mapSprite, mapData);
+		// console.log("Tiled map info created:", !!tiledMapInfo);
+		// console.log("=== END TILED MAP DETECTION ===");
+		
+		let map;
+		let tiledLoadingPromise = null;
+		
+		if (tiledMapInfo) {
+			// console.log("✅ Using tiled map system for large map:", mapSprite);
+			
+			// Show loading screen immediately for tiled maps
+			createLoadingScreen();
+			updateLoadingProgress(0, 100, "Loading map tiles...");
+			
+			// Don't show temporary map - user will see loading screen instead
+			// This prevents the purple background issue
+			
+			// Start loading tiles immediately and track progress
+			tiledLoadingPromise = loadMapTiles(mapSprite).then(() => {
+				// console.log("✅ Tiles loaded successfully for:", mapSprite);
+				updateLoadingProgress(100, 100, "Map loaded!");
+				return true;
+			}).catch((error) => {
+				console.error("❌ Failed to load tiles for:", mapSprite, error);
+				updateLoadingProgress(0, 100, "Loading failed - using fallback");
+				return false;
+			});
+			
+			// Create a dummy map object for compatibility  
+			map = {
+				pos: k.vec2(0, 0),
+				add: (obj) => k.add(obj) // Fallback for any map.add() calls
+			};
+		} else {
+			// console.log("⚠️ Using normal map rendering for:", mapSprite);
+			// console.log("⚠️ This may cause blurry rendering for large maps!");
+			map = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+			
+			// Apply sprite rendering fixes to the map
+			fixSpriteRendering(map);
+		}
+		
+		let currentCharacterSprite = sessionState.inventory.activeCharacter || character
+		
+		// Check if player already exists to prevent duplication
+		const existingPlayers = k.get("player");
+		if (existingPlayers.length > 0) {
+			// console.warn(`Found ${existingPlayers.length} existing players, destroying them`);
+			k.destroyAll("player");
+		}
+		
+		// console.log("Creating new player for scene:", sceneName);
 		//Erstellt den Spieler
 		const player = k.make([
-			k.sprite(character, { anim: "idle-down" }),
-			k.area({ shape: new k.Rect(k.vec2(0), 15, 30) }),
+			k.sprite(currentCharacterSprite, { anim: "idle-down" }),
+			k.area({ shape: new k.Rect(k.vec2(0, 10), 14, 10) }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
@@ -332,19 +1081,51 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			k.scale(scaleFactor),
 			{
 				speed: 250,
+				sprintSpeed: 400, // Sprint speed when space is pressed
 				direction: "down",
 				get isInDialogue() { return dialogue.inDialogue() },
 				get score() { return dialogue.getScore() },
 			},
 			"player",
 		]);
-
+		
+		// Initialize map rendering fixes after player is created
+		initMapRendering(mapSprite, mapData);
+		
+		// Apply additional rendering fixes for company maps
+		if (sceneName.includes('ksb') || mapSprite.includes('ksb') || sceneName.includes('companies/')) {
+			// console.log("🎯 Detected company map, applying rendering fixes...");
+			k.wait(0.2, () => {
+				fixKSBMapRendering();
+			});
+		}
+		
+		// Add sprite update handler for character changes
+		const spriteUpdateHandler = k.onUpdate(() => {
+			const correctSprite = sessionState.inventory.activeCharacter || character
+			if (correctSprite != currentCharacterSprite) {
+				const flipX = player.flipX;
+				player.use(k.sprite(correctSprite, { anim: player.getCurAnim().name }))
+				currentCharacterSprite = correctSprite;
+				player.flipX = flipX;
+			}
+		});
+		
+		// Check if dog already exists to prevent duplication
+		const existingDogs = k.get("dog");
+		if (existingDogs.length > 0) {
+			console.warn(`Found ${existingDogs.length} existing dogs, destroying them`);
+			k.destroyAll("dog");
+		}
+		
+		// console.log("Creating new dog for scene:", sceneName);
 		//Erstellt den Hund
 		const dog = k.make([
 			k.sprite("dog-spritesheet", { anim: "dog-idle-side" }),
 			k.body(),
 			k.anchor("center"),
 			k.pos(),
+			k.z(12), // Ensure dog renders above map (player is z=9, so dog is slightly higher)
 			k.scale(scaleFactor - 1.5),
 			{
 				speed: 150,
@@ -353,243 +1134,926 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			"dog",
 		]);
 
+		//Erstellt den Spielername-Tag
+		const playerNameTag = k.make([
+			k.text(characterName.toUpperCase(), {
+				size: 16,
+				font: "monospace",
+				styles: {
+					fill: k.Color.WHITE,
+					outline: { width: 2, color: k.Color.BLACK } // Retro text outline
+				}
+			}),
+			k.pos(0, 0), // Initial position will be set in update function
+			k.anchor("center"),
+			k.z(15), // Higher than player (9) to ensure visibility
+			{
+				offset: k.vec2(0, -80), // Increased vertical offset to account for hitbox difference
+				updatePosition() {
+					// This method will be called in the update function
+					this.pos = k.vec2(
+						player.pos.x + this.offset.x,
+						player.pos.y + this.offset.y
+					);
+				}
+			},
+		]);
+
 		//Erstellt den Hundename-Tag
 		const dogNameTag = k.make([
 			k.text(dogName.toUpperCase(), { size: 18 }),
 			k.pos(dog.pos.x, dog.pos.y - 50),
+			k.z(16), // Higher than dog to ensure name tag is visible
 			{ followOffset: k.vec2(-20, -50) },
 		]);
 
-		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
-		for (const layer of layers) {
-			if (layer.name === "boundaries") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
+		if (dogIntroActive) {
+			player.isFrozen = true;
 
-					if (boundary.name !== "boundary") {
-						let bounceOffset = 0;
-						let bounceSpeed = 0.001;
-						let isInProximity = false;
-						const INTERACTION_RADIUS = 100; // Adjust this value to change the interaction radius
-						let promptTimer = 0; // Timer for prompt visibility
-						const PROMPT_DURATION = 10; // Show prompt for 10 seconds
+			// Hund außerhalb spawnen
+			dog.pos = k.vec2(k.width() / 2 / scaleFactor, k.height() / scaleFactor + 50);
 
-						const exclamation = k.add([
-							k.text("!", { size: 40 }),
-							k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor - 10),
-							k.z(10),
-							"exclamation"
-						]);
-
-						// Create the popup completely hidden by default
-						const interactionPrompt = k.add([
-							k.text("Press T to interact", { 
-								size: 18,
-								// Use a pixel font that matches the game's style
-								font: "monospace",
-								styles: {
-									fill: "#ffffff",
-									stroke: "#000000",
-									strokeThickness: 3
-								}
-							}),
-							k.pos(0, 0),  // Position will be updated in onUpdate
-							k.z(10),
-							k.opacity(0),  // Start completely invisible
-							"interactionPrompt"
-						]);
-
-						// Keep the exclamation mark update separate
-						k.onUpdate("exclamation", (e) => {
-							bounceOffset += bounceSpeed;
-							if (bounceOffset > 0.1 || bounceOffset < -0.1) {
-								bounceSpeed *= -1;
-							}
-							e.pos.y = e.pos.y + bounceOffset;
-
-							// Check proximity and update prompt visibility
-							const dist = player.pos.dist(k.vec2(boundary.x * scaleFactor, boundary.y * scaleFactor));
-							if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
-								if (!isInProximity) {
-									isInProximity = true;
-									// Use smooth fade in
-									k.tween(interactionPrompt.opacity, 1, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when entering proximity
-								}
-								
-								// Update timer
-								promptTimer += k.dt();
-								
-								// Hide prompt after PROMPT_DURATION seconds
-								if (promptTimer >= PROMPT_DURATION && interactionPrompt.opacity > 0) {
-									// Fade out the prompt
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-								}
-								
-								// Position the prompt above the player's head
-								const promptX = player.pos.x;
-								const promptY = player.pos.y - 50;
-								
-								// Update position
-								interactionPrompt.pos = k.vec2(promptX, promptY);
-								
-							} else {
-								if (isInProximity) {
-									isInProximity = false;
-									// Use smooth fade out
-									k.tween(interactionPrompt.opacity, 0, 0.3, (v) => interactionPrompt.opacity = v);
-									promptTimer = 0; // Reset timer when leaving proximity
-								}
-							}
-						});
-
-						// Handle T key press
-						k.onKeyPress("t", () => {
-							if (isInProximity && !player.isInDialogue) {
-								showWorldMapBtn.style.display = "none";
-								k.destroy(exclamation);
-								k.destroy(interactionPrompt);
-								k.play("talk", {
-									volume: sound_effects_volume,
-								});
-								if (walkingSound) {
-									walkingSound.stop();
-									walkingSound = null;
-								}
-
-								// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
-								if (boundary.name === "sportscar") {
-									dialogue.setQuestionButtonClickListener((buttonIndex) => {
-										dialogue.setQuestionButtonClickListener(null);
-										if (buttonIndex === 1) {
-											dialogue._close_or_next();
-											k.go("cure_minigame");
-										}
-									});
-									dialogue.display(
-										dialogueData[boundary.name],
-										() => ((showWorldMapBtn.style.display = "flex"), game.focus())
-									);
-									return;
-								}
-								dialogue.display(
-									dialogueData[boundary.name],
-									() => (showWorldMapBtn.style.display = "flex", game.focus())
-								);
-							}
-						});
-					}
-				}
-				continue;
-			}
-
-			k.onCollide("player", "boundary", () => {
-				k.play("boundary", {
-					volume: sound_effects_volume,
-				});
+			dog.isWaiting = true;
+			k.wait(1.0, () => {
+				dog.isWaiting = false;
 			});
+		} else {
+			// Hund normale Position (direkt wie Spieler)
+			dog.isWaiting = false;
+		}
 
-			if (layer.name === "goto") {
-				for (const boundary of layer.objects) {
-					map.add([
-						k.area({
-							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
-						}),
-						k.body({ isStatic: true }),
-						k.pos(boundary.x, boundary.y),
-						k.rotate(boundary.rotation),
-						boundary.name,
-					]);
+		// Intro-Update für den Hund
+		dog.onUpdate(() => {
+			if (dogIntroActive) {
+				if (dog.isWaiting) return; // Dog is still waiting, do nothing
 
-					if (boundary.name) {
-						player.onCollide(boundary.name, () => {
-							k.go(boundary.name);
-							if (walkingSound) {
-								walkingSound.stop();
-								walkingSound = null;
-							}
-							stopAnims();
-							showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
-						});
+				const distance = dog.pos.dist(player.pos);
+
+				if (distance > dogIntroStopDistance) {
+					const direction = player.pos.sub(dog.pos).unit();
+					dog.move(direction.scale(dogIntroSpeed));
+
+					// Dog walking animation
+					if (Math.abs(direction.x) > Math.abs(direction.y)) {
+						dog.play("dog-walk-side");
+						dog.flipX = direction.x < 0;
+					} else if (direction.y < 0) {
+						dog.play("dog-walk-up");
+					} else {
+						dog.play("dog-walk-down");
 					}
+				} else {
+					// Dog has reached player
+					dog.move(k.vec2(0));
+					dogIntroActive = false;
+					setCookie("dog_intro_done", true, 365);
+					window.showDogIntro = false;
+
+					dogHasReachedPlayer = true;
+					dog.speed = dogFollowSpeed; // Set normal speed
+
+					const dogIntroDialogue = JSON.parse(JSON.stringify(dialogueData["dogInitial"])); // Tiefe Kopie
+
+					// Ersetze {dogName} im Titel und Texten
+					dogIntroDialogue.title = dogIntroDialogue.title.replace("{dogName}", dogName);
+					dogIntroDialogue.text = dogIntroDialogue.text.replace("{dogName}", dogName);
+					dogIntroDialogue.correctText = dogIntroDialogue.correctText.replace("{dogName}", dogName);
+					dogIntroDialogue.wrongText = dogIntroDialogue.wrongText.replace("{dogName}", dogName);
+
+					// Dann zeige den Dialog an
+					dialogue.display(dogIntroDialogue, () => {
+						player.isFrozen = false; // Spieler wieder freigeben
+					});
+
+
+					// Dog idle animation
+					if (dog.pos.x < player.pos.x) {
+						dog.flipX = false;
+						dog.play("dog-idle-side");
+					} else {
+						dog.flipX = true;
+						dog.play("dog-idle-side");
+					}
+
+					// Player idle animation towards dog
+					const directionToDog = dog.pos.sub(player.pos);
+					if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
+						if (directionToDog.x > 0) {
+							player.flipX = true;
+							player.play("idle-side");
+							player.direction = "right";
+						} else {
+							player.flipX = false;
+							player.play("idle-side");
+							player.direction = "left";
+						}
+					} else {
+						if (directionToDog.y > 0) {
+							player.play("idle-down");
+							player.direction = "down";
+						} else {
+							player.play("idle-up");
+							player.direction = "up";
+						}
+					}
+
+					player.isFrozen = false; // Unfreeze player now
 				}
-				continue;
+
+				return; // VERY IMPORTANT: stop update here!
 			}
 
-			//Setzt den Spieler auf die Spawnposition
-			if (layer.name === "spawnpoints") {
-				for (const entity of layer.objects) {
-					if (entity.name === "player") {
-						player.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(player);
+			// Normal "follow the player" code after intro
+			const distance = dog.pos.dist(player.pos);
+			const followDistance = 130;
+			const maxDistance = 1200;
+			let speed = dog.speed;
+
+			if (distance > maxDistance + 150) {
+				dog.pos = player.pos.clone();
+			} else if (distance > maxDistance) {
+				speed = 300;
+			}
+
+			if (distance > followDistance) {
+				const direction = player.pos.sub(dog.pos).unit();
+				dog.move(direction.scale(speed));
+
+				// Dog walking animation
+				if (Math.abs(direction.x) > Math.abs(direction.y)) {
+					if (direction.x < 0) {
+						dog.flipX = true;
+						if (dog.curAnim() !== "dog-walk-side") dog.play("dog-walk-side");
+					} else {
+						dog.flipX = false;
+						if (dog.curAnim() !== "dog-walk-side") dog.play("dog-walk-side");
 					}
-					else if (entity.name === "dog") {
-						dog.pos = k.vec2(
-							(map.pos.x + entity.x) * scaleFactor,
-							(map.pos.y + entity.y) * scaleFactor
-						);
-						k.add(dog);
-						k.add(dogNameTag);
+				} else {
+					if (direction.y < 0) {
+						if (dog.curAnim() !== "dog-walk-up") dog.play("dog-walk-up");
+					} else {
+						if (dog.curAnim() !== "dog-walk-down") dog.play("dog-walk-down");
 					}
+				}
+			} else {
+				// Dog idle animation based on previous direction
+				if (dog.curAnim() !== "dog-idle-side") dog.play("dog-idle-side");
+			}
+		});
+
+
+		function finishDogIntro() {
+			// Hund stehen lassen
+			dog.move(k.vec2(0));
+
+			// Spieler freigeben
+			player.isFrozen = false;
+
+			// Hund Idle-Animation passend einstellen
+			if (dog.pos.x < player.pos.x) {
+				dog.flipX = false;
+				dog.play("dog-idle-side");
+			} else {
+				dog.flipX = true;
+				dog.play("dog-idle-side");
+			}
+
+			// Spieler Idle-Animation passend einstellen
+			const directionToDog = dog.pos.sub(player.pos);
+			if (Math.abs(directionToDog.x) > Math.abs(directionToDog.y)) {
+				if (directionToDog.x > 0) {
+					player.flipX = true;
+					player.play("idle-side");
+					player.direction = "right";
+				} else {
+					player.flipX = false;
+					player.play("idle-side");
+					player.direction = "left";
+				}
+			} else {
+				if (directionToDog.y > 0) {
+					player.play("idle-down");
+					player.direction = "down";
+				} else {
+					player.play("idle-up");
+					player.direction = "up";
+				}
+			}
+
+			// Optional: Hier könnten wir auch gleich den ersten Dialog starten!
+		}
+
+		// Add foreground objects if they exist for this map
+		// Find foreground group and layers
+		const foregroundGroup = layers.find(layer =>
+			layer.name === "ForegroundObjects" && layer.layers);
+
+			// If the foreground group exists and at least one of the foreground layers exists
+		if (foregroundGroup) {
+			// Check if the required foreground layers exist
+			const hasForegroundLayers = foregroundGroup.layers.some(layer =>
+				layer.name === "ForegroundObjects01" || layer.name === "ForegroundObjects02");
+
+			if (hasForegroundLayers) {
+				// Safely check if we have the sprite loaded
+				try {
+					// Try to safely access assets
+					const hasSprite = (
+						k.assets &&
+						k.assets.sprites &&
+						k.assets.sprites[`${sceneName}-ForegroundObjects`]
+					) || false;
+
+					// Alternative check if direct access didn't work
+					const canLoadSprite = (function() {
+						try {
+							// Try to get the sprite in a different way
+							k.sprite(`${sceneName}-ForegroundObjects`);
+							return true;
+						} catch (e) {
+							return false;
+						}
+					})();
+
+					if (hasSprite || canLoadSprite) {
+						// Add the foreground objects sprite with a higher z-index than player
+						k.add([
+							k.sprite(`${sceneName}-ForegroundObjects`),
+							k.pos(0),
+							k.scale(scaleFactor),
+							k.z(20) // Higher z-index than player (9) so it renders above
+						]);
+						// console.log(`Rendered foreground objects for ${sceneName}`);
+					} else {
+						// console.log(`Foreground sprite not loaded for ${sceneName}, skipping render`);
+					}
+				} catch (error) {
+					// console.warn(`Could not check or render foreground for ${sceneName}:`, error);
 				}
 			}
 		}
 
+		// Main collision prevention handler - simplified and optimized
+		let inBoundaryCollision = false;
+		let boundaryCollisionTimer = 0;
+		let lastSoundTime = 0;
+		// lastSafePosition is declared later in the code
+
+		// Set flag when collision starts
+		k.onCollide("player", "boundary", () => {
+			inBoundaryCollision = true;
+		});
+
+		// Reset flag when collision ends
+		player.onCollideEnd("boundary", () => {
+			inBoundaryCollision = false;
+			boundaryCollisionTimer = 0;
+			lastSoundTime = 0;
+		});
+
+		// Single update handler for all collision-related logic
+		// This is much more efficient than multiple handlers
+		k.onUpdate(() => {
+			// Skip processing if player is in dialogue
+			if (player.isInDialogue) return;
+
+			// Track safe positions for boundary handling
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
+			} else {
+				// Handle sound
+				boundaryCollisionTimer += k.dt();
+
+				// Play sound at intervals
+				if (boundaryCollisionTimer >= 0.5 &&
+					(boundaryCollisionTimer - lastSoundTime >= 1.0 || lastSoundTime === 0)) {
+					k.play("boundary", {
+						volume: sound_effects_volume,
+					});
+					lastSoundTime = boundaryCollisionTimer;
+				}
+
+				// Simple collision resolution - only if significant movement detected
+				const movementDist = player.pos.dist(lastSafePosition);
+				if (movementDist > 8) { // Increased threshold to avoid jittery movement
+					// Use a smoother approach - move partially back to safe position
+					const moveBackRatio = 0.7; // Move back 70% of the way
+					const targetPos = player.pos.lerp(lastSafePosition, moveBackRatio);
+					player.pos = targetPos;
+				}
+			}
+		});
+
+		//Fügt die Collider hinzu und prüft, ob der collider einen Namen hat. Wenn ja, wird ein Dialog angezeigt. Der dialog wird in der Datei constants.js definiert.
+		for (const layer of layers) {
+			if (layer.name === "boundaries") {
+				// Keep a collection of all boundaries for efficient culling
+				const allBoundaries = [];
+				const CULLING_RADIUS = 800; // Adjust this value based on viewport size
+
+				for (const boundary of layer.objects) {
+					// Create a boundary object with all necessary properties
+					const boundaryObj = {
+						area: {
+							shape: new k.Rect(k.vec2(0), boundary.width, boundary.height),
+						},
+						isStatic: true,
+						pos: k.vec2(boundary.x, boundary.y),
+						rotation: boundary.rotation,
+						name: boundary.name,
+						width: boundary.width,
+						height: boundary.height,
+						gameObj: null, // Will store the actual game object reference
+						isVisible: false, // Track visibility state
+						exclamation: null, // Reference to exclamation mark if needed
+						interactionPrompt: null, // Reference to interaction prompt if needed
+					};
+
+					allBoundaries.push(boundaryObj);
+
+					// Initial creation is handled later in the culling logic
+				}
+
+				// Set up a culling system that runs on each frame
+				k.onUpdate(() => {
+					// Skip culling if player is in dialogue
+					if (player.isInDialogue) return;
+
+
+					// Get player position - need to use world position for proper comparison
+					const playerPos = player.worldPos();
+
+					// Process each boundary
+					for (const boundaryObj of allBoundaries) {
+						// Calculate boundary center position in world space
+						const boundaryWorldPos = k.vec2(
+							boundaryObj.pos.x * scaleFactor,
+							boundaryObj.pos.y * scaleFactor
+						);
+
+						// Calculate distance from player to boundary center
+						const distance = playerPos.dist(boundaryWorldPos);
+
+						// Check if boundary should be visible (within culling radius)
+						const shouldBeVisible = distance <= CULLING_RADIUS;
+
+						// If visibility status changed, add or remove the boundary
+						if (shouldBeVisible !== boundaryObj.isVisible) {
+							if (shouldBeVisible) {
+								// Create and add the boundary to the map
+								const newObj = map.add([
+									k.area(boundaryObj.area),
+									k.body({ isStatic: boundaryObj.isStatic }),
+									k.pos(boundaryObj.pos.x, boundaryObj.pos.y),
+									k.rotate(boundaryObj.rotation),
+									boundaryObj.name,
+								]);
+
+								boundaryObj.gameObj = newObj;
+
+								// If this boundary has a name (interactive), create the interaction elements
+								if (boundaryObj.name !== "boundary") {
+									let bounceOffset = 0;
+									let bounceSpeed = 0.001;
+									let isInProximity = false;
+									const INTERACTION_RADIUS = 170;
+									let promptTimer = 0;
+									const PROMPT_DELAY = 1;
+
+									// Create exclamation mark
+									boundaryObj.exclamation = k.add([
+										k.text("!", { size: 40 }),
+										k.pos(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor - 10),
+										k.z(10),
+										k.color(k.Color.WHITE),
+										"exclamation"
+									]);
+
+									// Create interaction prompt (initially invisible)
+									boundaryObj.interactionPrompt = k.add([
+										k.rect(300, 50, { radius: 10 }), // Background with rounded corners
+										k.color(0, 0, 0, 0.8), // More opaque black background
+										k.pos(k.width() / 2 - 150, 70), // Position at top center immediately
+										k.fixed(), // This makes it stay fixed on screen
+										k.z(100), // Much higher z-index to ensure visibility
+										k.opacity(0),
+										"interactionPrompt"
+									]);
+
+									// Add text on top of the background
+									boundaryObj.promptText = k.add([
+										k.text("Press T to interact", {
+											size: 24, // Larger text size for better visibility
+											font: "monospace",
+											styles: {
+												fill: "#ffffff",
+											}
+										}),
+										k.pos(k.width() / 2, 85), // Position at top center immediately
+										k.anchor("center"), // Center the text
+										k.fixed(), // This makes it stay fixed on screen
+										k.z(101), // Higher z-index than the background
+										k.opacity(0),
+										"promptText"
+									]);
+
+									// Add exclamation mark update logic
+									const exclamationUpdateEvent = k.onUpdate("exclamation", (e) => {
+										// Only process if this is the right exclamation mark
+										if (e !== boundaryObj.exclamation) return;
+
+										bounceOffset += bounceSpeed;
+										if (bounceOffset > 0.1 || bounceOffset < -0.1) {
+											bounceSpeed *= -1;
+										}
+										e.pos.y = e.pos.y + bounceOffset;
+
+										// Check proximity and update prompt visibility
+										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											debugOverlay.updateDebug(
+											  `In range of: ${boundaryObj.name} (Distance: ${Math.floor(dist)}, Timer: ${promptTimer.toFixed(1)}s)`
+											);
+
+											if (!isInProximity) {
+											  isInProximity = true;
+											  promptTimer = 0;
+											}
+											promptTimer += k.dt();
+
+											if (promptTimer >= PROMPT_DELAY) {
+											  // DISABLED: Old system T-button logic - now handled by new combined system
+											  // Show T-button only for named interactive boundaries (NPCs, objects, etc.)
+											  // Exclude generic "boundary" collision objects
+											  // if (boundaryObj.name && boundaryObj.name !== "boundary") {
+												// Interactive boundary (NPC/object) → show T-button
+												// interactButton.style.display = "block";
+											  // }
+											}
+										  }
+										  else if (isInProximity) {
+											isInProximity = false;
+											promptTimer = 0;
+											// DISABLED: Old system T-button logic - now handled by new combined system
+											// hide T-button as you walk away
+											// interactButton.style.display = "none";
+										  }
+									});
+
+									// Store event ID for cleanup
+									boundaryObj.exclamationUpdateEvent = exclamationUpdateEvent;
+
+									// Handle T key press for this boundary
+									k.onKeyPress("t", () => {
+										const dist = player.pos.dist(k.vec2(boundaryObj.pos.x * scaleFactor, boundaryObj.pos.y * scaleFactor));
+										if (dist <= INTERACTION_RADIUS && !player.isInDialogue) {
+											// Only handle T-key for named interactive boundaries (NPCs, objects, etc.)
+											// Exclude generic "boundary" collision objects
+											if (boundaryObj.name && boundaryObj.name !== "boundary") {
+												showWorldMapBtn.style.display = "none";
+												// Hide the interaction button
+												interactButton.style.display = "none";
+												if (boundaryObj.exclamation) k.destroy(boundaryObj.exclamation);
+												if (boundaryObj.interactionPrompt) k.destroy(boundaryObj.interactionPrompt);
+												if (boundaryObj.promptText) k.destroy(boundaryObj.promptText);
+												k.play("talk", {
+													volume: sound_effects_volume,
+												});
+												if (walkingSound) {
+													walkingSound.stop();
+													walkingSound = null;
+												}
+
+												// Allow the user to open cure minigame, when he selects "Yes" in the relevant dialogue
+												if (boundaryObj.name === "sportscar") {
+													dialogue.setQuestionButtonClickListener((buttonIndex) => {
+														dialogue.setQuestionButtonClickListener(null);
+														if (buttonIndex === 1) {
+															dialogue._close_or_next();
+															k.go("cure_minigame");
+														}
+													});
+													dialogue.display(
+														currentDialogueData[boundaryObj.name],
+														() => ((showWorldMapBtn.style.display = "flex"), game.focus())
+													);
+													return;
+												}
+												dialogue.display(
+													currentDialogueData[boundaryObj.name],
+													() => (showWorldMapBtn.style.display = "flex", game.focus())
+												);
+											}
+										}
+									});
+								}
+							} else {
+								// Remove the boundary from the game
+								if (boundaryObj.gameObj) {
+									k.destroy(boundaryObj.gameObj);
+									boundaryObj.gameObj = null;
+								}
+
+								// Clean up interaction elements if they exist
+								if (boundaryObj.exclamation) {
+									k.destroy(boundaryObj.exclamation);
+									boundaryObj.exclamation = null;
+								}
+
+								if (boundaryObj.interactionPrompt) {
+									k.destroy(boundaryObj.interactionPrompt);
+									boundaryObj.interactionPrompt = null;
+								}
+
+								if (boundaryObj.promptText) {
+									k.destroy(boundaryObj.promptText);
+									boundaryObj.promptText = null;
+								}
+							}
+
+							// Update visibility flag
+							boundaryObj.isVisible = shouldBeVisible;
+						}
+					}
+				});
+
+				continue;
+			}
+
+			// Handle collision layer
+			if (layer.name === "Collisions") {
+				const tileSize = 16; // Tile size in pixels
+				const mapWidth = layer.width;
+				const mapHeight = layer.height;
+
+				// Convert the 1D array to a 2D array for easier processing
+				const collisionData = [];
+				for (let y = 0; y < mapHeight; y++) {
+					const row = [];
+					for (let x = 0; x < mapWidth; x++) {
+						row.push(layer.data[y * mapWidth + x]);
+					}
+					collisionData.push(row);
+				}
+
+				// Create a collection to store all collision tiles for culling
+				const allCollisionTiles = [];
+				const COLLISION_CULLING_RADIUS = 800; // Adjust based on game needs
+
+				// Prepare all potential collision tiles
+				for (let y = 0; y < mapHeight; y++) {
+					for (let x = 0; x < mapWidth; x++) {
+						if (collisionData[y][x] !== 0) {
+							// Create a tile object with necessary properties
+							const tileObj = {
+								pos: k.vec2(x * tileSize * scaleFactor, y * tileSize * scaleFactor),
+								gameObj: null,
+								isVisible: false
+							};
+
+							allCollisionTiles.push(tileObj);
+						}
+					}
+				}
+
+				// Set up culling for collision tiles
+				k.onUpdate(() => {
+					// Skip if player is in dialogue
+					if (player.isInDialogue) return;
+
+					// Get player position for distance calculations
+					const playerPos = player.worldPos();
+
+					// Process each collision tile
+					for (const tileObj of allCollisionTiles) {
+						// Calculate distance from player to tile
+						const distance = playerPos.dist(tileObj.pos);
+
+						// Check if tile should be visible
+						const shouldBeVisible = distance <= COLLISION_CULLING_RADIUS;
+
+						// If visibility changed, add or remove the tile
+						if (shouldBeVisible !== tileObj.isVisible) {
+							if (shouldBeVisible) {
+								// Create and add the collision tile
+								tileObj.gameObj = k.add([
+									k.area({
+										shape: new k.Rect(k.vec2(0), tileSize * scaleFactor, tileSize * scaleFactor),
+									}),
+									k.body({ isStatic: true }),
+									k.pos(tileObj.pos.x, tileObj.pos.y),
+									"boundary",
+								]);
+							} else {
+								// Remove the tile
+								if (tileObj.gameObj) {
+									k.destroy(tileObj.gameObj);
+									tileObj.gameObj = null;
+								}
+							}
+
+							// Update visibility flag
+							tileObj.isVisible = shouldBeVisible;
+						}
+					}
+				});
+
+				continue;
+			}
+
+			if (layer.name === "goto") {
+				for (const boundary of layer.objects) {
+				  // For tiled maps, add directly to the scene instead of to the map object
+				  // since the map object is just a dummy for tiled rendering
+				  const gotoObject = k.add([
+					k.area({ shape: new k.Rect(k.vec2(0), boundary.width * scaleFactor, boundary.height * scaleFactor) }),
+					k.body({ isStatic: true }),
+					k.pos(boundary.x * scaleFactor, boundary.y * scaleFactor),
+					k.rotate(boundary.rotation),
+					boundary.name,
+				  ]);
+
+				  if (boundary.name) {
+					player.onCollide(boundary.name, () => {
+						  // pass along the scene we're coming from
+					  k.go(boundary.name, { from: sceneName });
+
+					  if (walkingSound) {
+						walkingSound.stop();
+						walkingSound = null;
+					  }
+					  stopAnims();
+					  showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+					});
+				  }
+				}
+				continue;
+			  }
+
+			//Setzt den Spieler auf die Spawnposition
+			if (layer.name === "spawnpoints") {
+				// Get appropriate spawnpoint names based on source map
+				const { player: playerSpawnName, dog: dogSpawnName } = getSpawnPointNamesBySource(sceneData.from);
+
+				// Store specific and default spawn points
+				let specificPlayerSpawn = null;
+				let specificDogSpawn = null;
+				let defaultPlayerSpawn = null;
+				let defaultDogSpawn = null;
+
+				// First, find all possible spawn points
+				for (const entity of layer.objects) {
+					if (entity.name === playerSpawnName) {
+						specificPlayerSpawn = entity;
+					}
+					else if (entity.name === dogSpawnName) {
+						specificDogSpawn = entity;
+					}
+					else if (entity.name === "player") {
+						defaultPlayerSpawn = entity;
+						// Store the default player spawn position for the "h" key teleport feature
+						defaultPlayerSpawnPos = k.vec2(
+							(map.pos.x + defaultPlayerSpawn.x) * scaleFactor,
+							(map.pos.y + defaultPlayerSpawn.y) * scaleFactor
+						);
+					}
+					else if (entity.name === "dog") {
+						defaultDogSpawn = entity;
+						// Store the default dog spawn position for the "h" key teleport feature
+						defaultDogSpawnPos = k.vec2(
+							(map.pos.x + defaultDogSpawn.x) * scaleFactor,
+							(map.pos.y + defaultDogSpawn.y) * scaleFactor
+						);
+					}
+				}
+
+				// Use specific spawn points if available, otherwise fall back to defaults
+				const playerSpawn = specificPlayerSpawn || defaultPlayerSpawn;
+				const dogSpawn = specificDogSpawn || defaultDogSpawn;
+
+				// Position player
+				if (playerSpawn) {
+					player.pos = k.vec2(
+						(map.pos.x + playerSpawn.x) * scaleFactor,
+						(map.pos.y + playerSpawn.y) * scaleFactor
+					);
+					k.add(player);
+					k.add(playerNameTag);
+				}
+
+				// Position dog with improved fallback logic
+				if (dogSpawn) {
+					dog.pos = k.vec2(
+						(map.pos.x + dogSpawn.x) * scaleFactor,
+						(map.pos.y + dogSpawn.y) * scaleFactor
+					);
+					k.add(dog);
+					k.add(dogNameTag);
+					// console.log(`🐕 Dog positioned at spawn point: ${dog.pos.x}, ${dog.pos.y}`);
+				} else if (playerSpawn) {
+					// Fallback: Position dog near player if no dog spawn point exists
+					dog.pos = k.vec2(
+						(map.pos.x + playerSpawn.x) * scaleFactor + 50, // Offset slightly from player
+						(map.pos.y + playerSpawn.y) * scaleFactor + 30
+					);
+					k.add(dog);
+					k.add(dogNameTag);
+					console.log(`🐕 Dog positioned near player (fallback): ${dog.pos.x}, ${dog.pos.y}`);
+				} else {
+					// Last resort: Position dog at map center
+					const mapCenterX = map.pos.x * scaleFactor + 200;
+					const mapCenterY = map.pos.y * scaleFactor + 200;
+					dog.pos = k.vec2(mapCenterX, mapCenterY);
+					k.add(dog);
+					k.add(dogNameTag);
+					console.log(`🐕 Dog positioned at map center (last resort): ${dog.pos.x}, ${dog.pos.y}`);
+				}
+				
+				// Complete tile loading now that player is positioned
+				if (tiledLoadingPromise) {
+					updateLoadingProgress(50, 100, "Positioning player...");
+					
+					tiledLoadingPromise.then((loadSuccess) => {
+						if (loadSuccess) {
+							updateLoadingProgress(75, 100, "Creating player area tiles...");
+							// console.log("Tiles loaded, creating tile objects with spawn prioritization...");
+							const playerSpawnPos = player.pos ? player.pos.clone() : null;
+							createTileGameObjects(playerSpawnPos);
+							
+							// Immediately position camera and enable following
+							cameraCanFollow = true;
+							k.camPos(player.worldPos().x, player.worldPos().y - 100);
+							
+							// Wait a brief moment for tiles to render, then remove loading screen
+							k.wait(0.2, () => {
+								updateLoadingProgress(100, 100, "Ready!");
+								k.wait(0.1, () => {
+									removeLoadingScreen();
+									// console.log("✅ Loading complete - player can see map immediately");
+								});
+								
+								// Additional check for dog visibility after tiled map loads
+								const dogs = k.get("dog");
+								if (dogs.length > 0) {
+									const dog = dogs[0];
+									// console.log(`🐕 Post-tiled check - Dog at: ${dog.pos.x}, ${dog.pos.y}, Visible: ${dog.visible !== false}`);
+									// Ensure dog is visible and properly positioned
+									dog.visible = true;
+									dog.z = 15; // Higher z-index to ensure visibility over tiles
+								} else {
+									console.warn("🐕 No dog found after tiled map loading!");
+								}
+							});
+						} else {
+							// Tile loading failed, show fallback map
+							console.warn("⚠️ Using fallback rendering due to tile loading failure");
+							// Create fallback map
+							const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+							fixSpriteRendering(fallbackMap);
+							
+							cameraCanFollow = true;
+							k.camPos(player.worldPos().x, player.worldPos().y - 100);
+							removeLoadingScreen();
+						}
+					}).catch((error) => {
+						console.error("❌ Critical error in tile loading:", error);
+						// Create fallback map and enable camera following
+						const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+						fixSpriteRendering(fallbackMap);
+						
+						cameraCanFollow = true;
+						k.camPos(player.worldPos().x, player.worldPos().y - 100);
+						removeLoadingScreen();
+					});
+				}
+			}
+		}
+
+		// Safety check: Ensure dog is always added to the scene
+		// This handles cases where maps might not have a spawnpoints layer
+		const dogsInScene = k.get("dog");
+		if (dogsInScene.length === 0) {
+			console.warn("🐕 No dog found in scene after layer processing, adding dog near player");
+			// Position dog near player as fallback
+			dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
+			k.add(dog);
+			k.add(dogNameTag);
+			console.log(`🐕 Dog added to scene at: ${dog.pos.x}, ${dog.pos.y}`);
+		} else {
+			// Dog exists, but let's verify it's properly positioned and visible
+			const sceneDog = dogsInScene[0];
+			// console.log(`🐕 Dog verification - Position: ${sceneDog.pos.x}, ${sceneDog.pos.y}, Visible: ${sceneDog.visible !== false}`);
+			
+			// Ensure dog is visible and has proper z-index
+			sceneDog.visible = true;
+			if (!sceneDog.z || sceneDog.z < 10) {
+				sceneDog.z = 10; // Ensure dog renders above map
+			}
+			
+			// For large maps (like campus), ensure dog is not too far from player
+			const distance = sceneDog.pos.dist(player.pos);
+			if (distance > 2000) {
+				console.warn(`🐕 Dog too far from player (${Math.floor(distance)}), repositioning`);
+				sceneDog.pos = k.vec2(player.pos.x + 100, player.pos.y + 50);
+				console.log(`🐕 Dog repositioned to: ${sceneDog.pos.x}, ${sceneDog.pos.y}`);
+			}
+		}
+		
+		// If no spawnpoints layer was found and we have tiled loading, we need to enable camera following
+		if (tiledLoadingPromise && !cameraCanFollow) {
+			updateLoadingProgress(60, 100, "Setting up map without spawn points...");
+			
+			tiledLoadingPromise.then((loadSuccess) => {
+				if (loadSuccess) {
+					updateLoadingProgress(80, 100, "Creating map tiles...");
+					// console.log("Enabling camera following for map without spawnpoints layer");
+					const playerPos = player.pos ? player.pos.clone() : null;
+					createTileGameObjects(playerPos);
+					
+					// Immediately enable camera following
+					cameraCanFollow = true;
+					k.camPos(player.worldPos().x, player.worldPos().y - 100);
+					
+					k.wait(0.2, () => {
+						updateLoadingProgress(100, 100, "Ready!");
+						k.wait(0.1, () => {
+							removeLoadingScreen();
+						});
+					});
+				} else {
+					console.warn("⚠️ Using fallback rendering for map without spawnpoints");
+					// Create fallback map
+					const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+					fixSpriteRendering(fallbackMap);
+					
+					cameraCanFollow = true;
+					k.camPos(player.worldPos().x, player.worldPos().y - 100);
+					removeLoadingScreen();
+				}
+			}).catch((error) => {
+				console.error("❌ Failed to load tiles in fallback:", error);
+				// Create fallback map
+				const fallbackMap = k.add([k.sprite(mapSprite), k.pos(0), k.scale(scaleFactor)]);
+				fixSpriteRendering(fallbackMap);
+				
+				cameraCanFollow = true;
+				k.camPos(player.worldPos().x, player.worldPos().y - 100);
+				removeLoadingScreen();
+			});
+		}
+
 		//Bewegung des Spielers mit der Maus
 		k.onMouseDown((mouseBtn) => {
-			if (isFullMapView) return; // Disable player movement when in full map view
-			if (mouseBtn !== "left" || player.isInDialogue) return;
+			if (isFullMapView || isInventoryOpen) return; // Disable player movement when in full map view
+			if (mouseBtn !== "left" || player.isInDialogue || player.isFrozen) return;
 
 			const worldMousePos = k.toWorld(k.mousePos());
-			player.moveTo(worldMousePos, player.speed);
+			const currentSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
 
-			const mouseAngle = player.pos.angle(worldMousePos);
-
-			const lowerBound = 50;
-			const upperBound = 125;
-
-			if (
-				mouseAngle > lowerBound &&
-				mouseAngle < upperBound &&
-				player.getCurAnim().name !== "walk-up"
-			) {
-				player.play("walk-up");
-				player.direction = "up";
-				return;
+			// Store player's position before mouse movement
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
 			}
 
-			if (
-				mouseAngle < -lowerBound &&
-				mouseAngle > -upperBound &&
-				player.getCurAnim().name !== "walk-down"
-			) {
-				player.play("walk-down");
-				player.direction = "down";
-				return;
-			}
+			// Calculate direction vector for smoother movement handling
+			const direction = worldMousePos.sub(player.pos).unit();
 
-			if (Math.abs(mouseAngle) > upperBound) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-				return;
-			}
+			// Use moveTo with the calculated direction for better control
+			player.moveTo(worldMousePos, currentSpeed);
 
-			if (Math.abs(mouseAngle) < lowerBound) {
+			// Update animation based on movement direction
+			const mouseAngle = Math.atan2(direction.y, direction.x) * 180 / Math.PI;
+
+			// More precise angle calculations with animation checks
+			if (mouseAngle > -45 && mouseAngle < 45) {
+				// Moving right
 				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
+				if (player.curAnim() !== "walk-side") {
+					player.play("walk-side");
+				}
+				player.direction = "right";
+			}
+			else if (mouseAngle >= 45 && mouseAngle <= 135) {
+				// Moving down
+				if (player.curAnim() !== "walk-down") {
+					player.play("walk-down");
+				}
+				player.direction = "down";
+			}
+			else if (mouseAngle > 135 || mouseAngle < -135) {
+				// Moving left
+				player.flipX = true;
+				if (player.curAnim() !== "walk-side") {
+					player.play("walk-side");
+				}
 				player.direction = "left";
+			}
+			else if (mouseAngle >= -135 && mouseAngle <= -45) {
+				// Moving up
+				if (player.curAnim() !== "walk-up") {
+					player.play("walk-up");
+				}
+				player.direction = "up";
 			}
 		});
 
@@ -597,52 +2061,85 @@ function setupScene(sceneName, mapFile, mapSprite) {
 		const diagonalFactor = 1 / Math.sqrt(2);
 		let walkingSound = false;
 
-		k.onUpdate(() => {
-			if (player.isInDialogue) return;
-			if (isFullMapView) return;
+		// Keep track of last non-colliding position for both keyboard and mouse movement
+		lastSafePosition = player.pos.clone(); // Initialize with player position
 
-			if (k.isKeyDown("left") || k.isKeyDown("right") || k.isKeyDown("up") || k.isKeyDown("down") || k.isKeyDown("a") || k.isKeyDown("d") || k.isKeyDown("w") || k.isKeyDown("s")) {
+		// Optimized player movement handler
+		k.onUpdate(() => {
+			// Early returns for better performance
+			if (player.isInDialogue || isFullMapView || player.isFrozen || isInventoryOpen) return;
+
+			// Store last safe position if not currently colliding with boundary
+			if (!inBoundaryCollision) {
+				lastSafePosition = player.pos.clone();
+			}
+
+			// Handle walking sound with a simplified check
+			const isMoving = k.isKeyDown("left") || k.isKeyDown("right") ||
+				k.isKeyDown("up") || k.isKeyDown("down") ||
+				k.isKeyDown("a") || k.isKeyDown("d") ||
+				k.isKeyDown("w") || k.isKeyDown("s");
+
+			if (isMoving) {
 				if (!walkingSound) {
 					walkingSound = k.play("footstep", { loop: true, volume: sound_effects_volume });
 				}
-			} else {
-				if (walkingSound) {
-					walkingSound.stop();
-					walkingSound = null;
+			} else if (walkingSound) {
+				walkingSound.stop();
+				walkingSound = null;
+			}
+
+			// Only process movement if actually moving
+			if (!isMoving) return;
+
+			// Create movement vector - optimized to avoid redundant checks
+			const directionVector = k.vec2(0, 0);
+			let animationChanged = false;
+
+			// Vertical movement takes priority for diagonal movement
+			if (k.isKeyDown("up") || k.isKeyDown("w")) {
+				directionVector.y = -1;
+				if (player.curAnim() !== "walk-up") {
+					player.play("walk-up");
+				}
+				player.direction = "up";
+				animationChanged = true;
+			} else if (k.isKeyDown("down") || k.isKeyDown("s")) {
+				directionVector.y = 1;
+				if (player.curAnim() !== "walk-down") {
+					player.play("walk-down");
+				}
+				player.direction = "down";
+				animationChanged = true;
+			}
+
+			// Horizontal movement
+			if (k.isKeyDown("left") || k.isKeyDown("a")) {
+				directionVector.x = -1;
+				if (!animationChanged) {
+					player.flipX = false;
+					player.direction = "left";
+					if (player.curAnim() !== "walk-side") {
+						player.play("walk-side");
+					}
+				}
+			} else if (k.isKeyDown("right") || k.isKeyDown("d")) {
+				directionVector.x = 1;
+				if (!animationChanged) {
+					player.flipX = true;
+					player.direction = "right";
+					if (player.curAnim() !== "walk-side") {
+						player.play("walk-side");
+					}
 				}
 			}
 
-			const directionVector = k.vec2(0, 0);
-			if (k.isKeyDown("left") || k.isKeyDown("a")) {
-				player.flipX = false;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "left";
-				directionVector.x = -1;
-			}
-			if (k.isKeyDown("right") || k.isKeyDown("d")) {
-				player.flipX = true;
-				if (player.getCurAnim().name !== "walk-side") player.play("walk-side");
-				player.direction = "right";
-				directionVector.x = 1;
-			}
-			if (k.isKeyDown("up") || k.isKeyDown("w")) {
-				if (player.getCurAnim().name !== "walk-up") player.play("walk-up");
-				player.direction = "up";
-				directionVector.y = -1;
-			}
-			if (k.isKeyDown("down") || k.isKeyDown("s")) {
-				if (player.getCurAnim().name !== "walk-down") player.play("walk-down");
-				player.direction = "down";
-				directionVector.y = 1;
-			}
+			// Apply movement
+			const moveSpeed = k.isKeyDown("space") ? player.sprintSpeed : player.speed;
+			const finalSpeed = directionVector.x && directionVector.y ?
+				moveSpeed * diagonalFactor : moveSpeed;
 
-			// this is true when the player is moving diagonally
-			if (directionVector.x && directionVector.y) {
-				player.move(directionVector.scale(diagonalFactor * player.speed));
-				return;
-			}
-
-			player.move(directionVector.scale(player.speed));
+			player.move(directionVector.scale(finalSpeed));
 		});
 
 		// Stop animations
@@ -677,39 +2174,129 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			dog.play("dog-idle-side");
 		}
 
-		//Visuals
+		//Visuals - with tiled map coordination
+		cameraCanFollow = !tiledLoadingPromise; // Only follow immediately if not using tiled maps
+		
 		k.onUpdate(() => {
-			k.camPos(player.worldPos().x, player.worldPos().y - 100);
+			if (cameraCanFollow) {
+				k.camPos(player.worldPos().x, player.worldPos().y - 100);
+				
+				// Check for map preloading opportunities
+				// Only check every few frames to avoid performance impact
+				if (k.time() % 2 < 0.1) { // Check roughly every 2 seconds
+					checkMapPreloading(sceneName, player.worldPos());
+				}
+			}
+		});
+
+		// Tooltip timer update with improved logging
+		k.onUpdate(() => {
+			// Skip updating timer if tooltip already shown or player is in dialogue
+			if (homeKeyTooltipShown || player.isInDialogue || player.isFrozen || isFullMapView) {
+				return;
+			}
+
+			// Increment gameplay timer
+			gameplayTimer += k.dt();
+
+			// Log progress occasionally for debugging
+			if (Math.floor(gameplayTimer) % 10 === 0 && Math.floor(gameplayTimer) !== 0 && !debugTooltip) {
+				console.log("Gameplay timer:", Math.floor(gameplayTimer), "/ Target:", homeKeyTooltipTime);
+				debugTooltip = true;
+			} else if (Math.floor(gameplayTimer) % 10 !== 0) {
+				debugTooltip = false;
+			}
+
+			// Check if it's time to show the tooltip
+			if (gameplayTimer >= homeKeyTooltipTime) {
+				// console.log("Time to show tooltip!");
+				showHomeKeyTooltip();
+			}
 		});
 
 		// Show full world map while holding down m key
 		k.onKeyDown("m", () => {
 			isFullMapView = true;
+			showInventoryBtn.style.display = "none";
 			stopAnims();
 			world_map.style.display = "flex";
 		});
 		// Return to player view when releasing m key
 		k.onKeyRelease("m", () => {
 			isFullMapView = false;
+			showInventoryBtn.style.display = "flex";
 			world_map.style.display = "none";
 		});
+
+		let isIAlreadyPressed = false;
+
+		k.onKeyPress("i", () => {
+			isIAlreadyPressed = true;
+			toggleInventory();
+		});
+
+		k.onKeyRelease("i", () => {
+			isIAlreadyPressed = false;
+		});
+
+		document.getElementById("inventory-shop").addEventListener('click', function(event) {
+			// Use setTimeout with 0 delay to put this in the event queue
+			// This ensures it runs after the click event is fully processed
+			setTimeout(function() {
+				// Return focus to the game element
+				document.getElementById("game").focus();
+			}, 0);
+		});
+
+		function toggleInventory() {
+			if (!isInventoryOpen) {
+				// Show inventory
+				if (isFullMapView) {
+					// Close world map if it's open
+					isFullMapView = false;
+					world_map.style.display = "none";
+					showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				}
+				isInventoryOpen = true;
+				stopAnims();
+				showInventoryBtn.innerHTML = "Inventar/Shop verstecken (I)";
+				showInventoryBtn.classList.add("active");
+				inventory_shop.style.display = "flex";
+				// Hide world map button
+				showWorldMapBtn.style.display = "none";
+			} else {
+				// Hide inventory
+				isInventoryOpen = false;
+				showInventoryBtn.innerHTML = "Inventar/Shop anzeigen (I)";
+				showInventoryBtn.classList.remove("active");
+				inventory_shop.style.display = "none";
+				showWorldMapBtn.style.display = "flex";
+			}
+		}
 
 		showWorldMapBtn.addEventListener("click", () => {
 			if (!isFullMapView) {
 				isFullMapView = true;
 				stopAnims();
 				showWorldMapBtn.innerHTML = "Weltkarte verstecken (M)";
+				showInventoryBtn.style.display = "none";
 				world_map.style.display = "flex";
 			} else {
 				isFullMapView = false;
 				showWorldMapBtn.innerHTML = "Weltkarte anzeigen (M)";
+				showInventoryBtn.style.display = "flex";
 				document.getElementById("game").focus();
 				world_map.style.display = "none";
 			}
 		});
 
+		showInventoryBtn.addEventListener("click", () => {
+			toggleInventory();
+			document.getElementById("game").focus();
+		});
+
 		k.onUpdate(() => {
-			if (!isFullMapView) {
+			if (!isFullMapView && !isInventoryOpen) {
 				// Follow the player only if not in full map view
 				k.camPos(player.worldPos().x, player.worldPos().y - 100);
 			}
@@ -719,6 +2306,12 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		k.onResize(() => {
 			setCamScale(k);
+		});
+
+		//player movement
+		playerNameTag.onUpdate(() => {
+			// Use the custom method to update position
+			playerNameTag.updatePosition();
 		});
 
 		//Dog movement
@@ -734,18 +2327,37 @@ function setupScene(sceneName, mapFile, mapSprite) {
 
 		dog.onUpdate(() => {
 			const distance = dog.pos.dist(player.pos);
-			const maxDistance = 200;
+			const maxDistance = 1200;
 			let speed = dog.speed;
 
-			if (distance > maxDistance + 200) {
-				dog.pos = player.pos.clone();
+			// Improved teleportation logic for larger maps
+			if (distance > maxDistance + 400) { // Increased threshold for larger maps
+				// Teleport dog to a position near the player, not exactly on the player
+				const offsetX = Math.random() * 100 - 50; // Random offset between -50 and 50
+				const offsetY = Math.random() * 100 - 50;
+				dog.pos = k.vec2(player.pos.x + offsetX, player.pos.y + offsetY);
+				console.log(`🐕 Dog teleported to player due to large distance (${Math.floor(distance)})`);
 			} else if (distance > maxDistance) {
-				speed = 300;
+				speed = 400; // Increased speed when far away
+			}
+
+			// Validate dog position - ensure it's not at invalid coordinates
+			if (isNaN(dog.pos.x) || isNaN(dog.pos.y) || dog.pos.x === 0 && dog.pos.y === 0) {
+				console.warn("🐕 Dog position invalid, repositioning near player");
+				dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
 			}
 
 			// If the follower is farther than the followDistance, it should move towards the player
 			if (distance > followDistance) {
 				const direction = player.pos.sub(dog.pos).unit();
+				
+				// Validate direction vector
+				if (isNaN(direction.x) || isNaN(direction.y)) {
+					console.warn("🐕 Invalid direction vector, repositioning dog");
+					dog.pos = k.vec2(player.pos.x + 50, player.pos.y + 30);
+					return;
+				}
+				
 				dog.move(direction.scale(speed));
 
 				// Determine animation based on direction
@@ -801,13 +2413,707 @@ function setupScene(sceneName, mapFile, mapSprite) {
 			previousPos = dog.pos.clone();
 
 			if (window.showDogInitialDialogue) {
-				dialogue.display(dialogueData.dogInitial, () => {
+				dialogue.display(getGlobalDialogue('dogInitial'), () => {
 					setCookie("dog_initial_answered", true, 365);
 				});
 				window.showDogInitialDialogue = false;
 			}
 		});
+
+		// Return to spawn points when "h" key is pressed
+		k.onKeyPress("h", () => {
+			if (player.isInDialogue || player.isFrozen) return;
+
+			// If already on campus map, just return to spawn point
+			if (sceneName === "campus" && defaultPlayerSpawnPos && defaultDogSpawnPos) {
+				// Teleport player to default spawn
+				player.pos = defaultPlayerSpawnPos.clone();
+
+				// Teleport dog to default spawn
+				dog.pos = defaultDogSpawnPos.clone();
+
+				// Play a sound effect for feedback
+				k.play("boundary", {
+					volume: sound_effects_volume,
+				});
+
+				// Reset animations to idle based on direction
+				stopAnims();
+				stopDogAnims();
+
+				// Reset any boundary collision state
+				inBoundaryCollision = false;
+				boundaryCollisionTimer = 0;
+				lastSoundTime = 0;
+
+				// Create retro-style background for text
+				const bgBox = k.add([
+					k.rect(340, 48, { radius: 0 }), // Rectangular box with no rounded corners for retro look
+					k.color(k.Color.fromHex("#311047")), // Match the game's primary background color
+					k.pos(player.pos.x, player.pos.y - 60),
+					k.anchor("center"),
+					k.opacity(0.85),
+					k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+					k.lifespan(1.6, { fade: 0.6 }),
+					k.z(99)
+				]);
+
+				// Retro pixel-style text
+				k.add([
+					k.text("* RETURNED TO CAMPUS *", {
+						size: 22,
+						font: "monospace", // Monospace for more pixelated look
+						styles: {
+							fill: k.Color.fromHex("#ffffff"),
+							outline: { width: 2, color: k.Color.fromHex("#000000") } // Retro text outline
+						}
+					}),
+					k.pos(player.pos.x, player.pos.y - 60),
+					k.anchor("center"),
+					k.opacity(1), // Add opacity component for lifespan fade to work
+					k.lifespan(1.5, { fade: 0.5 }),
+					k.z(100)
+				]);
+			} else {
+				// Not on campus, so switch to campus scene
+				if (walkingSound) {
+					walkingSound.stop();
+					walkingSound = null;
+				}
+
+				// Create retro-style background for transition message
+				const transitionBox = k.add([
+					k.rect(400, 60, { radius: 0 }), // Rectangular box with no rounded corners
+					k.color(k.Color.fromHex("#311047")), // Match game's background
+					k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+					k.anchor("center"),
+					k.pos(k.width() / 2, k.height() / 2),
+					k.fixed(),
+					k.opacity(0.85),
+					k.lifespan(1.1, { fade: 0.5 }),
+					k.z(99)
+				]);
+
+				// Retro style teleport message
+				k.add([
+					k.text("* TELEPORTING TO CAMPUS *", {
+						size: 22,
+						font: "monospace", // Monospace for more pixelated look
+						styles: {
+							fill: k.Color.fromHex("#ffffff"),
+							outline: { width: 2, color: k.Color.fromHex("#000000") } // Retro text outline
+						}
+					}),
+					k.anchor("center"),
+					k.pos(k.width() / 2, k.height() / 2),
+					k.fixed(),
+					k.z(100),
+					k.opacity(1),
+					k.lifespan(1, { fade: 0.5 }),
+				]);
+
+				// Brief pause and then go to campus
+				k.wait(0.5, () => {
+					k.go("campus", { from: sceneName });
+				});
+			}
+		});
+
+		// Function to show "Return Home" tooltip in retro style
+		function showHomeKeyTooltip() {
+			if (homeKeyTooltipShown) return;
+
+			// console.log("Showing home key tooltip!"); // Debug log
+			homeKeyTooltipShown = true;
+
+			// Save to session state
+			sessionState.tooltips = sessionState.tooltips || {};
+			sessionState.tooltips.homeKeyShown = true;
+			saveGame();
+
+			// Background box for tooltip
+			const tooltipBox = k.add([
+				k.rect(440, 100, { radius: 0 }), // Rectangular box for retro style
+				k.color(k.Color.fromHex("#311047")), // Match game's background
+				k.outline(4, k.Color.fromHex("#8a2be2")), // Purple pixel-art style border
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2),
+				k.fixed(),
+				k.opacity(0.95),
+				k.z(150),
+			]);
+
+			// Header text
+			const tooltipHeader = k.add([
+				k.text("NEW ABILITY UNLOCKED!", {
+					size: 24,
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#ffffff"),
+						outline: { width: 2, color: k.Color.fromHex("#000000") }
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 - 25),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+
+			// Instruction text
+			const tooltipText = k.add([
+				k.text("Press H key to return to campus", {
+					size: 20,
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#ffff00"), // Yellow text for emphasis
+						outline: { width: 2, color: k.Color.fromHex("#000000") }
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 + 15),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+
+			// Create a continue prompt
+			const continuePrompt = k.add([
+				k.text("Press Q to continue", {
+					size: 16,
+					font: "monospace",
+					styles: {
+						fill: k.Color.fromHex("#aaaaaa"),
+					}
+				}),
+				k.anchor("center"),
+				k.pos(k.width() / 2, k.height() / 2 + 50),
+				k.fixed(),
+				k.opacity(1),
+				k.z(151),
+			]);
+
+			// Make continue text blink
+			let blinkTimer = 0;
+			const blinkInterval = k.onUpdate(() => {
+				blinkTimer += k.dt();
+				if (blinkTimer > 0.5) {
+					continuePrompt.opacity = continuePrompt.opacity === 1 ? 0 : 1;
+					blinkTimer = 0;
+				}
+			});
+
+			// Pause the game while tooltip is showing
+			const playerWasFrozen = player.isFrozen;
+			player.isFrozen = true;
+
+			// Listen for Q key specifically to dismiss
+			const keyHandler = k.onKeyPress("q", () => {
+				tooltipBox.destroy();
+				tooltipHeader.destroy();
+				tooltipText.destroy();
+				continuePrompt.destroy();
+				k.onUpdate(blinkInterval, () => {});
+				k.onKeyPress(keyHandler, () => {});
+				player.isFrozen = playerWasFrozen;
+			});
+		}
+
+		// Global function to play 8-bit melody as fallback
+		function play8BitMelody(volume) {
+		  try {
+			// Create audio context
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			const audioCtx = new AudioContext();
+
+			// Notes for the Super Mario Bros theme (simplified)
+			const notes = [
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'C5', duration: 0.15 },
+			  { note: 'E5', duration: 0.15 },
+			  { note: 'rest', duration: 0.15 },
+			  { note: 'G5', duration: 0.2 },
+			  { note: 'rest', duration: 0.4 },
+			  { note: 'G4', duration: 0.2 }
+			];
+
+			// Frequency mapping
+			const frequencies = {
+			  'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+			  'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77
+			};
+
+			// Play each note sequentially
+			let timeOffset = 0;
+			notes.forEach((noteData, index) => {
+			  if (noteData.note !== 'rest') {
+				const frequency = frequencies[noteData.note];
+				if (frequency) {
+				  setTimeout(() => {
+					const oscillator = audioCtx.createOscillator();
+					const gainNode = audioCtx.createGain();
+
+					oscillator.connect(gainNode);
+					gainNode.connect(audioCtx.destination);
+
+					oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+					oscillator.type = 'square'; // 8-bit style square wave
+
+					gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+					gainNode.gain.linearRampToValueAtTime(volume * 0.1, audioCtx.currentTime + 0.01);
+					gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + noteData.duration);
+
+					oscillator.start(audioCtx.currentTime);
+					oscillator.stop(audioCtx.currentTime + noteData.duration);
+				  }, timeOffset * 1000);
+				}
+			  }
+			  timeOffset += noteData.duration;
+			});
+		  } catch (e) {
+			// console.error("Error playing 8-bit melody:", e);
+		  }
+		}
+
+		// Make the function globally available for the easter egg
+		window.triggerRetroEasterEgg = () => {
+		  console.log("🎮 Retro Easter Egg Activated! 🎮");
+
+		  try {
+			// Play the 8-bit melody
+			const music_volume = sessionState.settings.musicVolume || 0.5;
+			play8BitMelody(music_volume);
+
+			// Get screen dimensions
+			const width = k.width();
+			const height = k.height();
+
+			// Create retro-style background effect
+			const retroBg = k.add([
+			  k.rect(width, height),
+			  k.pos(0, 0),
+			  k.color(k.rgb(20, 20, 40)),
+			  k.opacity(0.8),
+			  k.fixed(),
+			  k.z(1000),
+			  "retro-effect"
+			]);
+
+			// Add scanlines effect
+			for (let y = 0; y < height; y += 4) {
+			  k.add([
+				k.rect(width, 2),
+				k.pos(0, y),
+				k.color(k.rgb(0, 255, 0)),
+				k.opacity(0.1),
+				k.fixed(),
+				k.z(1001),
+				"retro-scanline"
+			  ]);
+			}
+
+			// Add retro text
+			const retroText = k.add([
+			  k.text("RETRO MODE ACTIVATED", { size: 48, font: "sink" }),
+			  k.pos(width / 2, height / 2),
+			  k.anchor("center"),
+			  k.fixed(),
+			  k.color(k.rgb(0, 255, 0)),
+			  k.z(1002),
+			  "retro-text"
+			]);
+
+			// Create some pixelated objects that move around
+			for (let i = 0; i < 20; i++) {
+			  const pixelSize = 4 + Math.floor(Math.random() * 8);
+			  const pixelObject = k.add([
+				k.rect(pixelSize, pixelSize),
+				k.pos(Math.random() * width, Math.random() * height),
+				k.color(k.hsl2rgb(Math.random(), 0.8, 0.8)),
+				k.fixed(),
+				k.z(999),
+				k.move(Math.random() * 360, 50 + Math.random() * 100),
+				k.lifespan(60),
+				"retro-pixel"
+			  ]);
+			}
+
+			// Increase player speed during the easter egg
+			let originalSpeed = null;
+			let originalSprintSpeed = null;
+			const player = k.get("player")[0];
+			if (player) {
+				// console.log("Enhancing player with easter egg effects - Original speed:", player.speed);
+
+				// Store original values
+				originalSpeed = player.speed;
+				originalSprintSpeed = player.sprintSpeed;
+
+				// Set significantly faster speeds - regular and sprint
+				player.speed = 400; // Much faster than normal (typically around 200-250)
+				player.sprintSpeed = 600; // Even faster sprint speed
+
+				// Add a speed indicator text
+				const speedBoostText = k.add([
+					k.text("SPEED BOOST ACTIVE", { size: 20, font: "sink" }),
+					k.pos(width / 2, height - 50),
+					k.anchor("center"),
+					k.fixed(),
+					k.color(k.rgb(255, 255, 0)),
+					k.z(1002),
+					"retro-speed-text"
+				]);
+
+				// Add a slight visual effect to the player
+				const playerInterval = setInterval(() => {
+					if (player) {
+						// More noticeable jitter
+						player.pos.x += Math.random() * 6 - 3;
+						player.pos.y += Math.random() * 4 - 2;
+					}
+				}, 300);
+
+				// Clean up the interval when the easter egg ends
+				k.onDestroy("retro-text", () => {
+					clearInterval(playerInterval);
+				});
+
+				// console.log("Speed boosted to:", player.speed, "Sprint speed boosted to:", player.sprintSpeed);
+			} else {
+				// console.log("Player not found - cannot apply speed boost");
+			}
+
+			// Remove all effects after a minute
+			k.wait(60, () => {
+			  // console.log("Removing retro effects...");
+
+			  // Restore player speed
+			  if (player) {
+				if (originalSpeed !== null) {
+					player.speed = originalSpeed;
+					// console.log("Restored player speed to", originalSpeed);
+				}
+
+				if (originalSprintSpeed !== null) {
+					player.sprintSpeed = originalSprintSpeed;
+					// console.log("Restored player sprint speed to", originalSprintSpeed);
+				}
+			  }
+
+			  k.destroyAll("retro-effect");
+			  k.destroyAll("retro-scanline");
+			  k.destroyAll("retro-text");
+			  k.destroyAll("retro-pixel");
+			  k.destroyAll("retro-speed-text");
+			});
+
+		  } catch (e) {
+			console.error("Error creating visual effects:", e);
+		  }
+		};
+
+		// Add global key handler for Konami code detection (only once)
+		if (!konamiListenerAdded) {
+			konamiListenerAdded = true;
+			document.addEventListener("keydown", (e) => {
+			  // Check if the pressed key matches the next key in the Konami sequence
+			  if (e.code === konamiCode[konamiIndex]) {
+				konamiIndex++;
+				if (konamiDebug) {
+				  console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+				}
+
+				// If the full sequence is entered, trigger the easter egg
+				if (konamiIndex === konamiCode.length) {
+				  console.log("🎮 KONAMI CODE ACTIVATED! 🎮");
+				  window.triggerRetroEasterEgg();
+				  konamiIndex = 0; // Reset for next time
+				}
+			  } else {
+				konamiIndex = 0; // Reset if incorrect key
+				// If the first key of the sequence is pressed, start the sequence again
+				if (e.code === konamiCode[0]) {
+				  konamiIndex = 1;
+				  if (konamiDebug) {
+					console.log(`Konami progress: ${konamiIndex}/${konamiCode.length}`);
+				  }
+				}
+			  }
+			});
+		}
+
+		// Scene setup is complete, clear the flag
+		window.currentlySettingUpScene = null;
+
+		// Add proper scene cleanup
+		k.onSceneLeave(() => {
+			// console.log(`Leaving scene: ${sceneName}`);
+			
+			// Performance cleanup - free up resources
+			cleanupMapResources(sceneName);
+			
+			// Clear the scene setup flag
+			window.currentlySettingUpScene = null;
+			
+			// Stop any walking sounds
+			if (walkingSound) {
+				walkingSound.stop();
+				walkingSound = null;
+			}
+			
+			// Clean up company flag interactions
+			cleanupFlags();
+			
+			// Clean up goto area labels
+			cleanupGotoLabels();
+			
+			// Clean up map rendering
+			cleanupMapRendering();
+			
+			// Clean up tiled map system
+			cleanupTiledMap();
+			
+			// Clean up loading screen
+			removeLoadingScreen();
+			
+			// Clean up any retro effects
+			k.destroyAll("retro-effect");
+			k.destroyAll("retro-scanline");
+			k.destroyAll("retro-text");
+			k.destroyAll("retro-pixel");
+			k.destroyAll("retro-speed-text");
+			
+			// Clean up event handlers
+			if (spriteUpdateHandler) {
+				k.onUpdate(spriteUpdateHandler, () => {});
+			}
+			
+			// Destroy all scene-specific objects
+			k.destroyAll("player");
+			k.destroyAll("dog");
+			k.destroyAll("boundary");
+			k.destroyAll("exclamation");
+			k.destroyAll("promptText");
+			k.destroyAll("map-tile"); // Clean up map tiles
+			k.destroyAll("temp-map"); // Clean up temporary maps
+			k.destroyAll("loading-screen"); // Clean up loading screen elements
+			
+			// Reset any global state
+			isFullMapView = false;
+			isInventoryOpen = false;
+			
+			// Hide UI elements
+			const interactButton = document.getElementById("interact-button");
+			if (interactButton) {
+				interactButton.style.display = 'none';
+			}
+			
+			const worldMap = document.getElementById("world-map");
+			if (worldMap) {
+				worldMap.style.display = 'none';
+			}
+			
+			const inventoryShop = document.getElementById("inventory-shop");
+			if (inventoryShop) {
+				inventoryShop.style.display = 'none';
+			}
+			
+			// console.log(`Scene cleanup completed for: ${sceneName}`);
+		});
 	});
 }
 
+// Update the global wrapper to use the actual function now that it's defined
+window.setupScene = setupSceneInternal;
+
 k.go("loading");
+
+// Add window resize handler for map rendering
+window.addEventListener('resize', () => {
+	handleWindowResize();
+});
+
+// For testing, add a key to force show the tooltip
+k.onKeyPress("t", () => {
+	if (k.isKeyDown("shift")) {
+		showHomeKeyTooltip();
+	}
+});
+
+// Add DOM event listener for Ctrl key combinations (since Kaboom doesn't handle Ctrl properly)
+document.addEventListener("keydown", (e) => {
+	// Emergency fix key for map rendering issues (Ctrl+R)
+	if (e.ctrlKey && e.key.toLowerCase() === "r") {
+		e.preventDefault(); // Prevent browser refresh
+		// console.log("Emergency map rendering fix triggered");
+		emergencyRenderingFix();
+	}
+	
+	// KSB-specific fix key (Ctrl+K)
+	if (e.ctrlKey && e.key.toLowerCase() === "k") {
+		e.preventDefault(); // Prevent any default browser behavior
+		// console.log("KSB-specific rendering fix triggered");
+		fixKSBMapRendering();
+	}
+	
+	// Reload map sprite with pixel-perfect settings (Ctrl+S)
+	if (e.ctrlKey && e.key.toLowerCase() === "s") {
+		e.preventDefault(); // Prevent browser save dialog
+		// console.log("Reloading current map sprite with pixel-perfect settings");
+		
+		// Try to determine current scene/map name
+		const currentScene = k.getSceneName ? k.getSceneName() : null;
+		if (currentScene && currentScene !== "loading") {
+			// console.log("Reloading sprite for scene:", currentScene);
+			reloadMapSprite(currentScene);
+		} else {
+			// console.log("Could not determine current scene for sprite reload");
+		}
+	}
+	
+	// Test tiled map system (Ctrl+T)
+	if (e.ctrlKey && e.key.toLowerCase() === "t") {
+		e.preventDefault();
+		// console.log("Testing tiled map system for current scene");
+		
+		const currentScene = k.getSceneName ? k.getSceneName() : null;
+		if (currentScene && currentScene !== "loading") {
+			// console.log("Creating tiled map for:", currentScene);
+			
+			// Clean up existing map tiles
+			cleanupTiledMap();
+			k.destroyAll("map-tile");
+			
+			// Create new tiled map
+			const tiledInfo = createTiledMap(currentScene);
+			if (tiledInfo) {
+				loadMapTiles(currentScene).then(() => {
+					// console.log("Test tiles loaded, creating tile objects...");
+					createTileGameObjects();
+					
+					// Remove loading screen after test completion
+					k.wait(0.1, () => {
+						removeLoadingScreen();
+						// console.log("Test tiled map creation complete");
+					});
+				}).catch((error) => {
+					// console.error("Test tile loading failed:", error);
+					removeLoadingScreen();
+				});
+			} else {
+				// console.log("Map doesn't need tiling (within size limits)");
+			}
+		}
+	}
+	
+	// Debug info key (Ctrl+D)
+	if (e.ctrlKey && e.key.toLowerCase() === "d") {
+		e.preventDefault();
+		console.log("=== RENDERING DEBUG INFO ===");
+		console.log("Canvas:", k.canvas);
+		console.log("Canvas dimensions:", k.canvas ? `${k.canvas.width}x${k.canvas.height}` : "No canvas");
+		console.log("Screen dimensions:", `${k.width()}x${k.height()}`);
+		console.log("Camera position:", k.camPos());
+		console.log("Camera scale:", k.camScale());
+		
+		const canvas = k.canvas;
+		if (canvas) {
+			const ctx = canvas.getContext('2d');
+			if (ctx) {
+				console.log("Image smoothing enabled:", ctx.imageSmoothingEnabled);
+				console.log("Image smoothing quality:", ctx.imageSmoothingQuality);
+				console.log("Current transform:", ctx.getTransform());
+			}
+		}
+		
+		// Show current scene
+		console.log("Current scene:", k.getSceneName ? k.getSceneName() : "Unknown");
+		console.log("Player objects:", k.get("player").length);
+		
+		// Show goto area info
+		const gotoInfo = getGotoAreaInfo();
+		console.log("Goto area system:", gotoInfo);
+		console.log("=== END DEBUG INFO ===");
+	}
+	
+	// Show all goto labels (Ctrl+G)
+	if (e.ctrlKey && e.key.toLowerCase() === "g") {
+		e.preventDefault();
+		// console.log("Debug: Toggling all goto labels");
+		const gotoInfo = getGotoAreaInfo();
+		if (gotoInfo.visibleLabels > 0) {
+			debugHideAllGotoLabels();
+		} else {
+			debugShowAllGotoLabels();
+		}
+	}
+	
+	// Show performance statistics (Ctrl+P)
+	if (e.ctrlKey && e.key.toLowerCase() === "p") {
+		e.preventDefault();
+		console.log("=== PERFORMANCE STATISTICS ===");
+		logPerformanceStats();
+		console.log("=== END PERFORMANCE STATS ===");
+	}
+	
+	// Debug dog position and status (Ctrl+O)
+	if (e.ctrlKey && e.key.toLowerCase() === "o") {
+		e.preventDefault();
+		console.log("=== DOG DEBUG INFO ===");
+		const dogs = k.get("dog");
+		const players = k.get("player");
+		
+		if (dogs.length === 0) {
+			console.log("❌ No dog found in scene!");
+		} else {
+			const dog = dogs[0];
+			const player = players[0];
+			console.log(`🐕 Dog position: ${dog.pos.x.toFixed(2)}, ${dog.pos.y.toFixed(2)}`);
+			console.log(`👤 Player position: ${player.pos.x.toFixed(2)}, ${player.pos.y.toFixed(2)}`);
+			console.log(`📏 Distance: ${dog.pos.dist(player.pos).toFixed(2)}`);
+			console.log(`🎬 Dog animation: ${dog.curAnim()}`);
+			console.log(`🏃 Dog speed: ${dog.speed}`);
+			console.log(`👁️ Dog visible: ${dog.visible !== false}`);
+			console.log(`🎯 Dog in scene: ${k.get("dog").length} dogs found`);
+		}
+		console.log("=== END DOG DEBUG ===");
+	}
+	
+	// Manual dog recovery (Ctrl+Shift+D)
+	if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "d") {
+		e.preventDefault();
+		console.log("🚑 Manual dog recovery triggered!");
+		
+		const dogs = k.get("dog");
+		const players = k.get("player");
+		
+		if (players.length === 0) {
+			console.log("❌ No player found - cannot recover dog");
+			return;
+		}
+		
+		const player = players[0];
+		
+		if (dogs.length === 0) {
+			console.log("🐕 No dog found - this might indicate a deeper issue");
+			console.log("💡 Try switching to a different map and back to reset the dog");
+		} else {
+			const dog = dogs[0];
+			console.log(`🐕 Recovering dog from position: ${dog.pos.x}, ${dog.pos.y}`);
+			
+			// Teleport dog to player
+			dog.pos = k.vec2(player.pos.x + 100, player.pos.y + 50);
+			dog.visible = true;
+			dog.z = 15;
+			
+			// Reset dog animation
+			dog.play("dog-idle-side");
+			
+			console.log(`✅ Dog recovered to position: ${dog.pos.x}, ${dog.pos.y}`);
+		}
+	}
+});

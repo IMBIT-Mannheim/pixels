@@ -1,9 +1,9 @@
 export let maps = [
   'mensa',
   'klassenzimmer',
-  'unternehmensausstellung',
   'almeria',
   'campus',
+  'unternehmensausstellung',
 ]
 export const mapMusic = {
   'mensa': 'Mensa',
@@ -17,16 +17,31 @@ export const music = [
   'eglise_orgue',
   'haunted'
 ]
+
+export const companyMapsVisible = {
+  'ksb': true,
+  'atos': false,
+}
+
 export const scaleFactor = 4;
 export const dialogueData = {
 
   //Hund
   dogInitial: {
-    title: 'selin',
-    text: "Hey du! Bevor es richtig losgeht: Kennst du schon das duale Studium? ",
+    title: '{dogName}',
+    text: `Wuff! Da bist du ja! Hallo, ich bin dein treuer Begleiter fuer dieses Abenteuer! 
+      Bevor es losgeht, hier die Steuerung...
+      - Bewegen: WASD, Pfeiltasten oder Mausklick
+      - Dialog oeffnen: Automatisch, wenn man in der Naehe ist
+      - Dialog schliessen: ESC oder Schliessen-Button
+      - Quiz beantworten: Antworten auswaehlen mit den "Answer"-Buttons
+      - Weltkarte oeffnen: M gedrueckt halten oder den Button unten rechts druecken
+      - Teleportieren: Ueber die Weltkarte zu einem anderen Punkt
+      Diese Infos findest du spaeter jederzeit unten rechts ueber den Button "Weltkarte anzeigen".
+      Bevor wir mit unserer Reise anfangen, habe ich bereits eine Frage fuer dich: Kennst du schon das duale Studium? `,
     answers: [
-      "Ja, kenne ich schon.",
-      "Nein, was ist das?"
+      "Ja, kenne ich schon. ",
+      "Nein, was ist das? "
     ],
     correctAnswer: 1,
     correctText: "Super! Dann kann es ja losgehen! ",
@@ -35,13 +50,13 @@ export const dialogueData = {
 
   //Almeria
   almeriaOpa: {
-    title: 'Almeria Opa',
-    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" > \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" > \n <img src="/images/almeria3.jpg" alt="Almeria3" > \n <img src="/images/almeria4.jpg" alt="Almeria4" > \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" > \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" > \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" > \n <img src="/images/almeria8.jpg" alt="Almeria5" > \n <img src="/images/almeria9.jpg" alt="Almeria5" > \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.png" alt="Almeria5" > \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt.`,
+    title: 'Almeria Opa ',
+    text: `Hallo Spieler! Du bist nun in Almeria, einer sonnigen Kuestenstadt Spaniens, wo dich waehrend deiner zwei Wochen an der Universidad de Almeria nicht nur neue Erkenntnisse, sondern auch die beeindruckende Alcazaba, endlose Straende und koestliche Tapas erwarten. Schau dich um – die Bilder zeigen dir, was Almeria zu bieten hat. Viel Spass beim Entdecken! \n <img src="/images/almeria1.jpg" alt="Almeria1" > \n Lokales Unternehmen: Als unterstuetzender und praktischer Teil des Kursplans wird ein lokales Unternehmen besucht. Anhand dieses Unternehmen werden Inhalte und Ideen des Kurses zu Unternehmen verdeutlicht und in Praxisbezug gesetzt. \n <img src="/images/almeria2.jpg" alt="Almeria2" > \n <img src="/images/almeria3.jpg" alt="Almeria3" > \n <img src="/images/almeria4.jpg" alt="Almeria4" > \n Stadtfuehrung: Waehrend der Zeit an der Summer School findet eine Stadtfuehrung statt bei welcher die reiche und diverse Geschichte der Hafenstadt kennengelernt werden kann. \n <img src="/images/almeria5.jpg" alt="Almeria5" > \n Nachtleben: Erst Nachts beginnt die Stadt richtig aufzuleben. Wegen der Hitze ueber den Nachmittag, treffen sich die meisten Leut erst am spaeten Abend. \n <img src="/images/almeria6.jpg" alt="Almeria5" > \n Unternehmertum: Die Vorlesungen geben einen Einblick in das Unternehmertum. Von der Ideenfindung bis hin zur Konzeption wird der Prozess Schritt fuer Schritt theoretisch erklaert und an einem Beispiel praktisch und durchgefuehrt. \n <img src="/images/almeria7.jpg" alt="Almeria5" > \n <img src="/images/almeria8.jpg" alt="Almeria5" > \n <img src="/images/almeria9.jpg" alt="Almeria5" > \n Architektur: Architektur seiner vielseitigen Historie hat fuer die Hafenstadt Almeria zahlreiche architektonische Einfluesse erhalten, die man bis heute erleben kann. \n <img src="/images/almeria10.png" alt="Almeria5" > \n Zertifizierung: Nach erfolgreichem Abschluss wird ein Zertifikat ueberreicht, dass den Besuch der Universitaet und des Kurses zum Unternehmertum bestaetigt. `,
     answers: [
     ],
   },
   almeriaGuy: {
-    title: 'Almeria Guy',
+    title: 'Almeria Guy ',
     text: `Waehrend des Studiums geht es fuer unsere IMBIT Student:innen ins Ausland – drei spannende Monate in der Praxisphase! Hier findest du Links mit Berichten von Studierenden, die ihre Erfahrungen teilen. \n <a target="_blank" href="/downloads/Auslands_erfahrungen_ppt.pptx">Download!</a> `,
     answers: [
     ],
@@ -49,184 +64,332 @@ export const dialogueData = {
 
   //Klassenzimmer
   factone: {
-    title: '5 Fakten ueber Mannheim',
-    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Straßennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
+    title: '5 Fakten ueber Mannheim ',
+    text: `1.Quadratestadt: Mannheim ist in Deutschland einzigartig: Die Innenstadt ist im Quadrat- bzw. Rasterformat angelegt – anstelle von Strassennamen orientiert man sich dort an Buchstaben- und Zahlenkombinationen. \n2.Wasserturm: Das Wahrzeichen Mannheims, der Wasserturm, ist 60 Meter hoch und ein beliebter Treffpunkt im Stadtzentrum. \n3. Erfindung des Automobils: Carl Benz erfand in Mannheim 1885 das erste Automobil – ein weltveraendernder Moment! \n4.Musikstadt: Mannheim ist eine bedeutende Musikstadt und Geburtsort der "Mannheimer Schule," einer wichtigen musikalischen Bewegung des 18. Jahrhunderts, die die klassische Musik nachhaltig praegte. \n5. Multikulturell: Mannheim ist bekannt fuer seine kulturelle Vielfalt und veranstaltet jedes Jahr das Multikulti-Festival "Mannheimer Stadtfest". `,
     answers: [
     ],
   },
   facttwo: {
-    title: '5 Fakten uebers Duale Studium',
+    title: '5 Fakten uebers Duale Studium ',
     text: `1. Praxis und Theorie: Ein duales Studium kombiniert Hochschulstudium mit praktischer Arbeit im Unternehmen.\n2. Verguetung: Studierende erhalten ein Gehalt waehrend des gesamten Studiums.\n3. Kurze Studiendauer: Ein duales Studium dauert 3 Jahre. \n4. Hohe uebernahmechancen: Viele Unternehmen uebernehmen ihre dualen Studierenden nach dem Abschluss.\n5. Wechsel alle 3 Monate: Theorie- und Praxisphasen wechseln alle drei Monate. `,
     answers: [
     ],
   },
   factthree: {
-    title: '5 Fakten ueber die DHBW Mannheim',
+    title: '5 Fakten ueber die DHBW Mannheim ',
     text: `1. Zweitgroesster Standort: Die DHBW Mannheim ist mit ueber 5.500 Studierenden und rund 2.000 Partnerunternehmen der zweitgroesste Standort der Dualen Hochschule Baden-Wuerttemberg. \n2. Breites Studienangebot: Sie bietet mehr als 45 Studienrichtungen in den Fakultaeten Wirtschaft und Technik an. \n3. 50-jaehriges Jubilaeum: Im Jahr 2024 feiert die DHBW Mannheim ihr 50-jaehriges Bestehen und blickt auf eine erfolgreiche Geschichte des dualen Studiums zurueck. \n4. Hohe Absolventenzahl: Im Jahr 2023 schlossen 1.542 Studierende ihr Studium erfolgreich ab. \n5. Starke Vernetzung: Mit rund 1.900 Dualen Partnern aus verschiedenen Branchen ist die DHBW Mannheim eng mit der Wirtschaft verknuepft und foerdert praxisnahe Ausbildung. `,
     answers: [
     ],
   },
   factfour: {
-    title: 'factfour',
+    title: 'factfour ',
     text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
   },
   factfive: {
-    title: 'factfive',
+    title: 'factfive ',
     text: `Hier gibt's nix zu sehen! `,
     answers: [
     ],
   },
-  bwlopa: [{
-    id: 16,
-    title: 'Prof. Magnolica',
-    text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. Mal sehen, ob du mithalten kannst. \n Was beschreibt das BIP? `,
-    answers: [
-      '1) Die Inflation eines Landes',
-      '2) Den Gesamtwert aller Gueter und Dienstleistungen eines Landes',
-      '3) Die Arbeitslosenquote',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 15,
-    title: 'Prof. Magnolica',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) VWL',
-      '2) BWL',
-      '3) DWL',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft. ',
-    wrongText: 'Falsch! ',
-  },],
-  bwlGuy: [{
-    id: 14,
-    title: 'Prof. Burnett',
-    text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. \n Was ist die Grundgleichung der doppelten Buchfuehrung? `,
-    answers: [
-      '1) Aktiva = Passiva',
-      '2) Einnahmen = Ausgaben',
-      '3) Soll = Gewinn',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  }, {
-    id: 13,
-    title: 'Prof. Burnett',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) Grundlagen der Rechnungslegung',
-      '2) Statistik',
-      '3) Marketing',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
-    wrongText: 'Falsch! ',
-  },],
-  bwlgirl: [{
-    id: 12,
-    title: 'Prof. Eibe',
-    text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. Bist du bereit fuer eine Denksportaufgabe? \n Was ist das Ziel einer SWOT-Analyse? `,
-    answers: [
-      '1) Die Bilanz eines Unternehmens zu erstellen',
-      '2) Stärken, Schwächen, Chancen und Risiken eines Unternehmens zu analysieren',
-      '3) Die Mitarbeiterzufriedenheit zu messen',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 11,
-    title: 'Prof. Eibe',
-    text: `Bonusfrage: „Kannst du erraten, welches Fach ich unterrichte? `,
-    answers: [
-      '1) BWL',
-      '2) VWL',
-      '3) Unternehmensfuehrung',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Sehr gut! Du denkst strategisch. ',
-    wrongText: 'Falsch! ',
-  },],
-  itgirl1: [{
-    id: 10,
-    title: 'Prof. Birk',
-    text: `Gruess dich! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. \n Was macht die Funktion  print()  in Python?“`,
-    answers: [
-      '1) Daten speichern',
-      '2) Text ausgeben',
-      '3) Schleifen ausfuehren',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 9,
-    title: 'Prof. Birk',
-    text: `Bonusfrage: „Welches Fach koennte ich wohl unterrichten?" `,
-    answers: [
-      '1) Programmierung',
-      '2) Cryptographie',
-      '3) Datasecurity',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Du hast den Dreh raus.“',
-    wrongText: 'Falsch! ',
-  },],
-  itgirl2: [{
-    id: 8,
-    title: 'Prof. Lind',
-    text: `Willkommen, in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: \n Welches der folgenden ist keine Speicherart?“`,
-    answers: [
-      '1) RAM',
-      '2) CPU',
-      '3) HDD',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id: 7,
-    title: 'Prof. Lind',
-    text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
-    answers: [
-      '1) Grundlegende Konzepte der IT',
-      '2) Computerwissenschaft',
-      '3) Netzwerke',
-    ],
-    correctAnswer: 1, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },],
-  itguy: {
-    id: 6,
-    title: 'Prof. Eich',
-    text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. \n Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS?“`,
-    answers: [
-      '1) Basis Instandhaltungssysteme',
-      '2) Betriebliche Informationssysteme',
-      '3) Bedingte Informationssperre',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Gut gemacht! Weiter so. ',
-    wrongText: 'Falsch! ',
-  },
+  bwlopa: [
+    // 1) Vorstellung Prof. Magnolica
+    {
+      id: 0,
+      title: 'Prof. Magnolica ',
+      text: `Willkommen! Ich bin Professor Magnolica. Die Raeder der Wirtschaft drehen sich staendig. `,
+      answers: [],       // Intro ohne Buttons
+      correctAnswer: 0,  // deaktiviert Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Magnolica
+    {
+      id: 16,
+      title: 'Prof. Magnolica ',
+      text: `Was beschreibt das BIP? `,
+      answers: [
+        '1) Die Inflation eines Landes ',
+        '2) Mass fuer die gesamte Wirtschaftsleistung eines Landes in einem bestimmten Zeitraum ',
+        '3) Die Arbeitslosenquote ',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Magnolica
+    {
+      id: 15,
+      title: 'Prof. Magnolica ',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) VWL ',
+        '2) BWL ',
+        '3) DWL ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Sehr gut! Du hast ein gutes Verstaendnis der Wirtschaft! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  bwlGuy: [
+    // 1) Vorstellung Prof. Burnett
+    {
+      id: 0,
+      title: 'Prof. Burnett ',
+      text: `Hallo! Ich bin Professor Burnett. Ich hoffe, du bist bereit, tief in die Materie einzutauchen. Zahlen koennen manchmal schwer wiegen, aber keine Sorge, ich helfe dir dabei. `,
+      answers: [],       // Intro ohne Antwort-Buttons
+      correctAnswer: 0,  // deaktiviert Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Burnett
+    {
+      id: 14,
+      title: 'Prof. Burnett ',
+      text: `Was ist die Grundgleichung der doppelten Buchfuehrung? `,
+      answers: [
+        '1) Aktiva = Passiva ',
+        '2) Einnahmen = Ausgaben ',
+        '3) Soll = Gewinn ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Burnett
+    {
+      id: 13,
+      title: 'Prof. Burnett ',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) Grundlagen der Rechnungslegung ',
+        '2) Statistik ',
+        '3) Marketing ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Du hast ein gutes Verstaendnis fuer die Grundlagen. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  bwlgirl: [
+    // 1) Vorstellung von Prof. Eibe
+    {
+      id: 0,
+      title: 'Prof. Eibe',
+      text: `Willkommen! Ich bin Professor Eibe. Strategisches Denken liegt mir am Herzen. `,
+      answers: [],       // Intro ohne Antwort-Buttons
+      correctAnswer: 0,  // deaktiviert die Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Eibe
+    {
+      id: 12,
+      title: 'Prof. Eibe ',
+      text: `Was beschreibt eine SWOT-Analyse? `,
+      answers: [
+        '1) Geschaeftsrisiken ',
+        '2) Finanzbuchhaltung ',
+        '3) Softwareentwicklung ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Eibe
+    {
+      id: 11,
+      title: 'Prof. Eibe ',
+      text: `Bonusfrage: Kannst du erraten, welches Fach ich unterrichte? `,
+      answers: [
+        '1) BWL ',
+        '2) VWL ',
+        '3) Unternehmensfuehrung ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Sehr gut! Du denkst strategisch. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itgirl1: [
+    // 1) Vorstellung von Prof. Birk
+    {
+      id: 0,
+      title: 'Prof. Birk ',
+      text: `Gruess dich, schoen dich kennenzulernen! Ich bin Professor Birk. Ich liebe es, Codes zu knacken. Mal sehen, ob du meine Herausforderung meisterst. `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof Birk
+    {
+      id: 10,
+      title: 'Prof. Birk ',
+      text: `Was macht die Funktion print() in Python? `,
+      answers: [
+        '1) Daten speichern ',
+        '2) Text ausgeben ',
+        '3) Schleifen ausfuehren ',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Birk
+    {
+      id: 9,
+      title: 'Prof. Birk ',
+      text: `Bonusfrage: Welches Fach koennte ich wohl unterrichten? `,
+      answers: [
+        '1) Programmierung ',
+        '2) Cryptographie ',
+        '3) Datasecurity ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Du scheinst ein echter Code-Kenner zu sein! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itgirl2: [
+    // 1) Vorstellung von Prof. Lind
+    {
+      id: 0,
+      title: 'Prof. Lind ',
+      text: `Willkommen in meinem Kurs! Willst du dich nicht erstmal hinsetzen und was lernen? Nein?! Na gut, dann hier meine Pruefung: `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von Prof. Lidnd
+    {
+      id: 8,
+      title: 'Prof. Lind ',
+      text: `Welches der folgenden ist keine Speicherart? `,
+      answers: [
+        '1) RAM ',
+        '2) CPU ',
+        '3) HDD ',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+    // 3) Bonusfrage von Prof. Lind
+    {
+      id: 7,
+      title: 'Prof. Lind ',
+      text: `Bonusfrage: Welches Modul unterrichte ich hier? `,
+      answers: [
+        '1) Grundlegende Konzepte der IT ',
+        '2) Computerwissenschaft ',
+        '3) Netzwerke ',
+      ],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Vielleicht sehen wir uns ja bald hier! ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
+  itguy: [
+    // 1) Vorstellung von Prof. Eich
+    {
+      id: 0,
+      title: 'Prof. Eich',
+      text: `Oh, ein neuer Student. Ich bin Professor Eich und das hier ist mein Kurs zu den Methoden der Wirtschaftsinformatik. Hier lernst du die Grundlagen des Prozessdenkens. `,
+      answers: [],
+      correctAnswer: 0,
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Quizfrage von Prof. Eich
+    {
+      id: 6,
+      title: 'Prof. Eich',
+      text: `Bist du bereit fuer meine Aufgabe? Wofuer steht der Begriff BIS? `,
+      answers: [
+        '1) Basis Instandhaltungssysteme',
+        '2) Betriebliche Informationssysteme',
+        '3) Bedingte Informationssperre',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Gut gemacht! Weiter so. ',
+      wrongText: 'Leider falsch. ',
+    },
+  ],
+
   tipsRoboter: {
     title: 'Bob',
-    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und beratungsangebote</a>`,
+    text: `Hier findest du nuetzliche Links und Tipps fuer dein Studium: \n Link 1: <a target="_blank" href="https://imbit-n3xt.com">IMBIT-Homepage</a> \n Link 2: <a target="_blank" href="https://www.mannheim.dhbw.de/studium/bachelor/wirtschaft/wirtschaftsinformatik/imbit/duale-partner">Die Dualen Partnern</a> \n Link 3: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Erstsemesterinformationen-IMBIT-FakW-DHBW-MA-201810.pdf">Informationen fuer IMBIT-Studienanfaenger</a> \n Link 4: <a target="_blank" href="https://curemannheim.de/">F1 Auto von den studenten</a> \n Link 5: <a target="_blank" href="http://193.196.6.12/rapla">Rapla Studenplan</a> \n Link 6: <a target="_blank" href="https://www.mannheim.dhbw.de/fileadmin/user_upload/Studienangebot/Wirtschaft/Wirtschaftsinformatik/IMBIT/Service-Beratungsangebote-Studierende-DHBW-MA-202308.pdf">Service und Beratungsangebote</a>`,
 
     answers: [
     ],
   },
+
+  sbgirl: [
+    {
+      id: 145,
+      title: 'Prof. Meier',
+      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Schmidt und leite das Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren?`,
+      answers: [
+        '1) Vorteile des dualen Studiums ',
+        '2) Bewerbung und Ablauf ',
+      ],
+      correctAnswer: 1,
+      correctText: `Das duale Studium an der DHBW Mannheim bringt viele Vorteile: 
+      - Praxis und Theorie im Wechsel (alle 3 Monate) 
+      - 3 Jahre Studiendauer, Abschluss mit 210 ECTS 
+      - Verguetung durch das Unternehmen ab Tag 1 
+      - Kleine Kursgroessen & enge Betreuung 
+      - Sehr gute Chancen auf Uebernahme (rund 85%) 
+      - Internationale Moeglichkeiten mit dem International Office 
+      - Modern ausgestatteter Campus in Mannheim 
+        Du willst mehr dazu wissen? Dann schau hier vorbei: 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/das-duale-studium">Duales Studium DHBW </a>`,
+      wrongText: `So bewirbst du dich fuer ein duales Studium an der DHBW Mannheim:
+      1. Studienplatz bei Partnerunternehmen finden: 👉  <a target="_blank" href="https://studyup.mannheim.dhbw.de">StudyUp Plattform </a>
+      2. Bewerbung direkt beim Unternehmen (kein zentrales Vergabeverfahren) 
+      3. Studienvertrag unterschreiben und ans DHBW-Portal weiterleiten 
+      4. Online-Immatrikulation einreichen 
+      5. Optional: Vorkurse & Orientierungsangebote nutzen
+      Zulassungsvoraussetzungen: 
+      - Allgemeine oder fachgebundene Hochschulreife (Abitur) 
+      - Fachhochschulreife mit zusaetzlichen Nachweisen 
+      - Berufliche Qualifikation oder auslaendischer Abschluss (mit Bedingungen) 
+      - Studienvertrag mit einem Dualen Partnerunternehmen
+      Mehr dazu 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/das-duale-studium/zulassungsvoraussetzungen">Zulassungsvoraussetzungen DHBW Mannheim</a>
+      Weitere Infos zur Immatrikulation: 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/service/servicezentrum-studium-und-lehre/immatrikulation-beurlaubung-exmatrikulation">Immatrikulation DHBW</a>`,
+    }
+  ],
+  sbgirl2: [
+    {
+      id: 144,
+      title: 'Prof. Bauer',
+      text: `Willkommen bei der Studierendenberatung! Ich bin Professor Bauer und bin im Beratungsteam hier an der DHBW Mannheim. Wir helfen dir gerne bei allen Fragen rund um dein Studium.\n Worueber moechtest du mehr erfahren? `,
+      answers: [
+        '1) Studienberatung & Orientierung',
+        '2) Events & Campus kennenlernen',
+      ],
+      correctAnswer: 1,
+      correctText: `Noch unsicher, welcher Studiengang zu dir passt? Unsere Studienberatung hilft dir: 
+    - Persoenliche Beratung 
+    - Online-Tests zur Selbsteinschaetzung (OSA, MathX3 usw.) 
+    - Hilfreiche Tools zur Studienwahl 
+    Alle Infos zur Orientierung findest du hier 👉 <a target="_blank" href="https://www.mannheim.dhbw.de/studium/vor-dem-studium/studienwahl-beratung">Studienberatung DHBW</a> Kontakt: studienberatung.ma@dhbw.de`, 
+      wrongText: `Du willst die DHBW Mannheim live erleben? 
+        - Infoveranstaltungen auf dem Campus oder digital 
+        - Teilnahme an Messen in deiner Region 
+        - Campusbesuche & Erstsemester-Welcome 
+      Aktuelle Termine und Events findest du hier 👉 <a target="_blank" href="https://events.mannheim.dhbw.de/event?event_filter%5BsearchTerm%5D=&event_filter%5BstartDate%5D=&event_filter%5BendDate%5D=&event_filter%5BtargetGroups%5D%5B%5D=9&submitFilter=common.search">DHBW Events</a> 
+      Wir freuen uns auf dich! `,
+    }
+  ],
   //Mensa
   fernseher: {
     title: 'Aktueller Speiseplan',
@@ -327,41 +490,53 @@ export const dialogueData = {
     answers: [
     ],
   },
-  //Campus
   girl: {
     title: 'Mentorin',
     text: `Willkommen auf dem Campus, Abenteurer! Hier erfaehrst du alles ueber das Studentenleben. Um mehr ueber Partys, Sport und die Campus-Gemeinschaft zu erfahren, musst du eine Aufgabe erledigen. \n Finde die 3 Mitglieder der Studentenvertretung. Diese werden dir mehr Infos ueber das Studentenleben geben! `,
     answers: [
     ],
   },
-  girl2: [{
-    id:23,
-    title: 'Event Manager Emma',
-    text: `Hey ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben - Partys, Lesungen, Filmabende und mehr. Weisst du schon welche Events auf dich warten? Zeig mir was du weisst! \n Was gibt es zu Beginn jeden Studienjahres?`,
-    answers: [
-      '1) Gesundheitspruefung',
-      '2) eine Grosse Opening-Party',
-      '3) Kostenloses Essen in der Mensa',
-      '4) Gutscheine fuer das Fehlen in Vorlesungen',
-    ],
-    correctAnswer: 2, // = index of correct answer + 1
-    correctText: 'Sehr gut! ',
-    wrongText: 'Falsch! ',
-  },
-  {
-    id:22,
-    title: 'Event Manager Emma',
-    text: `Wie viele Personen waren bei der letzten Opening-Party 2024? `,
-    answers: [
-      '1) 300',
-      '2) 1000',
-      '3) 3000',
-      '4) 4000',
-    ],
-    correctAnswer: 4, // = index of correct answer + 1
-    correctText: 'Du bist ein Event-Experte! Freu dich auf coole Abende und viele neue Freunde auf dem Campus. ',
-    wrongText: 'Falsch! ',
-  },
+  girl2: [
+    // 1) Vorstellung von girl2
+    {
+      id: 0,
+      title: 'Event Manager Emma',
+      text: `Hey, ich bin Emma! Auf dem Campus gibt es immer etwas zu erleben – Partys, Lesungen, Filmabende und mehr. `,
+      answers: [],       // keine Antwort-Buttons bei der Intro
+      correctAnswer: 0,  // deaktiviert die Quiz-Logik
+      correctText: '',
+      wrongText: '',
+    },
+    // 2) Erste Quizfrage von girl2
+    {
+      id: 23,
+      title: 'Event Manager Emma',
+      text: `Was gibt es zu Beginn jeden Studienjahres? `,
+      answers: [
+        '1) Gesundheitspruefung',
+        '2) grosse Opening-Party',
+        '3) kostenloses Essen in der Mensa',
+        '4) Gutscheine fuer das Fehlen in Vorlesungen',
+      ],
+      correctAnswer: 2, // = index of correct answer + 1
+      correctText: 'Sehr gut! ',
+      wrongText: 'Leider falsch.',
+    },
+    // 3) Zweite Quizfrage von girl2
+    {
+      id: 22,
+      title: 'Event Manager Emma',
+      text: `Wie viele Personen waren bei der letzten Opening-Party 2024? `,
+      answers: [
+        '1) 300',
+        '2) 1000',
+        '3) 3000',
+        '4) 4000',
+      ],
+      correctAnswer: 4, // = index of correct answer + 1
+      correctText: 'Du bist ein Event-Experte! Freu dich auf coole Abende und viele neue Freunde auf dem Campus. ',
+      wrongText: 'Falsch! ',
+    },
   ],
   girl3: [{
     id:21,
@@ -383,7 +558,7 @@ export const dialogueData = {
     text: `Was ist ein besonderer Vorteil des Studentenausweises im RNV-Gebiet? `,
     answers: [
       '1) Kostenloser Eintritt in Museen',
-      '2) Kostenloser oePNV zu bestimmten Zeiten',
+      '2) Kostenloser OEPNV zu bestimmten Zeiten',
       '3) Ermaessigte Fluege ins Ausland',
       '4) Kostenlose Fahrraeder',
     ],
@@ -406,10 +581,22 @@ export const dialogueData = {
     wrongText: 'Falsch! ',
   },
 ],
-  guy1: [{
-    id:18,
+guy1: [
+  // 1) Vorstellung von guy1
+  {
+    id: 0,
     title: 'Sportler Sam',
-    text: `Hi, ich bin Sam! Auf dem Campus haben wir nicht nur Buecher, sondern auch jede Menge Sportangebote. Mal sehen, ob du fit bist – nicht nur koerperlich, sondern auch im Kopf! \n Welche Sportmoeglichkeit bietet die DHBW Mannheim mit der SportsCard?`,
+    text: `Hi, ich bin Sam! Auf dem Campus haben wir nicht nur Buecher, sondern auch jede Menge Sportangebote. Mal sehen, ob du fit bist – nicht nur koerperlich, sondern auch im Kopf! `,
+    answers: [],       // Intro ohne Antwort-Buttons
+    correctAnswer: 0,  // Quiz deaktiviert
+    correctText: '',
+    wrongText: '',
+  },
+  // 2) Erste Quizfrage von guy1
+  {
+    id: 18,
+    title: 'Sportler Sam',
+    text: `Welche Sportmoeglichkeit bietet die DHBW Mannheim mit der SportsCard? `,
     answers: [
       '1) Kostenlose Nutzung des Fitnessstudios auf dem Campus',
       '2) Teilnahmemoeglichkeit an ueber 50 verschiedenen Sportarten',
@@ -418,12 +605,13 @@ export const dialogueData = {
     ],
     correctAnswer: 2, // = index of correct answer + 1
     correctText: 'Gut gemacht! ',
-    wrongText: 'Falsch! ',
+    wrongText: 'Leider falsch. ',
   },
+  // 3) Zweite Quizfrage von guy1
   {
-    id:17,
+    id: 17,
     title: 'Sportler Sam',
-    text: `Was ist das beliebteste Ziel fuer Outdoor-Exkursionen?`,
+    text: `Was ist das beliebteste Ziel fuer Outdoor-Exkursionen? `,
     answers: [
       '1) Luisenpark',
       '2) Heidelberger Schloss',
@@ -432,8 +620,9 @@ export const dialogueData = {
     ],
     correctAnswer: 3, // = index of correct answer + 1
     correctText: 'Gut gemacht! Jetzt weisst du, wie du dich fit halten kannst – egal, ob beim Basketball, Yoga oder einer Exkursion. ',
-    wrongText: 'Falsch! ',
-  },],
+    wrongText: 'Leider falsch. ',
+  },
+],
   sportscar: [
     {
       id: 19,
@@ -441,8 +630,9 @@ export const dialogueData = {
       text: `Wenn du IMBIT studierst, kannst du auch abseits der Vorlesungssaele deine Kreativitaet auf dem Campus ausleben. Technikbegeisterte koennen versuchen sich mit Team "Cure" bei der Formula Student zu behaupten.`,
       answers: [],
     },
+    {id: 20, title: "Cure", text: `Das Cure Team tritt regelmaessig mit einem selbst entwickelten Elektro-Rennwagen bei Wettbewerben an. Mehr Informationen findest du <a target="_blank" href="https://curemannheim.de/">auf der offiziellen Cure-Website.</a> `, answers: []},
     {
-      id: 20,
+      id: 21,
       title: "Cure",
       text: `Moechtest du das Cure-Minispiel ausprobieren? Je laenger du es schaffst, auf unserer Rennstrecke zu fahren ohne ein Huetchen umzufahren, desto mehr Punkte bekommst du! Deal? `,
       answers: ["Ja, klar!", "Neee, lieber nicht"],
@@ -452,5 +642,80 @@ export const dialogueData = {
         "Schade, komm gerne vorbei, wenn du es dir anders ueberlegt hast.",
     },
   ],
-
+  companies_intro: [
+    {
+      id: 21,
+      title: "Guiding Geist",
+      text: `Willkommen auf der Deutschlandkarte der Unternehmensausstellung! Hier kannst du die Vielfalt unserer Dualen Partner entdecken.`,
+      answers: [],
+    },
+    {
+      id: 22,
+      title: "Guiding Geist",
+      text: `Jedes Unternehmen ist mit einer Flagge auf der Karte markiert. Reise dorthin, um mehr ueber sie zu erfahren und wichtige Kontakte fuer deine Zukunft zu knuepfen.`,
+      answers: [],
+    },
+    {
+      id: 23,
+      title: "Guiding Geist",
+      text: `Wenn du vor einer Flagge stehst, druecke "L", um das Unternehmensprofil zu betreten und mehr zu erfahren.`,
+      answers: [],
+    },
+    {
+      id: 24,
+      title: "Guiding Geist",
+      text: `Erkunde ganz Deutschland – von globalen Konzernen bis zu innovativen Mittelstaendlern – alle freuen sich darauf, dir spannende Einblicke in ihre Welt zu geben!`,
+      answers: [],
+    }
+  ],
+  companies_flag_ksb_intro: [
+    {
+      id: 25,
+      title: "KSB Mitarbeiterin",
+      text: `Hallo und herzlich willkommen bei der KSB SE & Co. KGaA!`,
+      answers: [],
+    },
+    {
+      id: 26,
+      title: "KSB Mitarbeiterin",
+      text: `Wir sind einer der weltweit fuehrenden Anbieter von Pumpen, Armaturen und dazugehoerigen Services. Unsere Produkte kommen in der Wasser-, Abwasser-, Energie- und Industriebranche zum Einsatz.`,
+      answers: [],
+    },
+    {
+      id: 27,
+      title: "KSB Mitarbeiterin",
+      text: `Interessierst du dich dafuer, wie wir weltweit dafuer sorgen, dass Fluessigkeiten sicher und effizient bewegt werden?
+      Wenn ja, druecke einfach "Leertaste", um mehr ueber uns und deine Moeglichkeiten im dualen Studium bei KSB zu erfahren.`,
+      answers: ["Klingt spannend!", "Vielleicht spaeter."],
+      correctAnswer: 1, // = index of correct answer + 1
+      correctText: "Sehr schoen, druecke einfach 'Leertaste' an der Flagge, um einzutreten und mehr zu erfahren.",
+      wrongText:
+        "Kein Problem, du kannst jederzeit zurueckkommen und die Flagge erneut ansprechen.",
+    },
+  ],
 };
+
+// Hardcoded map lists to avoid server dependency
+export const regularMaps = [
+    "campus",
+    "mensa", 
+    "klassenzimmer",
+    "almeria",
+    "unternehmensausstellung"
+];
+
+export const companyMaps = [
+    "companies/ksb"
+];
+
+// Combined list for loading sprites
+export const allMaps = [...regularMaps, ...companyMaps];
+
+// Replace the async functions with simple synchronous ones
+export function getAvailableMaps() {
+    return regularMaps;
+}
+
+export function getAllMaps() {
+    return allMaps;
+}

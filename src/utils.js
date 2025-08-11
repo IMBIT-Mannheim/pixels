@@ -1,4 +1,5 @@
 import { sessionState, saveGame } from "./sessionstate.js";
+import { increaseSecureScore, increaseScoreForDialogue, resetSecureScore, getSecureScore } from "./sessionstate.js";
 
 const closeBtn = document.getElementById("close");
 const closeXBtn = document.getElementById("close-x");
@@ -76,11 +77,11 @@ class Dialogue {
     constructor() {
         closeBtn.addEventListener("click", this._close_or_next.bind(this));
         closeXBtn.addEventListener("click", this._close_or_next.bind(this));
-        document.addEventListener("keydown", (key) => {
+        document.addEventListener("keydown", async (key) => {
             if (!this._currentDialogue) return;
             if (key.code.startsWith("Digit") || key.code.startsWith("Numpad")) {
                 const number = key.code.slice(-1) - 0;
-                this._questionAnswer(number);
+                await this._questionAnswer(number);
             } else {
                 if (key.code === "Enter" || key.code === "Escape" || key.code === "Space") closeBtn.click();
             }
@@ -116,21 +117,43 @@ class Dialogue {
         return !!(this._currentDialogue && typeof this._currentDialogue == "object");
     }
 
-    getScore() {
-        return this._score;
+    async getScore() {
+        return await getSecureScore();
     }
 
-    resetScore() {
+    async resetScore() {
         this._answeredQuizzes = [];
         this._score = 0;
     
         sessionState.progress.answeredDialogues = [];
-        sessionState.progress.score = 0;
-        saveGame();
+        await resetSecureScore();
     
-        scoreUI.innerHTML = this._score;
+        scoreUI.innerHTML = 0;
     }
-    
+
+    async increaseScore(amount) {
+        const newScore = await increaseSecureScore(amount);
+        this._score = newScore; // Keep local copy in sync
+        
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = newScore;
+        }
+        
+        return newScore;
+    }
+
+    async increaseScoreForDialogue(amount, dialogueId) {
+        const newScore = await increaseScoreForDialogue(amount, dialogueId);
+        this._score = newScore; // Keep local copy in sync
+        
+        const scoreUI = document.getElementById("score-value");
+        if (scoreUI) {
+            scoreUI.innerHTML = newScore;
+        }
+        
+        return newScore;
+    }
 
     async _typingEffect(text) {
         if (this._typer) this._typer.stop(true);
@@ -177,25 +200,14 @@ class Dialogue {
             button.classList.add("question-btn");
 
             button.innerHTML = this._currentDialogue.answers[index];
-            button.addEventListener("click", () => {
-                this._questionAnswer(index + 1);
+            button.addEventListener("click", async () => {
+                await this._questionAnswer(index + 1);
             });
             dialogueContainer.appendChild(button);
         }
     }
 
-    increaseScore(amount) {
-        sessionState.progress.score += amount;
-        saveGame();
-        const scoreUI = document.getElementById("score-value");
-        if (scoreUI) {
-            scoreUI.innerHTML = sessionState.progress.score;
-        }
-    }
-    
-    
-
-    _questionAnswer(number) {
+    async _questionAnswer(number) {
         if (this._onQuestionButtonClick) {
             this._onQuestionButtonClick(number);
         }
@@ -208,17 +220,21 @@ class Dialogue {
             if (!this._answeredQuizzes.includes(this._currentDialogue.id)) {
                 this._answeredQuizzes.push(this._currentDialogue.id);
     
-                if (!sessionState.progress.answeredDialogues.includes(this._currentDialogue.id)) {
-                    sessionState.progress.answeredDialogues.push(this._currentDialogue.id);
-                }
-    
-                this.increaseScore(1);  // Clean scoring
+                // Use the new atomic function that handles both score and answeredDialogues update
+                await this.increaseScoreForDialogue(1, this._currentDialogue.id);
             }
     
             this._typingEffect(this._currentDialogue.correctText);
         } else {
-            this._remainingDialogues = [];
-            this._typingEffect(this._currentDialogue.wrongText);
+            // Falsche Antwort: dieselbe Frage erneut an den Anfang hängen
+        const retry = Object.assign({}, this._currentDialogue);
+        this._remainingDialogues.unshift(retry);
+        // Fehlermeldung + Hinweis auf neuen Versuch
+        this._typingEffect(this._currentDialogue.wrongText + ' Versuche es noch mal. ')
+        .then(() => {
+        // Close-Button zu „Neuer Versuch“ umbenennen
+        closeBtn.innerHTML = 'Neuer Versuch';
+        });
         }
         this._currentDialogue.correctAnswer = 0;
     }
@@ -265,9 +281,10 @@ export function getCookie(name) {
     return null;
 }
 
-export function refreshScoreUI() {
+export async function refreshScoreUI() {
     const scoreUI = document.getElementById("score-value");
     if (scoreUI) {
-        scoreUI.innerHTML = sessionState.progress.score;
+        const currentScore = await getSecureScore();
+        scoreUI.innerHTML = currentScore;
     }
 }
