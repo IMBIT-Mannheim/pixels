@@ -47,8 +47,11 @@ export function initMapRendering(mapSprite, mapData = null) {
     
     // Get map dimensions with better detection for larger maps
     if (mapData && mapData.width && mapData.height) {
-        currentMapBounds.width = mapData.width * scaleFactor;
-        currentMapBounds.height = mapData.height * scaleFactor;
+        // Tiled JSON stores width/height as tile counts; multiply by tile size to get pixels
+        const tileW = mapData.tilewidth || 1;
+        const tileH = mapData.tileheight || 1;
+        currentMapBounds.width = mapData.width * tileW * scaleFactor;
+        currentMapBounds.height = mapData.height * tileH * scaleFactor;
         // console.log("Using mapData dimensions:", mapData.width, "x", mapData.height);
     } else {
         // Fallback: estimate from sprite if available
@@ -581,8 +584,11 @@ export function createTiledMap(mapSprite, mapData = null) {
     // If we couldn't get actual dimensions, use fallback logic
     if (!mapWidth || !mapHeight) {
         if (mapData && mapData.width && mapData.height) {
-            mapWidth = mapData.width;
-            mapHeight = mapData.height;
+            // Tiled JSON stores width/height as tile counts; multiply by tile size to get pixels
+            const tileW = mapData.tilewidth || 16;
+            const tileH = mapData.tileheight || 16;
+            mapWidth = mapData.width * tileW;
+            mapHeight = mapData.height * tileH;
             // console.log("Got dimensions from mapData:", mapWidth, "x", mapHeight);
         } else {
             // Fallback based on known map sizes - be more aggressive for company maps
@@ -682,8 +688,9 @@ export function loadMapTiles(mapSprite, silent = false) {
     
     return new Promise((resolve, reject) => {
         // Create an image element to load the full map
+        // Do NOT set crossOrigin — assets are same-origin; setting it creates a separate
+        // cache partition and makes the img.complete fast-path unreliable on production.
         const fullMapImage = new Image();
-        fullMapImage.crossOrigin = "anonymous";
         
         fullMapImage.onload = () => {
             // console.log("Full map image loaded, creating tiles...");
